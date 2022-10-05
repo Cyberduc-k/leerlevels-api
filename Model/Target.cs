@@ -8,13 +8,13 @@ public class Target
     public string TargetExplanation { get; set; }
     public string YoutubeId { get; set; }
     public string ImageUrl { get; set; }
-    public virtual ICollection<string> Mcqs { get; set; }
+    public virtual ICollection<Mcq> Mcqs { get; set; }
 
     public Target()
     {
     }
 
-    public Target(string id, string label, string description, string targetExplanation, string youtubeId, string imageUrl, ICollection<string> mcqs)
+    public Target(string id, string label, string description, string targetExplanation, string youtubeId, string imageUrl, ICollection<Mcq> mcqs)
     {
         Id = id;
         Label = label;
