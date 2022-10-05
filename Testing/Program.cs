@@ -1,5 +1,7 @@
-﻿using Data;
+﻿using System.Text.Json;
+using Data;
 using Microsoft.EntityFrameworkCore;
+using Model;
 
 DbContextOptions<TargetContext> contextOptions = new DbContextOptionsBuilder<TargetContext>()
     .UseInMemoryDatabase("TestDatabase")
@@ -9,18 +11,13 @@ using TargetContext context = new(contextOptions);
 
 context.Database.EnsureCreated();
 
-foreach (Model.AnswerOption answer in context.AnswerOptions) {
-    Console.WriteLine($"{answer.Id}: {answer.Index}, {answer.Text}, {answer.IsCorrect}");
-}
+object mapMcq(Mcq m) => new { m.Id, TargetId = m.Target.Id, m.QuestionText, m.Explanation, m.AllowRandom, m.AnswerOptions };
+object mapTarget(Target t) => new { t.Id, t.Label, t.Description, t.TargetExplanation, t.YoutubeId, t.ImageUrl, Mcqs = t.Mcqs.Select(mapMcq) };
 
-Console.WriteLine();
+IEnumerable<object> targets = context.Targets.Include(t => t.Mcqs).ThenInclude(m => m.AnswerOptions).Select(mapTarget);
 
-foreach (Model.Mcq mcq in context.Mcqs) {
-    Console.WriteLine($"{mcq.Id}: {mcq.QuestionText}, {mcq.Explanation}, {mcq.AllowRandom}");
-}
+foreach (object target in targets) {
+    string json = JsonSerializer.Serialize(target, new JsonSerializerOptions { WriteIndented = true });
 
-Console.WriteLine();
-
-foreach (Model.Target target in context.Targets) {
-    Console.WriteLine($"{target.Id}: {target.Label}, {target.Description}, {target.YoutubeId}, {target.ImageUrl}");
+    Console.WriteLine(json);
 }
