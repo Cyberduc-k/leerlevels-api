@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Model;
+﻿using Model;
 
 namespace Repository.Interfaces;
 public interface IUserRepository
@@ -14,7 +9,7 @@ public interface IUserRepository
 
     Task InsertAsync(User user);
 
-   // Task UpdateAsync(string userId);
+    // Task UpdateAsync(string userId);
 
     Task DeleteAsync(string userId);
 

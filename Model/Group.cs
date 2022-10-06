@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Model;
+﻿namespace Model;
 public class Group
 {
-    public string Id { get; set; } 
-    public string Name { get; set; }    
+    public string Id { get; set; }
+    public string Name { get; set; }
     public string Subject { get; set; }
     public EducationType educationType { get; set; }
     public SchoolYear schoolYear { get; set; }
@@ -27,5 +21,5 @@ public class Group
         this.educationType = educationType;
         this.schoolYear = schoolYear;
         Set = set;
-    }   
+    }
 }

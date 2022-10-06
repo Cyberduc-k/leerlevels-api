@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "Controller": {
+    "FunctionApp1": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7034",
+      "commandLineArgs": "--port 7032",
       "launchBrowser": false
     }
   }

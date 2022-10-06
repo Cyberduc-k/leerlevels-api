@@ -1,29 +1,18 @@
+using Data;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Repository;
 using Repository.Interfaces;
-using Repository.Repository;
 
-var builder = WebApplication.CreateBuilder(args);
+var host = new HostBuilder()
+    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureOpenApi()
+    .ConfigureServices(services => {
+        services.AddDbContext<TargetContext>(opts => opts.UseInMemoryDatabase("TestDatabase"));
+        services.AddTransient<IUserRepository, UserRepository>();
+    })
+    .Build();
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddMvc();
-builder.Services.AddTransient(typeof(IUserRepository), typeof(UserRepository));
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment()) {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+host.Run();
