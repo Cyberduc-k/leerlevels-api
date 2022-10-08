@@ -6,18 +6,20 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Repository.Interfaces;
+using Service.Interfaces;
+using Service.Services;
 
-namespace Controller;
+namespace Controller.Controllers;
 
 public class Users
 {
     private readonly ILogger _logger;
-    private readonly IUserRepository _userRepository;
+    private readonly IUserService userService;
 
-    public Users(ILoggerFactory loggerFactory, IUserRepository userRepository)
+    public Users(ILoggerFactory loggerFactory, IUserService userservice)
     {
         _logger = loggerFactory.CreateLogger<Users>();
-        _userRepository = userRepository;
+        userService = userservice;
     }
 
     [Function(nameof(GetUsers))]

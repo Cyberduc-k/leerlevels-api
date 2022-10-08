@@ -2,7 +2,7 @@
 using Model;
 using Repository.Interfaces;
 
-namespace Repository;
+namespace Repository.Repositories;
 
 public class UserRepository : IUserRepository
 {
