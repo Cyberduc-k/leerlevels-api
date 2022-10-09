@@ -1,5 +1,14 @@
 ﻿namespace Model;
+
 public enum SchoolYear
 {
-    one, two, three, four, five, six, seven, eight, nine
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+    Nine
 }

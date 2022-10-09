@@ -1,4 +1,5 @@
 ﻿namespace Model;
+
 public class User
 {
     public string Id { get; set; }
@@ -7,16 +8,16 @@ public class User
     public string LastName { get; set; }
     public string UserName { get; set; }
     public string Password { get; set; }
-    public UserRole userRole { get; set; }
+    public UserRole Role { get; set; }
     public DateTime LastLogin { get; set; }
     public string ShareCode { get; set; }
-    public Boolean IsActive { get; set; }
+    public bool IsActive { get; set; }
 
     public User()
     {
     }
 
-    public User(string id, string email, string firstName, string lastName, string userName, string password, UserRole userRole, DateTime lastLogin, string shareCode, bool isActive)
+    public User(string id, string email, string firstName, string lastName, string userName, string password, UserRole role, DateTime lastLogin, string shareCode, bool isActive)
     {
         Id = id;
         Email = email;
@@ -24,7 +25,7 @@ public class User
         LastName = lastName;
         UserName = userName;
         Password = password;
-        this.userRole = userRole;
+        Role = role;
         LastLogin = lastLogin;
         ShareCode = shareCode;
         IsActive = isActive;

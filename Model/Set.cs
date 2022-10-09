@@ -1,4 +1,5 @@
 ﻿namespace Model;
+
 public class Set
 {
     public string Id { get; set; }

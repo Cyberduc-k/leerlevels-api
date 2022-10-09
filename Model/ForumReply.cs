@@ -1,15 +1,16 @@
 ﻿namespace Model;
+
 public class ForumReply
 {
     public string Id { get; set; }
-    public ICollection<User> From { get; set; }
+    public User From { get; set; }
 
     public ForumReply()
     {
 
     }
 
-    public ForumReply(string id, ICollection<User> from)
+    public ForumReply(string id, User from)
     {
         Id = id;
         From = from;

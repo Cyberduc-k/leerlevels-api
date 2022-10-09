@@ -1,11 +1,12 @@
 ﻿namespace Model;
+
 public class Group
 {
     public string Id { get; set; }
     public string Name { get; set; }
     public string Subject { get; set; }
-    public EducationType educationType { get; set; }
-    public SchoolYear schoolYear { get; set; }
+    public EducationType EducationType { get; set; }
+    public SchoolYear SchoolYear { get; set; }
     public virtual ICollection<Set> Set { get; set; }
 
     public Group()
@@ -18,8 +19,8 @@ public class Group
         Id = id;
         Name = name;
         Subject = subject;
-        this.educationType = educationType;
-        this.schoolYear = schoolYear;
+        EducationType = educationType;
+        SchoolYear = schoolYear;
         Set = set;
     }
 }

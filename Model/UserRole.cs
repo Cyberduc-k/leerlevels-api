@@ -1,5 +1,8 @@
 ﻿namespace Model;
+
 public enum UserRole
 {
-    student, teacher, administrator
+    Student,
+    Teacher,
+    Administrator
 }

@@ -1,16 +1,16 @@
-﻿using Data;
-using Model;
+﻿using Model;
 using Repository.Interfaces;
+using Service.Interfaces;
 
-namespace Repository.Repositories;
+namespace Service;
 
-public class UserRepository : IUserRepository
+public class UserService : IUserService
 {
-    private readonly TargetContext targetContext;
+    private readonly IUserRepository userRepository;
 
-    public UserRepository(TargetContext targetContext)
+    public UserService(IUserRepository userRepository)
     {
-        this.targetContext = targetContext;
+        this.userRepository = userRepository;
     }
 
     public Task DeleteAsync(string userId)

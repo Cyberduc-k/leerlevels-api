@@ -5,9 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Repository.Interfaces;
 using Service.Interfaces;
-using Service.Services;
 
 namespace Controller.Controllers;
 
