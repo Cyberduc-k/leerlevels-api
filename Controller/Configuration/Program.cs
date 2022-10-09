@@ -1,3 +1,4 @@
+using Controller.Security;
 using Data;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -9,12 +10,13 @@ using Service;
 using Service.Interfaces;
 
 IHost host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWorkerDefaults(Worker => Worker.UseNewtonsoftJson().UseMiddleware<JwtMiddleware>())
     .ConfigureOpenApi()
     .ConfigureServices(services => {
         services.AddDbContext<TargetContext>(opts => opts.UseInMemoryDatabase("TestDatabase"));
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IUserService, UserService>();
+        services.AddTransient<ITokenService, TokenService>();
     })
     .Build();
 
