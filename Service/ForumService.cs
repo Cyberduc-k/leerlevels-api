@@ -25,4 +25,9 @@ public class ForumService : IForumService
         await _forumRepository.SaveChanges();
         return newForum;
     }
+
+    public async Task<Forum?> GetByIdAsync(string forumId)
+    {
+        return await _forumRepository.GetByIdAsync(forumId);
+    }
 }
