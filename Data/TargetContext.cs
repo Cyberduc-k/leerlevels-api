@@ -9,8 +9,9 @@ public class TargetContext : DbContext
     public DbSet<Mcq> Mcqs { get; set; }
     public DbSet<AnswerOption> AnswerOptions { get; set; }
 
-    public TargetContext(DbContextOptions contextOptions) : base(contextOptions)
+    public TargetContext(DbContextOptions<TargetContext> contextOptions) : base(contextOptions)
     {
+        Database.EnsureCreated();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

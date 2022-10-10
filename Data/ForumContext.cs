@@ -8,7 +8,7 @@ public class ForumContext : DbContext
     public DbSet<Forum> Forums { get; set; }
     public DbSet<ForumReply> Replies { get; set; }
 
-    public ForumContext(DbContextOptions options) : base(options)
+    public ForumContext(DbContextOptions<ForumContext> options) : base(options)
     {
         Database.EnsureCreated();
     }

@@ -15,11 +15,13 @@ public class ForumController
 {
     private readonly ILogger _logger;
     private readonly IForumService _forumService;
+    private readonly IUserService _userService;
 
-    public ForumController(ILoggerFactory loggerFactory, IForumService forumService)
+    public ForumController(ILoggerFactory loggerFactory, IForumService forumService, IUserService userService)
     {
         _logger = loggerFactory.CreateLogger<ForumController>();
         _forumService = forumService;
+        _userService = userService;
     }
 
     [Function(nameof(GetForums))]
@@ -43,7 +45,8 @@ public class ForumController
     {
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         ForumDTO forumDTO = JsonConvert.DeserializeObject<ForumDTO>(body)!;
-        Forum forum = new(null!, forumDTO.Title, forumDTO.Description, null!, null!); // @TODO: use mapper
+        User user = await _userService.GetUserByIdAsync(forumDTO.FromId);
+        Forum forum = new(null!, forumDTO.Title, forumDTO.Description, user, null!); // @TODO: use mapper
         Forum newForum = await _forumService.CreateForum(forum);
         ForumResponse forumResponse = new(newForum.Id, newForum.Title, newForum.Description, newForum.From.Id, null!);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);

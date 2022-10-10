@@ -12,10 +12,10 @@ public class UserService : IUserService
 
     private ILogger _Logger { get; }
 
-    public UserService(IUserRepository userRepository, ILogger logger)
+    public UserService(IUserRepository userRepository, ILoggerFactory logger)
     {
         _userRepository = userRepository;
-        _Logger = logger;
+        _Logger = logger.CreateLogger<UserService>();
     }
 
     //get users

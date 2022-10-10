@@ -13,16 +13,17 @@ IHost host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults(Worker => Worker.UseNewtonsoftJson().UseMiddleware<JwtMiddleware>())
     .ConfigureOpenApi()
     .ConfigureServices(services => {
-        services.AddDbContext<TargetContext>(opts => opts.UseInMemoryDatabase("TestDatabase"));
-        services.AddDbContext<ForumContext>(opts => opts.UseInMemoryDatabase("TestDatabase"));
+        services.AddDbContext<UserContext>(opts => opts.UseInMemoryDatabase("TestDatabase"), ServiceLifetime.Singleton);
+        services.AddDbContext<TargetContext>(opts => opts.UseInMemoryDatabase("TestDatabase"), ServiceLifetime.Singleton);
+        services.AddDbContext<ForumContext>(opts => opts.UseInMemoryDatabase("TestDatabase"), ServiceLifetime.Singleton);
 
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IForumRepository, ForumRepository>();
+        services.AddTransient<IMcqRepository, McqRepository>();
 
+        services.AddTransient<ITokenService, TokenService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<IForumService, ForumService>();
-        services.AddTransient<ITokenService, TokenService>();
-        services.AddTransient<IMcqRepository, McqRepository>();
         services.AddTransient<IMcqService, McqService>();
     })
     .Build();
