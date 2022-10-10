@@ -2,17 +2,6 @@
 
 namespace Repository.Interfaces;
 
-public interface IUserRepository
+public interface IUserRepository : IRepository<User>
 {
-    Task<IEnumerable<User>> GetAllAsync();
-
-    Task<User> GetByIdAsync(string userId);
-
-    Task InsertAsync(User user);
-
-    // Task UpdateAsync(string userId);
-
-    Task DeleteAsync(string userId);
-
-    Task SaveAsync();
 }

@@ -1,18 +1,21 @@
 ﻿using Model;
+using Model.DTO;
 
 namespace Service.Interfaces;
 
 public interface IUserService
 {
-    Task<IEnumerable<User>> GetAllAsync();
+    public Task<ICollection<User>> GetUsersAsync();
 
-    Task<User> GetByIdAsync(string userId);
+    Task<User> GetUserByIdAsync(string userId);
 
-    Task InsertAsync(User user);
+    Task<User> CreateUserAsync(User user);
 
-    // Task UpdateAsync(string userId);
+    Task<User> UpdateUserAsync(string userId, UserDTO userDTO);
 
-    Task DeleteAsync(string userId);
+    Task DeleteUserAsync(string userId);
 
-    Task SaveAsync();
+    //Task<ICollection<Group>> UpdateUserGroupsAsync();
+
+    //Task<ICollection<Set>> UpdateUserSetsAsync();
 }

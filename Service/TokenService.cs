@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-//using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Model;
@@ -23,14 +23,14 @@ public class TokenService : ITokenService
     private SigningCredentials Credentials { get; }
     private TokenIdentityValidationParameters ValidationParameters { get; }
 
-    public TokenService(/*IConfiguration Configuration,*/ ILogger<TokenService> Logger)
+    public TokenService(IConfiguration Configuration, ILogger<TokenService> Logger)
     {
         this.Logger = Logger;
 
-        Issuer = /*Configuration.GetClassValueChecked("JWT:Issuer", */"DebugIssuer";//, Logger);
-        Audience = /*Configuration.GetClassValueChecked("JWT:Audience", */"DebugAudience";//, Logger);
-        ValidityDuration = TimeSpan.FromDays(1);// Todo: configure
-        string Key = /*Configuration.GetClassValueChecked("JWT:Key", */"DebugKey DebugKey";//, Logger);
+        Issuer = Configuration["JWT:Issuer"] ?? "DebugIssuer";
+        Audience = Configuration["JWT:Audience"] ?? "DebugIssuer"; /*Configuration.GetClassValueChecked("JWT:Audience", "DebugAudience";//, Logger);*/
+        ValidityDuration = TimeSpan.FromDays(1);// Todo: configure an appropriate validity duration (2 hours and then generate refresh tokens? read from config somewhere when another login is required/so until how long refresh tokens are generated after init login)
+        string Key = Configuration["JWT:Key"] ?? "DebugKey DebugKey"; /*Configuration.GetClassValueChecked("JWT:Key", "DebugKey DebugKey";//, Logger);*/
 
         SymmetricSecurityKey SecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key));
 
@@ -44,7 +44,7 @@ public class TokenService : ITokenService
         JwtSecurityToken Token = await CreateToken(new Claim[] {
             new Claim(ClaimTypes.Role, "User" /*UserRole.Student.ToString()*/),
             new Claim(ClaimTypes.Name, Login.UserName)
-  });
+        });
 
         return new LoginResponse(Token);
     }

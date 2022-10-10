@@ -1,4 +1,6 @@
-﻿using Model;
+﻿using Microsoft.Extensions.Logging;
+using Model;
+using Model.DTO;
 using Repository.Interfaces;
 using Service.Interfaces;
 
@@ -6,35 +8,61 @@ namespace Service;
 
 public class UserService : IUserService
 {
-    private readonly IUserRepository userRepository;
+    private readonly IUserRepository _userRepository;
 
-    public UserService(IUserRepository userRepository)
+    private ILogger _Logger { get; }
+
+    public UserService(IUserRepository userRepository, ILogger logger)
     {
-        this.userRepository = userRepository;
+        _userRepository = userRepository;
+        _Logger = logger;
     }
 
-    public Task DeleteAsync(string userId)
+    //get users
+    public async Task<ICollection<User>> GetUsersAsync()
     {
-        throw new NotImplementedException();
+        return await _userRepository.GetAllAsync().ToArrayAsync();
     }
 
-    public Task<IEnumerable<User>> GetAllAsync()
+    //get user
+    public async Task<User> GetUserByIdAsync(string userId)
     {
-        throw new NotImplementedException();
+        return await _userRepository.GetByIdAsync(userId) ?? throw new NullReferenceException();
     }
 
-    public Task<User> GetByIdAsync(string userId)
+    //create
+    public async Task<User> CreateUserAsync(User user)
     {
-        throw new NotImplementedException();
+        user.Id = Guid.NewGuid().ToString();
+        await _userRepository.InsertAsync(user);
+        await _userRepository.SaveChanges();
+        return user;
     }
 
-    public Task InsertAsync(User user)
+    //update
+    public async Task<User> UpdateUserAsync(string userId, UserDTO userDTO)
     {
-        throw new NotImplementedException();
+        User user = await this.GetUserByIdAsync(userId);
+
+        user.Email = userDTO.Email;
+        user.UserName = userDTO.UserName;
+        user.FirstName = userDTO.FirstName;
+        user.LastName = userDTO.LastName;
+
+        //user.Password = userDTO.Password;
+        //user.Role = userDTO.Role;
+
+        _userRepository.UpdateAsync(user);
+        return user;
     }
 
-    public Task SaveAsync()
+    //delete (soft)
+    public async Task DeleteUserAsync(string userId)
     {
-        throw new NotImplementedException();
+        User user = await this.GetUserByIdAsync(userId);
+        user.IsActive = false;
+        _userRepository.UpdateAsync(user); //update user.IsActive to false;
+
+        _Logger.LogInformation($"delete function soft-deleted user {user.UserName} with id: {user.Id}");
     }
 }

@@ -19,7 +19,7 @@ public class LoginResponse
     [JsonRequired]
     public string TokenType => "Bearer";
 
-    //[OpenApiProperty(Description = "The amount of seconds until the token expires.")]
+    //[OpenApiProperty(Description = "The amount of seconds until the token expires.")]  2do: create logic for generating refresh tokens until specific point
     [JsonRequired]
     public int ExpiresIn => (int)(Token.ValidTo - DateTime.UtcNow).TotalSeconds;
 

@@ -36,6 +36,7 @@ public class JwtMiddleware : IFunctionsWorkerMiddleware
                 ClaimsPrincipal User = await TokenService.GetByValue(BearerHeader.Parameter!);
 
                 Context.Items["User"] = User;
+
             } catch (Exception e) {
                 Logger.LogError(e.Message);
             }

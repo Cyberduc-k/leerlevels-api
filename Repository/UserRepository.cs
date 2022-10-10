@@ -4,37 +4,9 @@ using Repository.Interfaces;
 
 namespace Repository;
 
-public class UserRepository : IUserRepository
+public class UserRepository : Repository<User>, IUserRepository
 {
-    private readonly TargetContext targetContext;
-
-    public UserRepository(TargetContext targetContext)
+    public UserRepository(UserContext context) : base (context, context.Users)
     {
-        this.targetContext = targetContext;
-    }
-
-    public Task DeleteAsync(string userId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<User>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<User> GetByIdAsync(string userId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task InsertAsync(User user)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task SaveAsync()
-    {
-        throw new NotImplementedException();
     }
 }
