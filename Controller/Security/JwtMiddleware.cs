@@ -25,15 +25,15 @@ public class JwtMiddleware : IFunctionsWorkerMiddleware
 
     public async Task Invoke(FunctionContext Context, FunctionExecutionDelegate Next)
     {
-        string HeadersString = (string)Context.BindingContext.BindingData["Headers"];
+        string HeadersString = (string)Context.BindingContext.BindingData["Headers"]!;
 
-        Dictionary<string, string> Headers = JsonConvert.DeserializeObject<Dictionary<string, string>>(HeadersString);
+        Dictionary<string, string> Headers = JsonConvert.DeserializeObject<Dictionary<string, string>>(HeadersString)!;
 
-        if (Headers.TryGetValue("Authorization", out string AuthorizationHeader)) {
+        if (Headers.TryGetValue("Authorization", out string ? AuthorizationHeader)) {
             try {
                 AuthenticationHeaderValue BearerHeader = AuthenticationHeaderValue.Parse(AuthorizationHeader);
 
-                ClaimsPrincipal User = await TokenService.GetByValue(BearerHeader.Parameter);
+                ClaimsPrincipal User = await TokenService.GetByValue(BearerHeader.Parameter!);
 
                 Context.Items["User"] = User;
             } catch (Exception e) {

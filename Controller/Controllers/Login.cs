@@ -21,7 +21,7 @@ namespace Controller.Controllers;
 public class Login
 {
     private readonly ILogger _logger;
-    private ITokenService TokenService { get; }
+    private readonly ITokenService TokenService;
 
     public Login(ILoggerFactory loggerFactory, ITokenService tokenService)
     {
@@ -29,13 +29,13 @@ public class Login
         TokenService = tokenService;
     }
 
-    [Function(nameof(Login))]
+    [Function(nameof(Authenticate))]
     [OpenApiOperation(operationId: "Login", tags: new[] { "Login" }, Summary = "Login for a user", Description = "This method logs in the user, and retrieves a JWT bearer token.")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(LoginDTO), Required = true, Description = "The user credentials")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(LoginResponse), Description = "Login success")]
-    public async Task<HttpResponseData> Authenticate([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req, FunctionContext executionContext)
+    public async Task<HttpResponseData> Authenticate([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "login")] HttpRequestData req, FunctionContext executionContext)
     {
-        LoginDTO login = JsonConvert.DeserializeObject<LoginDTO>(await new StreamReader(req.Body).ReadToEndAsync());
+        LoginDTO login = JsonConvert.DeserializeObject<LoginDTO>(await new StreamReader(req.Body).ReadToEndAsync())!; //if null then new by default 2do: exception handling (?? new LoginDTO() but better)
 
         LoginResponse result = await TokenService.CreateToken(login);
 
