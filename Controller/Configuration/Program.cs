@@ -14,8 +14,13 @@ IHost host = new HostBuilder()
     .ConfigureOpenApi()
     .ConfigureServices(services => {
         services.AddDbContext<TargetContext>(opts => opts.UseInMemoryDatabase("TestDatabase"));
+        services.AddDbContext<ForumContext>(opts => opts.UseInMemoryDatabase("TestDatabase"));
+
         services.AddTransient<IUserRepository, UserRepository>();
+        services.AddTransient<IForumRepository, ForumRepository>();
+
         services.AddTransient<IUserService, UserService>();
+        services.AddTransient<IForumService, ForumService>();
         services.AddTransient<ITokenService, TokenService>();
     })
     .Build();

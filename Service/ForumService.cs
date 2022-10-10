@@ -17,4 +17,12 @@ public class ForumService : IForumService
     {
         return await _forumRepository.GetAllAsync().ToArrayAsync();
     }
+
+    public async Task<Forum> CreateForum(Forum newForum)
+    {
+        newForum.Id = Guid.NewGuid().ToString();
+        await _forumRepository.InsertAsync(newForum);
+        await _forumRepository.SaveChanges();
+        return newForum;
+    }
 }
