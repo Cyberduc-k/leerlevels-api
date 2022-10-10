@@ -8,7 +8,7 @@ public class TargetContextTests
     [Fact]
     public void example_test()
     {
-        DbContextOptions opts = new DbContextOptionsBuilder()
+        DbContextOptions<TargetContext> opts = new DbContextOptionsBuilder<TargetContext>()
             .UseInMemoryDatabase("TestDatabase")
             .Options;
 

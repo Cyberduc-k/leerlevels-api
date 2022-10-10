@@ -1,4 +1,5 @@
 using System.Net;
+using AutoMapper;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -14,14 +15,14 @@ namespace API.Controllers;
 public class ForumController
 {
     private readonly ILogger _logger;
+    private readonly IMapper _mapper;
     private readonly IForumService _forumService;
-    private readonly IUserService _userService;
 
-    public ForumController(ILoggerFactory loggerFactory, IForumService forumService, IUserService userService)
+    public ForumController(ILoggerFactory loggerFactory, IMapper mapper, IForumService forumService)
     {
         _logger = loggerFactory.CreateLogger<ForumController>();
+        _mapper = mapper;
         _forumService = forumService;
-        _userService = userService;
     }
 
     [Function(nameof(GetForums))]
@@ -30,9 +31,10 @@ public class ForumController
     public async Task<HttpResponseData> GetForums([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "forums")] HttpRequestData req)
     {
         ICollection<Forum> forums = await _forumService.GetAllAsync();
+        ICollection<ForumResponse> forumResponses = _mapper.Map<ICollection<ForumResponse>>(forums);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-        await res.WriteAsJsonAsync(forums);
+        await res.WriteAsJsonAsync(forumResponses);
 
         return res;
     }
@@ -45,10 +47,9 @@ public class ForumController
     {
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         ForumDTO forumDTO = JsonConvert.DeserializeObject<ForumDTO>(body)!;
-        User user = await _userService.GetUserByIdAsync(forumDTO.FromId);
-        Forum forum = new(null!, forumDTO.Title, forumDTO.Description, user, null!); // @TODO: use mapper
+        Forum forum = await _mapper.Map<Task<Forum>>(forumDTO);
         Forum newForum = await _forumService.CreateForum(forum);
-        ForumResponse forumResponse = new(newForum.Id, newForum.Title, newForum.Description, newForum.From.Id, null!);
+        ForumResponse forumResponse = _mapper.Map<ForumResponse>(newForum);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(forumResponse);

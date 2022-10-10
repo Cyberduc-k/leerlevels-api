@@ -25,6 +25,8 @@ IHost host = new HostBuilder()
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<IForumService, ForumService>();
         services.AddTransient<IMcqService, McqService>();
+
+        services.AddAutoMapper(typeof(Program));
     })
     .Build();
 
