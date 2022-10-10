@@ -22,6 +22,8 @@ IHost host = new HostBuilder()
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<IForumService, ForumService>();
         services.AddTransient<ITokenService, TokenService>();
+        services.AddTransient<IMcqRepository, McqRepository>();
+        services.AddTransient<IMcqService, McqService>();
     })
     .Build();
 
