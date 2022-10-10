@@ -7,7 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 
-namespace Controller.Configuration;
+namespace API.Configuration;
 class OpenApiConfigurationOptions : DefaultOpenApiConfigurationOptions
 {
     public override OpenApiInfo Info { get; set; } = new OpenApiInfo {

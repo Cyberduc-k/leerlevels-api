@@ -4,7 +4,7 @@ using Model;
 using Model.DTO;
 using Model.Response;
 
-namespace Controller.Mappings;
+namespace API.Mappings;
 
 public class MappingProfile : Profile
 {

@@ -1,4 +1,4 @@
-using Controller.Security;
+using API.Middleware;
 using Data;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +10,11 @@ using Service;
 using Service.Interfaces;
 
 IHost host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults(Worker => Worker.UseNewtonsoftJson().UseMiddleware<JwtMiddleware>())
-    .ConfigureOpenApi()
+    .ConfigureFunctionsWorkerDefaults(worker => {
+        worker.UseNewtonsoftJson();
+        worker.UseMiddleware<JwtMiddleware>();
+        worker.UseMiddleware<ExceptionMiddleware>();
+    })
     .ConfigureServices(services => {
         services.AddDbContext<UserContext>(opts => opts.UseInMemoryDatabase("TestDatabase"), ServiceLifetime.Singleton);
         services.AddDbContext<TargetContext>(opts => opts.UseInMemoryDatabase("TestDatabase"), ServiceLifetime.Singleton);
@@ -28,6 +31,7 @@ IHost host = new HostBuilder()
 
         services.AddAutoMapper(typeof(Program));
     })
+    .ConfigureOpenApi()
     .Build();
 
 host.Run();

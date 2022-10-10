@@ -11,7 +11,7 @@ using Model;
 using Model.Response;
 using Service.Interfaces;
 
-namespace Controller.Controllers;
+namespace API.Controllers;
 
 public class UsersController
 {

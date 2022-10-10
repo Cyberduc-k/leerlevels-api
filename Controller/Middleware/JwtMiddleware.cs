@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Service.Interfaces;
 
-namespace Controller.Security;
+namespace API.Middleware;
+
 public class JwtMiddleware : IFunctionsWorkerMiddleware
 {
     ITokenService TokenService { get; }
@@ -29,7 +25,7 @@ public class JwtMiddleware : IFunctionsWorkerMiddleware
 
         Dictionary<string, string> Headers = JsonConvert.DeserializeObject<Dictionary<string, string>>(HeadersString)!;
 
-        if (Headers.TryGetValue("Authorization", out string ? AuthorizationHeader)) {
+        if (Headers.TryGetValue("Authorization", out string? AuthorizationHeader)) {
             try {
                 AuthenticationHeaderValue BearerHeader = AuthenticationHeaderValue.Parse(AuthorizationHeader);
 

@@ -17,7 +17,7 @@ using Model.Response;
 using Model;
 using System.Security.Claims;
 
-namespace Controller.Controllers;
+namespace API.Controllers;
 public class Login
 {
     private readonly ILogger _logger;
