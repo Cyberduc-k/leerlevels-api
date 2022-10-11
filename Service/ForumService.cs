@@ -67,6 +67,7 @@ public class ForumService : IForumService
     {
         ForumReply reply = await GetReplyById(replyId);
         reply.Text = changes.Text ?? reply.Text;
+        reply.Upvotes = changes.Upvotes ?? reply.Upvotes;
         await _forumReplyRepository.SaveChanges();
     }
 

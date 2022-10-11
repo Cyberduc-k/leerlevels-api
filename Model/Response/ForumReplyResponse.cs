@@ -13,14 +13,18 @@ public class ForumReplyResponse
     [JsonRequired]
     public string Text { get; set; }
 
+    [JsonRequired]
+    public int Upvotes { get; set; }
+
     public ForumReplyResponse()
     {
     }
 
-    public ForumReplyResponse(string id, string fromId, string text)
+    public ForumReplyResponse(string id, string fromId, string text, int upvotes)
     {
         Id = id;
         FromId = fromId;
         Text = text;
+        Upvotes = upvotes;
     }
 }
