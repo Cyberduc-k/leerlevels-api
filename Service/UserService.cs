@@ -42,7 +42,7 @@ public class UserService : IUserService
     //update
     public async Task<User> UpdateUserAsync(string userId, UserDTO userDTO)
     {
-        User user = await this.GetUserByIdAsync(userId);
+        User user = await GetUserByIdAsync(userId);
 
         user.Email = userDTO.Email;
         user.UserName = userDTO.UserName;
@@ -52,16 +52,16 @@ public class UserService : IUserService
         //user.Password = userDTO.Password;
         //user.Role = userDTO.Role;
 
-        _userRepository.UpdateAsync(user);
+        await _userRepository.SaveChanges();
         return user;
     }
 
     //delete (soft)
     public async Task DeleteUserAsync(string userId)
     {
-        User user = await this.GetUserByIdAsync(userId);
+        User user = await GetUserByIdAsync(userId);
         user.IsActive = false;
-        _userRepository.UpdateAsync(user); //update user.IsActive to false;
+        await _userRepository.SaveChanges(); //update user.IsActive to false;
 
         _Logger.LogInformation($"delete function soft-deleted user {user.UserName} with id: {user.Id}");
     }

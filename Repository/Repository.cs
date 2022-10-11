@@ -35,11 +35,6 @@ public abstract class Repository<T> : IRepository<T> where T : class
         _dbset.Remove(entity!);
     }
 
-    public void UpdateAsync(T entity)
-    {
-        _dbset.Update(entity);
-    }
-
     public Task SaveChanges()
     {
         return _context.SaveChangesAsync();

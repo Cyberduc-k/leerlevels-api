@@ -31,7 +31,7 @@ public class ForumController
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ForumResponse[]), Description = "A list of forum posts")]
     public async Task<HttpResponseData> GetForums([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "forums")] HttpRequestData req)
     {
-        ICollection<Forum> forums = await _forumService.GetAllAsync();
+        ICollection<Forum> forums = await _forumService.GetAll();
         IEnumerable<ForumResponse> forumResponses = forums.Select(f => _mapper.Map<ForumResponse>(f));
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
@@ -60,18 +60,89 @@ public class ForumController
 
     [Function(nameof(GetForum))]
     [OpenApiOperation(operationId: nameof(GetForum), tags: new[] { "Forums" }, Summary = "A single forum post", Description = "Returns a single forum post")]
-    [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post id Id")]
+    [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post Id")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ForumResponse), Description = "A forum post")]
     public async Task<HttpResponseData> GetForum(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "forums/{forumId}")] HttpRequestData req,
         string forumId)
     {
-        Forum? forum = await _forumService.GetByIdAsync(forumId);
+        Forum forum = await _forumService.GetById(forumId);
         ForumResponse forumResponse = _mapper.Map<ForumResponse>(forum);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(forumResponse);
 
         return res;
+    }
+
+    [Function(nameof(UpdateForum))]
+    [OpenApiOperation(operationId: nameof(UpdateForum), tags: new[] { "Forums" }, Summary = "Edit a forum post", Description = "Edits a forum post")]
+    [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post Id")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateForumDTO), Required = true, Description = "The edited forum post")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The forum post is edited")]
+    public async Task<HttpResponseData> UpdateForum(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "forums/{forumId}")] HttpRequestData req,
+        string forumId)
+    {
+        string body = await new StreamReader(req.Body).ReadToEndAsync();
+        UpdateForumDTO forumDTO = JsonConvert.DeserializeObject<UpdateForumDTO>(body)!;
+
+        await _forumService.UpdateForum(forumId, forumDTO);
+
+        return req.CreateResponse(HttpStatusCode.OK);
+    }
+
+    [Function(nameof(CreateReply))]
+    [OpenApiOperation(operationId: nameof(CreateReply), tags: new[] { "Forums" }, Summary = "Add a reply to a forum post", Description = "Adds a new reply to a forum post")]
+    [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post Id")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(ForumReplyDTO), Required = true, Description = "The new forum post reply")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ForumReplyResponse), Description = "The forum post reply is created")]
+    public async Task<HttpResponseData> CreateReply(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "forums/{forumId}/replies")] HttpRequestData req,
+        string forumId)
+    {
+        string body = await new StreamReader(req.Body).ReadToEndAsync();
+        ForumReplyDTO forumReplyDTO = JsonConvert.DeserializeObject<ForumReplyDTO>(body)!;
+        ForumReply forumReply = await _mapper.Map<Task<ForumReply>>(forumReplyDTO);
+        ForumReply newForumReply = await _forumService.AddReply(forumId, forumReply);
+        ForumReplyResponse forumReplyResponse = _mapper.Map<ForumReplyResponse>(newForumReply);
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+        await res.WriteAsJsonAsync(forumReplyResponse);
+
+        return res;
+    }
+
+    [Function(nameof(UpdateForumReply))]
+    [OpenApiOperation(operationId: nameof(UpdateForumReply), tags: new[] { "Forums" }, Summary = "Edit a forum post reply", Description = "Edits a forum post reply")]
+    [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post Id")]
+    [OpenApiParameter("replyId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post reply Id")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateForumReplyDTO), Required = true, Description = "The edited forum post reply")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The forum post reply is edited")]
+    public async Task<HttpResponseData> UpdateForumReply(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "forums/{forumId}/replies/{replyId}")] HttpRequestData req,
+        string replyId)
+    {
+        string body = await new StreamReader(req.Body).ReadToEndAsync();
+        UpdateForumReplyDTO forumReplyDTO = JsonConvert.DeserializeObject<UpdateForumReplyDTO>(body)!;
+
+        await _forumService.UpdateForumReply(replyId, forumReplyDTO);
+
+        return req.CreateResponse(HttpStatusCode.OK);
+    }
+
+    [Function(nameof(DeleteForumReply))]
+    [OpenApiOperation(operationId: nameof(DeleteForumReply), tags: new[] { "Forums" }, Summary = "Delete a forum post reply", Description = "Deletes a forum post reply")]
+    [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post Id")]
+    [OpenApiParameter("replyId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post reply Id")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The forum post reply is deleted")]
+    public async Task<HttpResponseData> DeleteForumReply(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "forums/{forumId}/replies/{replyId}")] HttpRequestData req,
+        string forumId,
+        string replyId)
+    {
+        await _forumService.DeleteForumReply(forumId, replyId);
+
+        return req.CreateResponse(HttpStatusCode.OK);
     }
 }

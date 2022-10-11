@@ -1,5 +1,4 @@
-﻿using API.Mappings;
-using AutoMapper;
+﻿using AutoMapper;
 using Model;
 using Model.DTO;
 using Model.Response;
@@ -12,5 +11,7 @@ public class MappingProfile : Profile
     {
         CreateMap<Forum, ForumResponse>();
         CreateMap<ForumDTO, Task<Forum>>().ConvertUsing<ForumConverter>();
+        CreateMap<ForumReply, ForumReplyResponse>();
+        CreateMap<ForumReplyDTO, Task<ForumReply>>().ConvertUsing<ForumReplyConverter>();
     }
 }
