@@ -1,5 +1,6 @@
 ﻿using Model;
 using Repository.Interfaces;
+using Service.Exceptions;
 using Service.Interfaces;
 
 namespace Service;
@@ -26,8 +27,8 @@ public class ForumService : IForumService
         return newForum;
     }
 
-    public async Task<Forum?> GetByIdAsync(string forumId)
+    public async Task<Forum> GetByIdAsync(string forumId)
     {
-        return await _forumRepository.GetByIdAsync(forumId);
+        return await _forumRepository.GetByIdAsync(forumId) ?? throw new NotFoundException("forum post");
     }
 }
