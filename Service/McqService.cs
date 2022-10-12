@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Model;
+using Repository;
 using Repository.Interfaces;
 using Service.Interfaces;
 
@@ -17,13 +18,13 @@ public class McqService : IMcqService
         this.mcqRepository = mcqRepository;
     }   
 
-    public Task<IEnumerable<Mcq>> GetAllAsync()
+    public async Task<ICollection<Mcq>> GetAllMcqsAsync()
     {
-        return mcqRepository.GetAllAsync();
+        return await mcqRepository.GetAllAsync().ToArrayAsync();
     }
 
-    public Task<Mcq> GetByIdAsync(string mcqId)
+    public async Task<Mcq> GetMcqByIdAsync(string mcqId)
     {
-        throw new NotImplementedException();
+        return await mcqRepository.GetByIdAsync(mcqId) ?? throw new NullReferenceException();
     }
 }

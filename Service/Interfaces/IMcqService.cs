@@ -8,7 +8,7 @@ using Model;
 namespace Service.Interfaces;
 public interface IMcqService
 {
-    Task<IEnumerable<Mcq>> GetAllAsync();
+    Task<ICollection<Mcq>> GetAllMcqsAsync();
 
-    Task<Mcq> GetByIdAsync(string mcqId);
+    Task<Mcq> GetMcqByIdAsync(string mcqId);
 }

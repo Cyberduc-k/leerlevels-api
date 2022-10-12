@@ -10,23 +10,10 @@ using Model;
 using Repository.Interfaces;
 
 namespace Repository;
-public class McqRepository : IMcqRepository
+public class McqRepository : Repository<Mcq>, IMcqRepository
 {
-    private readonly TargetContext targetContext;
-
-    public McqRepository(TargetContext targetContext)
+    public McqRepository(McqContext context) : base(context, context.Mcqs)
     {
-        this.targetContext = targetContext;
-    }   
-
-    public Task<IEnumerable<Mcq>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-
     }
 
-    public Task<Mcq> GetByIdAsync(string mcqId)
-    {
-        throw new NotImplementedException();
-    }
 }

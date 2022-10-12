@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 using Model;
 
 namespace Repository.Interfaces;
-public interface IMcqRepository
+public interface IMcqRepository : IRepository<Mcq>
 {
-    Task<IEnumerable<Mcq>> GetAllAsync();
 
-    Task<Mcq> GetByIdAsync(string mcqId);
 }
