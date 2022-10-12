@@ -1,34 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Model;
-using Repository;
 using Repository.Interfaces;
+using Service.Exceptions;
 using Service.Interfaces;
 
 namespace Service;
+
 public class McqService : IMcqService
 {
-    private readonly IMcqRepository mcqRepository;
+    private readonly ILogger _logger;
+    private readonly IMcqRepository _mcqRepository;
 
-    private ILogger _Logger { get; }
-
-    public McqService(IMcqRepository mcqRepository , ILoggerFactory logger)
+    public McqService(ILoggerFactory loggerFactory, IMcqRepository mcqRepository)
     {
-        this.mcqRepository = mcqRepository;
-        _Logger = logger.CreateLogger<McqService>();
-    }   
+        _logger = loggerFactory.CreateLogger<McqService>();
+        _mcqRepository = mcqRepository;
+    }
 
     public async Task<ICollection<Mcq>> GetAllMcqsAsync()
     {
-        return await mcqRepository.GetAllAsync().ToArrayAsync();
+        return await _mcqRepository.GetAllAsync().ToArrayAsync();
     }
 
     public async Task<Mcq> GetMcqByIdAsync(string mcqId)
     {
-        return await mcqRepository.GetByIdAsync(mcqId) ?? throw new NullReferenceException();
+        return await _mcqRepository.GetByIdAsync(mcqId) ?? throw new NotFoundException("multiple choice question");
     }
 }

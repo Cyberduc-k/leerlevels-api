@@ -6,7 +6,7 @@ namespace Repository;
 
 public class ForumReplyRepository : Repository<ForumReply>, IForumReplyRepository
 {
-    public ForumReplyRepository(ForumContext context) : base(context, context.Replies)
+    public ForumReplyRepository(DataContext context) : base(context, context.Replies)
     {
     }
 }

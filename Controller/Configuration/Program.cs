@@ -16,10 +16,7 @@ IHost host = new HostBuilder()
         worker.UseMiddleware<ExceptionMiddleware>();
     })
     .ConfigureServices(services => {
-        services.AddDbContext<UserContext>(opts => opts.UseInMemoryDatabase("TestDatabase"), ServiceLifetime.Singleton);
-        services.AddDbContext<TargetContext>(opts => opts.UseInMemoryDatabase("TestDatabase"), ServiceLifetime.Singleton);
-        services.AddDbContext<ForumContext>(opts => opts.UseInMemoryDatabase("TestDatabase"), ServiceLifetime.Singleton);
-        services.AddDbContext<McqContext>(opts => opts.UseInMemoryDatabase("TestDatabase"), ServiceLifetime.Singleton);
+        services.AddDbContext<DataContext>(opts => opts.UseInMemoryDatabase("TestDatabase"));
 
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IForumRepository, ForumRepository>();

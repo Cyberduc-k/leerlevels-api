@@ -1,28 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Model;
-using Repository;
 using Repository.Interfaces;
+using Service.Exceptions;
 using Service.Interfaces;
 
 namespace Service;
+
 public class TargetService : ITargetService
 {
+    private readonly ILogger _logger;
     private readonly ITargetRepository _targetRepository;
 
-    private ILogger _Logger { get; }
-
-    public TargetService(ITargetRepository targetRepository, ILoggerFactory logger)
+    public TargetService(ILoggerFactory loggerFactory, ITargetRepository targetRepository)
     {
+        _logger = loggerFactory.CreateLogger<TargetService>();
         _targetRepository = targetRepository;
-        _Logger = logger.CreateLogger<TargetService>();
     }
-
-    //get users
 
     public async Task<ICollection<Target>> GetAllTargetsAsync()
     {
@@ -31,9 +24,6 @@ public class TargetService : ITargetService
 
     public async Task<Target> GetTargetByIdAsync(string targetId)
     {
-        return await _targetRepository.GetByIdAsync(targetId) ?? throw new NullReferenceException();
+        return await _targetRepository.GetByIdAsync(targetId) ?? throw new NotFoundException("target");
     }
 }
-
-
-

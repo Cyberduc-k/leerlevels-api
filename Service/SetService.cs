@@ -1,21 +1,22 @@
 ﻿using Microsoft.Extensions.Logging;
 using Model;
 using Repository.Interfaces;
+using Service.Exceptions;
 using Service.Interfaces;
 
 namespace Service;
+
 public class SetService : ISetService
 {
-
+    private readonly ILogger _logger;
     private readonly ISetRepository _setRepository;
 
-    private ILogger _Logger { get; }
-
-    public SetService(ISetRepository setRepository, ILoggerFactory logger)
+    public SetService(ILoggerFactory loggerFactory, ISetRepository setRepository)
     {
+        _logger = loggerFactory.CreateLogger<SetService>();
         _setRepository = setRepository;
-        _Logger = logger.CreateLogger<SetService>();
     }
+
     public async Task<ICollection<Set>> GetAllSetsAsync()
     {
         return await _setRepository.GetAllAsync().ToArrayAsync();
@@ -23,6 +24,6 @@ public class SetService : ISetService
 
     public async Task<Set> GetSetByIdAsync(string setId)
     {
-        return await _setRepository.GetByIdAsync(setId) ?? throw new NullReferenceException();
+        return await _setRepository.GetByIdAsync(setId) ?? throw new NotFoundException("set");
     }
 }

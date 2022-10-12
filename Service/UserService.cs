@@ -8,14 +8,13 @@ namespace Service;
 
 public class UserService : IUserService
 {
+    private readonly ILogger _logger;
     private readonly IUserRepository _userRepository;
 
-    private ILogger _Logger { get; }
-
-    public UserService(IUserRepository userRepository, ILoggerFactory logger)
+    public UserService(ILoggerFactory loggerFactory, IUserRepository userRepository)
     {
+        _logger = loggerFactory.CreateLogger<UserService>();
         _userRepository = userRepository;
-        _Logger = logger.CreateLogger<UserService>();
     }
 
     //get users
@@ -63,6 +62,6 @@ public class UserService : IUserService
         user.IsActive = false;
         await _userRepository.SaveChanges(); //update user.IsActive to false;
 
-        _Logger.LogInformation($"delete function soft-deleted user {user.UserName} with id: {user.Id}");
+        _logger.LogInformation($"delete function soft-deleted user {user.UserName} with id: {user.Id}");
     }
 }

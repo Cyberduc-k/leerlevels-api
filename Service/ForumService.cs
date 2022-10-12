@@ -1,4 +1,5 @@
-﻿using Model;
+﻿using Microsoft.Extensions.Logging;
+using Model;
 using Model.DTO;
 using Repository.Interfaces;
 using Service.Exceptions;
@@ -8,11 +9,13 @@ namespace Service;
 
 public class ForumService : IForumService
 {
+    private readonly ILogger _logger;
     private readonly IForumRepository _forumRepository;
     private readonly IForumReplyRepository _forumReplyRepository;
 
-    public ForumService(IForumRepository forumRepository, IForumReplyRepository forumReplyRepository)
+    public ForumService(ILoggerFactory loggerFactory, IForumRepository forumRepository, IForumReplyRepository forumReplyRepository)
     {
+        _logger = loggerFactory.CreateLogger<ForumService>();
         _forumRepository = forumRepository;
         _forumReplyRepository = forumReplyRepository;
     }

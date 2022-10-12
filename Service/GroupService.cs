@@ -1,32 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Model;
-using Repository;
 using Repository.Interfaces;
+using Service.Exceptions;
 using Service.Interfaces;
 
 namespace Service;
+
 public class GroupService : IGroupService
 {
-    private readonly IGroupRepository groupRepository;
-    private ILogger _Logger { get; }
-    public GroupService(IGroupRepository groupRepository, ILoggerFactory logger)
+    private readonly ILogger _logger;
+    private readonly IGroupRepository _groupRepsitory;
+
+    public GroupService(ILoggerFactory loggerFactory, IGroupRepository groupRepository)
     {
-        this.groupRepository = groupRepository;
-        _Logger = logger.CreateLogger<GroupService>();
+        _logger = loggerFactory.CreateLogger<GroupService>();
+        _groupRepsitory = groupRepository;
     }
 
     public async Task<ICollection<Group>> GetAllGroupsAsync()
     {
-        return await groupRepository.GetAllAsync().ToArrayAsync();
+        return await _groupRepsitory.GetAllAsync().ToArrayAsync();
     }
 
     public async Task<Group> GetGroupByIdAsync(string groupId)
     {
-        return await groupRepository.GetByIdAsync(groupId) ?? throw new NullReferenceException();
+        return await _groupRepsitory.GetByIdAsync(groupId) ?? throw new NotFoundException("group");
     }
 }
