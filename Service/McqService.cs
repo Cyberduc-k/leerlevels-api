@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Model;
 using Repository;
 using Repository.Interfaces;
@@ -13,9 +14,12 @@ public class McqService : IMcqService
 {
     private readonly IMcqRepository mcqRepository;
 
-    public McqService(IMcqRepository mcqRepository)
+    private ILogger _Logger { get; }
+
+    public McqService(IMcqRepository mcqRepository , ILoggerFactory logger)
     {
         this.mcqRepository = mcqRepository;
+        _Logger = logger.CreateLogger<McqService>();
     }   
 
     public async Task<ICollection<Mcq>> GetAllMcqsAsync()

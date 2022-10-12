@@ -68,6 +68,4 @@ public class McqController
 
         return res;
     }
-
-
 }

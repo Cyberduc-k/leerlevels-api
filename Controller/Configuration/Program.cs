@@ -25,11 +25,17 @@ IHost host = new HostBuilder()
         services.AddTransient<IForumRepository, ForumRepository>();
         services.AddTransient<IForumReplyRepository, ForumReplyRepository>();
         services.AddTransient<IMcqRepository, McqRepository>();
+        services.AddTransient<IGroupRepository, GroupRepository>();
+        services.AddTransient<ISetRepository, SetRepository>();
+        services.AddTransient<ITargetRepository, TargetRepository>();
 
         services.AddTransient<ITokenService, TokenService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<IForumService, ForumService>();
         services.AddTransient<IMcqService, McqService>();
+        services.AddTransient<IGroupService, GroupService>();
+        services.AddTransient<ISetService, SetService>();
+        services.AddTransient<ITargetService, TargetService>();
 
         services.AddAutoMapper(typeof(Program));
     })
