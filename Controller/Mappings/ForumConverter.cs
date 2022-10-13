@@ -19,7 +19,7 @@ internal class ForumConverter : ITypeConverter<ForumDTO, Task<Forum>>
         return new() {
             Title = source.Title,
             Description = source.Description,
-            From = await _userService.GetUserByIdAsync(source.FromId)
+            From = await _userService.GetUserById(source.FromId)
         };
     }
 }
