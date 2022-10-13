@@ -13,5 +13,6 @@ public class MappingProfile : Profile
         CreateMap<ForumDTO, Task<Forum>>().ConvertUsing<ForumConverter>();
         CreateMap<ForumReply, ForumReplyResponse>();
         CreateMap<ForumReplyDTO, Task<ForumReply>>().ConvertUsing<ForumReplyConverter>();
+        CreateMap<Mcq, McqResponse>();
     }
 }
