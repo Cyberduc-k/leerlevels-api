@@ -34,8 +34,7 @@ public class DataContext : DbContext
                 Description = "Je kan in eigen woorden uitleggen welk effect lading kan hebben.",
                 TargetExplanation = "Lading is een eigenschap die bepaalt hoe een deeltje wordt beïnvloed door een elektrisch of magnetisch veld.",
                 YoutubeId = "0ouf-xbz7_o",
-                ImageUrl = "https://s3-us-west-2.amazonaws.com/leerlevels/slide_pngs/2.png",
-                Mcqs = Array.Empty<Mcq>()
+                ImageUrl = "https://s3-us-west-2.amazonaws.com/leerlevels/slide_pngs/2.png"
             }
         );
 
@@ -45,8 +44,7 @@ public class DataContext : DbContext
                 TargetId = "1",
                 QuestionText = "Wat kun je zeggen over de lading van twee voorwerpen die elkaar aantrekken?",
                 Explanation = "Voorwerpen met gelijksoortige lading (beide positief of beide negatief) stoten elkaar af. Voorwerpen met tegengestelde lading (een positief, een negatief) trekken elkaar aan.",
-                AllowRandom = true,
-                AnswerOptions = Array.Empty<AnswerOption>()
+                AllowRandom = true
             }
         );
 
