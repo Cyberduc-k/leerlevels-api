@@ -31,8 +31,31 @@ public class DataContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasData(
-            new User { Id = "1", Email = "JohnDoe@gmail.com", FirstName = "John", LastName = "Doe", UserName = "JohnD#1", Password = "J0nh#001!", Role = UserRole.Student, LastLogin = DateTime.Now, ShareCode = "DTRY-WQER-PIGU-VNSA", IsActive = true }
-        );
+            new {
+                Id = "1",
+                Email = "JohnDoe@gmail.com",
+                FirstName = "John",
+                LastName = "Doe",
+                UserName = "JohnD#1",
+                Password = "J0nh#001!",
+                Role = UserRole.Student,
+                LastLogin = DateTime.Parse("2022-10-05 13:27:00"),
+                ShareCode = "DTRY-WQER-PIGU-VNSA",
+                IsActive = true
+            },
+            new {
+                Id = "2",
+                Email = "MarySue@gmail.com",
+                FirstName = "Mary",
+                LastName = "Sue",
+                UserName = "MarySue#22",
+                Password = "M4rySu3san#22!",
+                Role = UserRole.Student,
+                LastLogin = DateTime.Now,
+                ShareCode = "RIBN-QWOR-DCPL-AXCU",
+                IsActive = true
+            }
+        ); ;
 
         modelBuilder.Entity<Target>().HasData(
             new {

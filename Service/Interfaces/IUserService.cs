@@ -5,17 +5,17 @@ namespace Service.Interfaces;
 
 public interface IUserService
 {
-    public Task<ICollection<User>> GetUsersAsync();
+    public Task<ICollection<User>> GetUsers();
 
-    Task<User> GetUserByIdAsync(string userId);
+    Task<User> GetUserById(string userId);
 
-    Task<User> CreateUserAsync(User user);
+    Task<User> CreateUser(User user);
 
-    Task<User> UpdateUserAsync(string userId, UserDTO userDTO);
+    Task<User> UpdateUser(string userId, UserDTO userDTO);
 
-    Task DeleteUserAsync(string userId);
+    Task DeleteUser(string userId);
 
-    //Task<ICollection<Group>> UpdateUserGroupsAsync();
+    //Task<ICollection<Group>> UpdateUserGroup(Group group);
 
-    //Task<ICollection<Set>> UpdateUserSetsAsync();
+    //Task<ICollection<Set>> UpdateUserSet(Set set);
 }

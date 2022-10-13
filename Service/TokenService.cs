@@ -79,6 +79,7 @@ public class TokenService : ITokenService
 
             return await Task.FromResult(Principal);
         } catch (Exception e) {
+            Logger.LogInformation(e.Message);
             throw;
         }
     }
