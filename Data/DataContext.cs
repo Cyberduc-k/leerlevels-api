@@ -21,6 +21,13 @@ public class DataContext : DbContext
         Database.EnsureCreated();
     }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        string connectionString = Environment.GetEnvironmentVariable("LeerLevelsDatabase")!;
+
+        optionsBuilder.UseSqlServer(connectionString);
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasData(

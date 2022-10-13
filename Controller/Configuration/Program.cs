@@ -1,7 +1,6 @@
 using API.Middleware;
 using Data;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Repository;
@@ -16,7 +15,7 @@ IHost host = new HostBuilder()
         worker.UseMiddleware<ExceptionMiddleware>();
     })
     .ConfigureServices(services => {
-        services.AddDbContext<DataContext>(opts => opts.UseInMemoryDatabase("TestDatabase"));
+        services.AddDbContext<DataContext>();
 
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IForumRepository, ForumRepository>();
