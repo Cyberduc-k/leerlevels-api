@@ -19,11 +19,11 @@ steps:
   inputs:
     command: 'publish'
     publishWebProjects: false
-    projects: 'Controller/*.csproj'
+    projects: 'API/*.csproj'
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'Controller'
+    ArtifactName: 'API'
     publishLocation: 'Container'
