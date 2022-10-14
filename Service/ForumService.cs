@@ -55,11 +55,12 @@ public class ForumService : IForumService
 
     public async Task<ForumReply> AddReply(string forumId, ForumReply reply)
     {
-        reply.Id = Guid.NewGuid().ToString();
-        await _forumReplyRepository.InsertAsync(reply);
-
         Forum forum = await GetById(forumId);
+
+        reply.Id = Guid.NewGuid().ToString();
         forum.Replies.Add(reply);
+
+        await _forumReplyRepository.InsertAsync(reply);
 
         // Only need to call SaveChanges on one of the repositories because both share the same ForumContext.
         await _forumRepository.SaveChanges();
