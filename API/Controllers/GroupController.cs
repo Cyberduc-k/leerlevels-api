@@ -24,10 +24,10 @@ public class GroupController
     private readonly ILogger _logger;
     private readonly IGroupService _groupService;
 
-    public GroupController(ILoggerFactory loggerFactory, IGroupService mcqservice)
+    public GroupController(ILoggerFactory loggerFactory, IGroupService groupservice)
     {
         _logger = loggerFactory.CreateLogger<GroupController>();
-        _groupService = mcqservice;
+        _groupService = groupservice;
     }
 
     [Function(nameof(GetAllGroups))]
@@ -38,7 +38,7 @@ public class GroupController
 
     public async Task<HttpResponseData> GetAllGroups([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "groups")] HttpRequestData req)
     {
-        _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");
+        _logger.LogInformation("C# HTTP trigger function processed the getGroups request.");
 
         ICollection<Model.Group> groups = await _groupService.GetAllGroupsAsync();
 
@@ -59,7 +59,7 @@ public class GroupController
 
     public async Task<HttpResponseData> GetGroupById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "groups/{id}")] HttpRequestData req)
     {
-        _logger.LogInformation("C# HTTP trigger function processed a request.");
+        _logger.LogInformation("C# HTTP trigger function processed the getGroup request.");
 
         string groupId = req.Query("groupId");
         Group group = await _groupService.GetGroupByIdAsync(groupId);

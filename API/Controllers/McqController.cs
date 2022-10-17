@@ -40,7 +40,7 @@ public class McqController
 
     public async Task<HttpResponseData> GetAllMcqs([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs")] HttpRequestData req)
     {
-        _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");
+        _logger.LogInformation("C# HTTP trigger function processed the getMcqs request.");
 
         ICollection<Mcq> mcqs = await _mcqService.GetAllMcqsAsync();
         IEnumerable<McqResponse> mappedMcqs = mcqs.Select(f => _mapper.Map<McqResponse>(f));
@@ -62,7 +62,7 @@ public class McqController
 
     public async Task<HttpResponseData> GetMcqById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs/{id}")] HttpRequestData req)
     {
-        _logger.LogInformation("C# HTTP trigger function processed a request.");
+        _logger.LogInformation("C# HTTP trigger function processed the getMcq request.");
 
         string mcqId = req.Query("mcqId");
         Mcq mcq = await _mcqService.GetMcqByIdAsync(mcqId);
