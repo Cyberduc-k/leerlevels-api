@@ -22,7 +22,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public async Task GetAllReturnsArray()
+    public async Task Get_All_Forums_Should_Return_An_Array_Of_Forums()
     {
         async IAsyncEnumerable<Forum> MockForums()
         {
@@ -38,7 +38,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public async Task CreateForumReturnsForum()
+    public async Task Create_Forum_Should_Return_A_Forum_With_Id()
     {
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<Forum>())).Verifiable();
         _mockRepository.Setup(r => r.SaveChanges()).Verifiable();
@@ -53,7 +53,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public async Task GetByIdReturnsForum()
+    public async Task Get_By_Id_Should_Return_The_Forum_With_Given_Id()
     {
         _mockRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => new Forum("1", "Test Forum", "test test test", null!, null!));
         Forum forum = await _service.GetById("1");
@@ -62,7 +62,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public void GetByIdThrowsNotFoundException()
+    public void Get_By_Id_Should_Throw_Not_Found_Exception()
     {
         _mockRepository.Setup(r => r.GetByIdAsync(It.IsNotIn("1"))).ReturnsAsync(() => null);
 
@@ -70,7 +70,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public async Task GetReplyByIdReturnsForumReply()
+    public async Task Get_Reply_By_Id_Should_Return_The_Forum_Reply_With_Given_Id()
     {
         _mockReplyRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => new ForumReply("1", null!, "Test Forum", 0));
         ForumReply reply = await _service.GetReplyById("1");
@@ -79,7 +79,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public void GetReplyByIdThrowsNotFoundException()
+    public void Get_Reply_By_Id_Should_Throw_Not_Found_Exception()
     {
         _mockReplyRepository.Setup(r => r.GetByIdAsync(It.IsNotIn("1"))).ReturnsAsync(() => null);
 
@@ -87,7 +87,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public async Task UpdateForumHasPropertyChanged()
+    public async Task Update_Forum_Should_Have_Property_Changed()
     {
         Forum forum = new("1", "Test Title", "test test test", null!, null!);
 
@@ -102,7 +102,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public async Task UpdateForumThrowsNotFoundException()
+    public async Task Update_Forum_Should_Throw_Not_Found_Exception()
     {
         _mockRepository.Setup(r => r.GetByIdAsync(It.IsNotIn("1"))).ThrowsAsync(new NotFoundException("forum post"));
 
@@ -112,7 +112,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public async Task AddReplyReturnsReply()
+    public async Task Add_Reply_Should_Return_Reply_With_Id()
     {
         Forum forum = new("1", "Test Forum", "test test test", null!, new List<ForumReply>());
 
@@ -131,7 +131,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public void AddReplyThrowsNotFoundException()
+    public void Add_Reply_Should_Throw_Not_Found_Exception()
     {
         _mockRepository.Setup(r => r.GetByIdAsync(It.IsNotIn("1"))).ThrowsAsync(new NotFoundException("forum post"));
 
@@ -141,7 +141,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public async Task UpdateForumReplyHasPropertyChanged()
+    public async Task Update_Forum_Reply_Should_Have_Property_Changed()
     {
         ForumReply reply = new("1", null!, "test test test", 0);
 
@@ -156,7 +156,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public void UpdateForumReplyThrowsNotFoundException()
+    public void Update_Forum_Reply_Should_Throw_Not_Found_Exception()
     {
         _mockReplyRepository.Setup(r => r.GetByIdAsync(It.IsNotIn("1"))).ThrowsAsync(new NotFoundException("forum post reply"));
 
@@ -166,7 +166,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public async Task DeleteForumReplyDeletesIt()
+    public async Task Delete_Forum_Reply_Should_Delete_It()
     {
         ForumReply reply = new("1", null!, "test test", 0);
         Forum forum = new("1", "Test Title", "Test Description", null!, new List<ForumReply>() { reply });
@@ -185,7 +185,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public void DeleteForumReplyThrowsForumNotFoundException()
+    public void Delete_Forum_Reply_Should_Throw_Forum_Not_Found_Exception()
     {
         _mockRepository.Setup(r => r.GetByIdAsync(It.IsNotIn("1"))).ThrowsAsync(new NotFoundException("forum post"));
 
@@ -193,7 +193,7 @@ public class ForumServiceTests
     }
 
     [Fact]
-    public void DeleteForumReplyThrowsForumReplyNotFoundException()
+    public void Delete_Forum_Reply_Should_Throw_Forum_Reply_Not_Found_Exception()
     {
         _mockRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => new Forum("1", "Test Forum", "test test test", null!, null!));
         _mockReplyRepository.Setup(r => r.GetByIdAsync(It.IsNotIn("1"))).ThrowsAsync(new NotFoundException("forum post reply"));
