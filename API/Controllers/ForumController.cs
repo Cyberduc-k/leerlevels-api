@@ -1,4 +1,5 @@
 using System.Net;
+using API.Attributes;
 using AutoMapper;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -29,6 +30,7 @@ public class ForumController
     [Function(nameof(GetForums))]
     [OpenApiOperation(operationId: nameof(GetForums), tags: new[] { "Forums" }, Summary = "A list of forum posts", Description = "Returns a list of all forum posts")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ForumResponse[]), Description = "A list of forum posts")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> GetForums([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "forums")] HttpRequestData req)
     {
         ICollection<Forum> forums = await _forumService.GetAll();
@@ -44,6 +46,7 @@ public class ForumController
     [OpenApiOperation(operationId: nameof(CreateForum), tags: new[] { "Forums" }, Summary = "Create a new forum post", Description = "Creates a new forum post")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(ForumDTO), Required = true, Description = "The new forum post")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ForumResponse), Description = "The forum post is created")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> CreateForum([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "forums")] HttpRequestData req)
     {
         string body = await new StreamReader(req.Body).ReadToEndAsync();
@@ -62,6 +65,8 @@ public class ForumController
     [OpenApiOperation(operationId: nameof(GetForum), tags: new[] { "Forums" }, Summary = "A single forum post", Description = "Returns a single forum post")]
     [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post Id")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ForumResponse), Description = "A forum post")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound)]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> GetForum(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "forums/{forumId}")] HttpRequestData req,
         string forumId)
@@ -80,6 +85,8 @@ public class ForumController
     [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post Id")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateForumDTO), Required = true, Description = "The edited forum post")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The forum post is edited")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound)]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> UpdateForum(
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "forums/{forumId}")] HttpRequestData req,
         string forumId)
@@ -97,6 +104,8 @@ public class ForumController
     [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post Id")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(ForumReplyDTO), Required = true, Description = "The new forum post reply")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ForumReplyResponse), Description = "The forum post reply is created")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound)]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> CreateReply(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "forums/{forumId}/replies")] HttpRequestData req,
         string forumId)
@@ -119,6 +128,8 @@ public class ForumController
     [OpenApiParameter("replyId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post reply Id")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateForumReplyDTO), Required = true, Description = "The edited forum post reply")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The forum post reply is edited")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound)]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> UpdateForumReply(
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "forums/{forumId}/replies/{replyId}")] HttpRequestData req,
         string replyId)
@@ -136,6 +147,8 @@ public class ForumController
     [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post Id")]
     [OpenApiParameter("replyId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post reply Id")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The forum post reply is deleted")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound)]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> DeleteForumReply(
         [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "forums/{forumId}/replies/{replyId}")] HttpRequestData req,
         string forumId,

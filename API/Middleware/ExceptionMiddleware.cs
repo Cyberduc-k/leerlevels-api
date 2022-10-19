@@ -2,6 +2,7 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
+using Model.Response;
 using Service.Exceptions;
 
 namespace API.Middleware;
@@ -39,7 +40,7 @@ public class ExceptionMiddleware : IFunctionsWorkerMiddleware
 
                 HttpResponseData res = req.CreateResponse(statusCode);
 
-                await res.WriteAsJsonAsync(new { Message = ex.Message }, statusCode);
+                await res.WriteAsJsonAsync(new ErrorResponse(ex.Message), statusCode);
 
                 InvocationResult invocation = context.GetInvocationResult();
                 OutputBindingData<HttpResponseData>? binding = context.GetOutputBindings<HttpResponseData>().FirstOrDefault(b => b.BindingType == "http" && b.Name != "$return");
