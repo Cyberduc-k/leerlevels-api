@@ -21,20 +21,25 @@ public class JwtMiddleware : IFunctionsWorkerMiddleware
 
     public async Task Invoke(FunctionContext Context, FunctionExecutionDelegate Next)
     {
-        string HeadersString = (string)Context.BindingContext.BindingData["Headers"]!;
+        KeyValuePair<string, BindingMetadata> binding = Context.FunctionDefinition.InputBindings.FirstOrDefault(b => b.Value.Type == "httpTrigger");
 
-        Dictionary<string, string> Headers = JsonConvert.DeserializeObject<Dictionary<string, string>>(HeadersString)!;
+        // only check authentication when in an http trigger
+        if (binding.Key != null) {
+            string HeadersString = (string)Context.BindingContext.BindingData["Headers"]!;
 
-        if (Headers.TryGetValue("Authorization", out string? AuthorizationHeader)) {
-            try {
-                AuthenticationHeaderValue BearerHeader = AuthenticationHeaderValue.Parse(AuthorizationHeader);
+            Dictionary<string, string> Headers = JsonConvert.DeserializeObject<Dictionary<string, string>>(HeadersString)!;
 
-                ClaimsPrincipal User = await TokenService.GetByValue(BearerHeader.Parameter!);
+            if (Headers.TryGetValue("Authorization", out string? AuthorizationHeader)) {
+                try {
+                    AuthenticationHeaderValue BearerHeader = AuthenticationHeaderValue.Parse(AuthorizationHeader);
 
-                Context.Items["User"] = User;
+                    ClaimsPrincipal User = await TokenService.GetByValue(BearerHeader.Parameter!);
 
-            } catch (Exception e) {
-                Logger.LogError(e.Message);
+                    Context.Items["User"] = User;
+
+                } catch (Exception e) {
+                    Logger.LogError(e.Message);
+                }
             }
         }
 
