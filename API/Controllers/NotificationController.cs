@@ -15,15 +15,29 @@ public class NotificationController
 
     [Function(nameof(SendNotification))]
     public async Task SendNotification(
-        [TimerTrigger("0 */5 * * * *", RunOnStartup = true)] TimerInfo timer)
+        [QueueTrigger("notifications")] string item)
     {
+        _logger.LogInformation($"send notification: {item}");
         string connectionString = Environment.GetEnvironmentVariable("LeerLevelsNotificationHub")!;
         string hubName = Environment.GetEnvironmentVariable("LeerLevelsNotificationHubName")!;
         NotificationHubClient hub = NotificationHubClient.CreateClientFromConnectionString(connectionString, hubName);
+        Notification[] notifications = new Notification[] {
+            new FcmNotification(item),
+            new AppleNotification(item),
+        };
 
-        string fmcNot = "{\"data\":{\"body\":\"test body\",\"title\":\"test title\"}}";
-        NotificationOutcome result = await hub.SendFcmNativeNotificationAsync(fmcNot);
+        foreach (Notification notification in notifications) {
+            NotificationOutcome result = await hub.SendNotificationAsync(notification);
 
-        _logger.LogInformation($"notification sent to: {result.Success}");
+            _logger.LogInformation($"notification sent to: {result.Success}");
+        }
+    }
+
+    [Function(nameof(TestNotifications))]
+    [QueueOutput("notifications")]
+    public async Task<string> TestNotifications(
+        [TimerTrigger("0 */5 * * * *", RunOnStartup = true)] TimerInfo timer)
+    {
+        return "test";
     }
 }
