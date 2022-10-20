@@ -20,8 +20,9 @@ internal class UserConverter : ITypeConverter<UserDTO, User>
             UserName = source.UserName,
             Password = source.Password,
             Role = source.Role,
+            //2do: check or create method to auto-generate the proper format of a shareCode for a new user
             ShareCode = Guid.NewGuid().ToString()
-            //check or create method to auto-generate the shareCode for a new user
+
         };
     }
 }

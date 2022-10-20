@@ -40,17 +40,17 @@ public class UserService : IUserService
     }
 
     // update
-    public async Task<User> UpdateUser(string userId, UserDTO userDTO)
+    public async Task<User> UpdateUser(string userId, UpdateUserDTO changes)
     {
         User user = await GetUserById(userId) ?? throw new NotFoundException("user to update");
 
-        user.Email = userDTO.Email;
-        user.UserName = userDTO.UserName;
-        user.FirstName = userDTO.FirstName;
-        user.LastName = userDTO.LastName;
+        user.Email = changes.Email ?? user.Email;
+        user.FirstName = changes.FirstName ?? user.FirstName;
+        user.LastName = changes.LastName ?? user.LastName;
+        user.UserName = changes.UserName ?? user.UserName;
 
-        // user.Password = userDTO.Password;
-        // user.Role = userDTO.Role;
+        //user.Password = changes.Password ?? user.Password;
+        //user.Role = changes.Role ?? user.Role;
 
         await _userRepository.SaveChanges();
         return user;

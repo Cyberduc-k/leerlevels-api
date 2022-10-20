@@ -11,7 +11,7 @@ public interface IUserService
 
     Task<User> CreateUser(User user);
 
-    Task<User> UpdateUser(string userId, UserDTO userDTO);
+    Task<User> UpdateUser(string userId, UpdateUserDTO userDTO);
 
     Task DeleteUser(string userId);
 

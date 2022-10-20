@@ -18,14 +18,14 @@ using Model;
 using System.Security.Claims;
 
 namespace API.Controllers;
-public class Login
+public class LoginController
 {
     private readonly ILogger _logger;
     private readonly ITokenService TokenService;
 
-    public Login(ILoggerFactory loggerFactory, ITokenService tokenService)
+    public LoginController(ILoggerFactory loggerFactory, ITokenService tokenService)
     {
-        _logger = loggerFactory.CreateLogger<Login>();
+        _logger = loggerFactory.CreateLogger<LoginController>();
         TokenService = tokenService;
     }
 
@@ -36,6 +36,8 @@ public class Login
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "A login error has occured.")]
     public async Task<HttpResponseData> Authenticate([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "login")] HttpRequestData req, FunctionContext executionContext)
     {
+        _logger.LogInformation("C# HTTP trigger function processed the Login request.");
+
         LoginDTO login = JsonConvert.DeserializeObject<LoginDTO>(await new StreamReader(req.Body).ReadToEndAsync())!; //if null then new by default 2do: exception handling (?? new LoginDTO() but better)
 
         LoginResponse result = await TokenService.CreateToken(login);
@@ -74,14 +76,3 @@ public class Login
     }*/
 
 }
-
-/*public class ExampleAuthAttribute : OpenApiSecurityAttribute
-{
-    public ExampleAuthAttribute() : base("ExampleAuth", SecuritySchemeType.Http)
-    {
-        Description = "JWT for authorization";
-        In = OpenApiSecurityLocationType.Header;
-        Scheme = OpenApiSecuritySchemeType.Bearer;
-        BearerFormat = "JWT";
-    }
-}*/
