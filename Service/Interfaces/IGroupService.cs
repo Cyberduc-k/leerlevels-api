@@ -11,4 +11,6 @@ public interface IGroupService
     Task<ICollection<Group>> GetAllGroupsAsync();
 
     Task<Group> GetGroupByIdAsync(string groupId);
+
+    public Task<bool> IsGroupExistsAsync(string id);
 }

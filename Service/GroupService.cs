@@ -19,11 +19,16 @@ public class GroupService : IGroupService
 
     public async Task<ICollection<Group>> GetAllGroupsAsync()
     {
-        return await _groupRepsitory.GetAllAsync().ToArrayAsync();
+        return await _groupRepsitory.GetAllIncludingAsync(x =>x.Set).ToArrayAsync() ;
     }
 
     public async Task<Group> GetGroupByIdAsync(string groupId)
     {
         return await _groupRepsitory.GetByIdAsync(groupId) ?? throw new NotFoundException("group");
+    }
+
+    public async Task<bool> IsGroupExistsAsync(string id)
+    {
+        return await _groupRepsitory.FindByConditionAsync(x => x.Id == id);
     }
 }

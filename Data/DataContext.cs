@@ -68,6 +68,17 @@ public class DataContext : DbContext
             }
         );
 
+        modelBuilder.Entity<Group>().HasData(
+            new {
+           Id = "1",
+           Name = "Inholland",
+           Subject = "Programming",
+           EducationType = EducationType.Mavo,
+           SchoolYear = SchoolYear.Seven,
+           Set = new List<Set>(),
+            }
+        );
+
         modelBuilder.Entity<Mcq>().HasData(
             new {
                 Id = "1",

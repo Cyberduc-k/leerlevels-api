@@ -17,17 +17,21 @@ using Service.Interfaces;
 using System.Text.RegularExpressions;
 using Group = Model.Group;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
+using API.Validation;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
 
 namespace API.Controllers;
 public class GroupController
 {
     private readonly ILogger _logger;
     private readonly IGroupService _groupService;
+    private readonly GetGroupByIdValidator validationRules;
 
-    public GroupController(ILoggerFactory loggerFactory, IGroupService groupservice)
+    public GroupController(ILoggerFactory loggerFactory, IGroupService groupservice, GetGroupByIdValidator validations)
     {
         _logger = loggerFactory.CreateLogger<GroupController>();
         _groupService = groupservice;
+        validationRules = validations;  
     }
 
     [Function(nameof(GetAllGroups))]
@@ -62,12 +66,19 @@ public class GroupController
         _logger.LogInformation("C# HTTP trigger function processed the getGroup request.");
 
         string groupId = req.Query("groupId");
-        Group group = await _groupService.GetGroupByIdAsync(groupId);
 
-        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+        var groupToValidate = new Group { Id = groupId };
+        var result = this.validationRules.Validate(groupToValidate);    
 
-        await res.WriteAsJsonAsync(group);
+        if (result.IsValid) {
+            Group group = await _groupService.GetGroupByIdAsync(groupId);
 
-        return res;
+            HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+            await res.WriteAsJsonAsync(group);
+
+            return res;
+        }
+        return req.CreateResponse(HttpStatusCode.NotFound);
     }
 }

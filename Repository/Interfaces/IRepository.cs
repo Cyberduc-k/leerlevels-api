@@ -10,4 +10,6 @@ public interface IRepository<T> where T : class
     public Task InsertAsync(T entity);
     public Task RemoveAsync(string id);
     public Task SaveChanges();
+
+    public Task<bool> FindByConditionAsync(Expression<Func<T, bool>> predicate);
 }

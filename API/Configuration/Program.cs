@@ -7,6 +7,8 @@ using Repository;
 using Repository.Interfaces;
 using Service;
 using Service.Interfaces;
+using API.Validation;
+using FluentValidation;
 
 IHost host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults(worker => {
@@ -34,6 +36,7 @@ IHost host = new HostBuilder()
         services.AddTransient<ITargetService, TargetService>();
 
         services.AddAutoMapper(typeof(Program));
+        services.AddValidatorsFromAssemblyContaining<Program>();
     })
     .ConfigureOpenApi()
     .Build();
