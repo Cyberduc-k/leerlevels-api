@@ -58,8 +58,8 @@ public class UserController
 
     [Function(nameof(GetUserById))]
     [OpenApiOperation(operationId: nameof(GetUserById),tags: new[] { "Users" }, Summary = "A single user", Description = "Will return a specified user's info for a logged in user or from the full list of users if a teacher, coach or administrator token is used")]
+    //[OpenApiSecurity("LeerLevelsAuthentication", SecuritySchemeType.Http, In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT")]
     [OpenApiParameter(name: "Id", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
-    // [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "A single retrieved user.", Example = typeof(UserResponseExample))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
@@ -86,8 +86,8 @@ public class UserController
 
     [Function(nameof(CreateUser))]
     [OpenApiOperation(operationId: nameof(CreateUser), tags: new[] { "Users" }, Summary = "Create a new user", Description = "Will create and return the new user.")]
+    //[OpenApiSecurity("LeerLevelsAuthentication", SecuritySchemeType.Http, In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UserDTO), Required = true, Description = "Data for the user that has to be created.")]
-    // [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "The newly created user.", Example = typeof(UserResponseExample))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to create a new user.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
@@ -112,6 +112,7 @@ public class UserController
 
     [Function(nameof(UpdateUser))]
     [OpenApiOperation(operationId: nameof(UpdateUser), tags: new[] { "Users" }, Summary = "Edit a user", Description = "Allows for modification of a user.")]
+    //[OpenApiSecurity("LeerLevelsAuthentication", SecuritySchemeType.Http, In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT")]
     [OpenApiParameter(name: "Id", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateUserDTO), Required = true, Description = "The edited user data.", Example = typeof(UpdateUserExample))]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "The updated user", Example = typeof(UserResponseExample))]
@@ -137,8 +138,11 @@ public class UserController
 
     [Function(nameof(DeleteUser))]
     [OpenApiOperation(operationId: nameof(DeleteUser), tags: new[] { "Users" }, Summary = "Delete a user", Description = "Allows for the soft-deletion of a user.")]
+    //[OpenApiSecurity("LeerLevelsAuthentication", SecuritySchemeType.Http, In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT")]
     [OpenApiParameter(name: "Id", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The user has been soft deleted (no longer active).")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, contentType: "application/json", bodyType: typeof(OpenApiErrorResponse), Description = "Unauthorized to perform this operation.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, contentType: "application/json", bodyType: typeof(OpenApiErrorResponse), Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> DeleteUser(
