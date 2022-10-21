@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Model;
 using Model.DTO;
-using Service.Interfaces;
 
 namespace API.Mappings;
 internal class UserConverter : ITypeConverter<UserDTO, User>

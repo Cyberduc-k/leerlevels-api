@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Resolvers;
-using Microsoft.OpenApi.Models;
 using Model;
 using Model.Response;
 using Newtonsoft.Json.Serialization;

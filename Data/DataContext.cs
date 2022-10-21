@@ -69,14 +69,7 @@ public class DataContext : DbContext
         );
 
         modelBuilder.Entity<Group>().HasData(
-            new {
-           Id = "1",
-           Name = "Inholland",
-           Subject = "Programming",
-           EducationType = EducationType.Mavo,
-           SchoolYear = SchoolYear.Seven,
-           Set = new List<Set>(),
-            }
+            new { Id = "1", Name = "Inholland", Subject = "Programming", EducationType = EducationType.Mavo, SchoolYear = SchoolYear.Seven }
         );
 
         modelBuilder.Entity<Mcq>().HasData(

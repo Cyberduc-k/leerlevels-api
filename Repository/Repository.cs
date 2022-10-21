@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Model;
 using Repository.Interfaces;
 
 namespace Repository;
@@ -37,15 +35,16 @@ public abstract class Repository<T> : IRepository<T> where T : class
         return await _dbset.FindAsync(id);
     }
 
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _dbset.AnyAsync(predicate);
+    }
+
     public async Task InsertAsync(T entity)
     {
         await _dbset.AddAsync(entity);
     }
 
-    public async Task<bool> FindByConditionAsync(Expression<Func<T, bool>> predicate)
-    {
-        return await _context.Set<T>().AnyAsync(predicate);
-    }
     public async Task RemoveAsync(string id)
     {
         T? entity = await _dbset.FindAsync(id);

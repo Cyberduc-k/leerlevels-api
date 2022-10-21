@@ -19,7 +19,7 @@ public class SetService : ISetService
 
     public async Task<ICollection<Set>> GetAllSetsAsync()
     {
-        return await _setRepository.GetAllIncludingAsync(x =>x.Targets).ToArrayAsync();
+        return await _setRepository.GetAllIncludingAsync(x => x.Targets).ToArrayAsync();
     }
 
     public async Task<Set> GetSetByIdAsync(string setId)

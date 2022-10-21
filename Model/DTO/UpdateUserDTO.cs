@@ -5,7 +5,7 @@ namespace Model.DTO;
 public class UpdateUserDTO
 {
     [OpenApiProperty(Default = "email@mail.com", Description = "The new email address for a user to be updated", Nullable = true)]
-    public string? Email {  get; set; }
+    public string? Email { get; set; }
 
     [OpenApiProperty(Default = "John", Description = "The new first name of a user", Nullable = true)]
     public string? FirstName { get; set; }

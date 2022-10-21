@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker.Http;
+﻿using System.Net;
+using AutoMapper;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
-using Service.Interfaces;
 using Model;
-using Service;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Model.Response;
-using AutoMapper;
+using Service.Interfaces;
 
 namespace API.Controllers;
 public class McqController
@@ -28,13 +20,13 @@ public class McqController
     public McqController(ILoggerFactory loggerFactory, IMcqService mcqservice, IMapper mapper)
     {
         _logger = loggerFactory.CreateLogger<McqController>();
-        _mcqService = mcqservice ;
+        _mcqService = mcqservice;
         _mapper = mapper;
     }
 
     [Function(nameof(GetAllMcqs))]
     [OpenApiOperation(operationId: "getMcqs", tags: new[] { "Mcqs" })]
- //  [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
+    //  [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<McqResponse>), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve mcqs.")]
 
@@ -52,11 +44,10 @@ public class McqController
         return res;
     }
 
-
     [Function(nameof(GetMcqById))]
     [OpenApiOperation(operationId: "getMcq", tags: new[] { "Mcqs" })]
     [OpenApiParameter(name: "mcqId", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The mcq ID parameter")]
-   // [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
+    // [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Mcq), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Mcq Id.")]
 

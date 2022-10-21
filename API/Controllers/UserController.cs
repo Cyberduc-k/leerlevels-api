@@ -1,21 +1,17 @@
 using System.Net;
 using API.Attributes;
+using API.Examples;
 using AutoMapper;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Model;
 using Model.DTO;
 using Model.Response;
 using Newtonsoft.Json;
-using Service;
 using Service.Interfaces;
-using API.Examples;
 
 namespace API.Controllers;
 
@@ -57,7 +53,7 @@ public class UserController
     // Get user
 
     [Function(nameof(GetUserById))]
-    [OpenApiOperation(operationId: nameof(GetUserById),tags: new[] { "Users" }, Summary = "A single user", Description = "Will return a specified user's info for a logged in user or from the full list of users if a teacher, coach or administrator token is used")]
+    [OpenApiOperation(operationId: nameof(GetUserById), tags: new[] { "Users" }, Summary = "A single user", Description = "Will return a specified user's info for a logged in user or from the full list of users if a teacher, coach or administrator token is used")]
     //[OpenApiSecurity("LeerLevelsAuthentication", SecuritySchemeType.Http, In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT")]
     [OpenApiParameter(name: "Id", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "A single retrieved user.", Example = typeof(UserResponseExample))]
@@ -120,7 +116,7 @@ public class UserController
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> UpdateUser(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route= "users/{id}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "users/{id}")] HttpRequestData req,
         string userId)
     {
         _logger.LogInformation("C# HTTP trigger function processed the UpdateUser request.");

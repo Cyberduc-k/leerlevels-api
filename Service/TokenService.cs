@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +10,7 @@ using Model.Response;
 using Service.Interfaces;
 
 namespace Service;
+
 public class TokenService : ITokenService
 {
     private ILogger Logger { get; }
@@ -32,7 +29,7 @@ public class TokenService : ITokenService
         ValidityDuration = TimeSpan.FromDays(1);// Todo: configure an appropriate validity duration (2 hours and then generate refresh tokens? read from config somewhere when another login is required/so until how long refresh tokens are generated after init login)
         string Key = Configuration["JWT:Key"] ?? "DebugKey DebugKey"; /*Configuration.GetClassValueChecked("JWT:Key", "DebugKey DebugKey";//, Logger);*/
 
-        SymmetricSecurityKey SecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key));
+        SymmetricSecurityKey SecurityKey = new(Encoding.UTF8.GetBytes(Key));
 
         Credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256Signature);
 
@@ -51,16 +48,18 @@ public class TokenService : ITokenService
 
     private async Task<JwtSecurityToken> CreateToken(Claim[] Claims)
     {
-        JwtHeader Header = new JwtHeader(Credentials);
+        JwtHeader Header = new(Credentials);
 
-        JwtPayload Payload = new JwtPayload(Issuer,
-                       Audience,
-                                            Claims,
-                                            DateTime.UtcNow,
-                                            DateTime.UtcNow.Add(ValidityDuration),
-                                            DateTime.UtcNow);
+        JwtPayload Payload = new(
+            Issuer,
+            Audience,
+            Claims,
+            DateTime.UtcNow,
+            DateTime.UtcNow.Add(ValidityDuration),
+            DateTime.UtcNow
+        );
 
-        JwtSecurityToken SecurityToken = new JwtSecurityToken(Header, Payload);
+        JwtSecurityToken SecurityToken = new(Header, Payload);
 
         return await Task.FromResult(SecurityToken);
     }
@@ -71,7 +70,7 @@ public class TokenService : ITokenService
             throw new Exception("No Token supplied");
         }
 
-        JwtSecurityTokenHandler Handler = new JwtSecurityTokenHandler();
+        JwtSecurityTokenHandler Handler = new();
 
         try {
             SecurityToken ValidatedToken;

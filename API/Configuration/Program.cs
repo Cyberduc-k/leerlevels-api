@@ -1,5 +1,6 @@
 using API.Middleware;
 using Data;
+using FluentValidation;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,8 +8,6 @@ using Repository;
 using Repository.Interfaces;
 using Service;
 using Service.Interfaces;
-using API.Validation;
-using FluentValidation;
 
 IHost host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults(worker => {

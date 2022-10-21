@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using Repository.Interfaces;
@@ -28,7 +23,7 @@ public class TargetServiceTests
 
         async IAsyncEnumerable<Target> MockTargets()
         {
-            yield return new Target( "1", "Lading concept",
+            yield return new Target("1", "Lading concept",
                 "Je kan in eigen woorden uitleggen welk effect lading kan hebben.",
                 "Lading is een eigenschap die bepaalt hoe een deeltje wordt beïnvloed door een elektrisch of magnetisch veld.",
                 "0ouf-xbz7_o",

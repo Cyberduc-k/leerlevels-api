@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Azure.Functions.Worker.Http;
+﻿using System.Net;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Model;
-using Newtonsoft.Json;
 using Service.Interfaces;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 
 namespace API.Controllers;
 public class TargetController
@@ -30,7 +22,7 @@ public class TargetController
 
     [Function(nameof(GetAllTargets))]
     [OpenApiOperation(operationId: "getTargets", tags: new[] { "Targets" })]
-   // [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
+    // [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<Target>), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve targets.")]
 
@@ -47,11 +39,10 @@ public class TargetController
         return res;
     }
 
-
     [Function(nameof(GetTargetById))]
     [OpenApiOperation(operationId: "getTarget", tags: new[] { "Targets" })]
     [OpenApiParameter(name: "targetId", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The target ID parameter")]
-   // [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
+    // [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Mcq), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Target Id.")]
 

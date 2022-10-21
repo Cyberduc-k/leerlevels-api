@@ -2,8 +2,8 @@
 using Model;
 using Model.DTO;
 using Repository.Interfaces;
-using Service.Interfaces;
 using Service.Exceptions;
+using Service.Interfaces;
 
 namespace Service;
 
@@ -64,7 +64,7 @@ public class UserService : IUserService
 
         // update user.IsActive to false;
         user.IsActive = false;
-        await _userRepository.SaveChanges(); 
+        await _userRepository.SaveChanges();
 
         _logger.LogInformation($"delete function soft-deleted user {user.UserName} with id: {user.Id}");
     }
