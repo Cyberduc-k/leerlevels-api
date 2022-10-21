@@ -1,4 +1,7 @@
 ﻿using System.Net;
+using API.Validation;
+using API.Validators;
+using FluentValidation.Results;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -13,11 +16,13 @@ public class SetController
 {
     private readonly ILogger _logger;
     private readonly ISetService _setService;
+    private readonly GetSetByIdValidator validationRules;
 
-    public SetController(ILoggerFactory loggerFactory, ISetService setservice)
+    public SetController(ILoggerFactory loggerFactory, ISetService setservice, GetSetByIdValidator validations)
     {
         _logger = loggerFactory.CreateLogger<SetController>();
         _setService = setservice;
+        validationRules = validations;  
     }
 
     [Function(nameof(GetAllSets))]
@@ -51,12 +56,19 @@ public class SetController
         _logger.LogInformation("C# HTTP trigger function processed the getSet request.");
 
         string setId = req.Query("setId");
-        Set set = await _setService.GetSetByIdAsync(setId);
 
-        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+        Set SetToValidate = new() { Id = setId };
+        ValidationResult result = await validationRules.ValidateAsync(SetToValidate);
 
-        await res.WriteAsJsonAsync(set);
+        if (result.IsValid) {
+            Set set = await _setService.GetSetByIdAsync(setId);
 
-        return res;
+            HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+            await res.WriteAsJsonAsync(set);
+
+            return res;
+        }
+        return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 }

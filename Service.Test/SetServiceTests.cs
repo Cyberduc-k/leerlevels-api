@@ -18,7 +18,7 @@ public class SetServiceTests
     }
 
     [Fact]
-    public async Task Get_All_Groups_Should_return_an_array_of_Groups()
+    public async Task Get_All_Sets_Should_return_an_array_of_Sets()
     {
 
         async IAsyncEnumerable<Set> MockSets()
@@ -29,7 +29,7 @@ public class SetServiceTests
 
         }
 
-        _setRepository.Setup(r => r.GetAllAsync()).Returns(MockSets);
+        _setRepository.Setup(r => r.GetAllIncludingAsync(x =>x.Targets)).Returns(MockSets);
 
         ICollection<Set> sets = await _service.GetAllSetsAsync();
 

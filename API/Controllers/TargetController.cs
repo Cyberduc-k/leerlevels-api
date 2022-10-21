@@ -1,4 +1,8 @@
 ﻿using System.Net;
+using System.Text.RegularExpressions;
+using API.Validators;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -13,11 +17,13 @@ public class TargetController
 {
     private readonly ILogger _logger;
     private readonly ITargetService _targetService;
+    private readonly GetTargetByIdValidator validationRules;
 
-    public TargetController(ILoggerFactory loggerFactory, ITargetService targetservice)
+    public TargetController(ILoggerFactory loggerFactory, ITargetService targetservice, GetTargetByIdValidator validations)
     {
         _logger = loggerFactory.CreateLogger<TargetController>();
         _targetService = targetservice;
+        validationRules = validations;  
     }
 
     [Function(nameof(GetAllTargets))]
@@ -51,12 +57,19 @@ public class TargetController
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
         string targetId = req.Query("targetId");
-        Target target = await _targetService.GetTargetByIdAsync(targetId);
 
-        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+        Target targetToValidate = new() { Id = targetId };
+        ValidationResult result = await validationRules.ValidateAsync(targetToValidate);
 
-        await res.WriteAsJsonAsync(target);
+        if (result.IsValid) {
+            Target target = await _targetService.GetTargetByIdAsync(targetId);
 
-        return res;
+            HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+            await res.WriteAsJsonAsync(target);
+
+            return res;
+        }
+        return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 }

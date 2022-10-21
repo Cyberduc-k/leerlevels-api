@@ -24,7 +24,7 @@ public class GroupService : IGroupService
 
     public async Task<Group> GetGroupByIdAsync(string groupId)
     {
-        return await _groupRepsitory.GetByIdAsync(groupId) ?? throw new NotFoundException("group");
+        return await _groupRepsitory.GetByIdAsync(groupId);
     }
 
     public async Task<bool> GroupExistsAsync(string id)

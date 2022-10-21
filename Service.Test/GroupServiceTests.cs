@@ -39,7 +39,7 @@ public class GroupServiceTests
 
         }
 
-        _groupRepository.Setup(r => r.GetAllAsync()).Returns(MockGroups);
+        _groupRepository.Setup(r => r.GetAllIncludingAsync(x =>x.Set)).Returns(MockGroups);
 
         ICollection<Group> groups = await _service.GetAllGroupsAsync();
 

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using API.Validation;
+using FluentValidation.Results;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -56,7 +57,7 @@ public class GroupController
         string groupId = req.Query("groupId");
 
         Group groupToValidate = new() { Id = groupId };
-        FluentValidation.Results.ValidationResult result = this.validationRules.Validate(groupToValidate);
+        ValidationResult result = await validationRules.ValidateAsync(groupToValidate);
 
         if (result.IsValid) {
             Group group = await _groupService.GetGroupByIdAsync(groupId);
@@ -67,7 +68,6 @@ public class GroupController
 
             return res;
         }
-
-        return req.CreateResponse(HttpStatusCode.NotFound);
+        return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 }

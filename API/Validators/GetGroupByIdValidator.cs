@@ -14,6 +14,7 @@ public class GetGroupByIdValidator : AbstractValidator<Group>
     public GetGroupByIdValidator(IGroupRepository groupRepo)
     {
         this.groupRepo = groupRepo;
+        RuleFor(x => x.Id).MustAsync(IsGroupExistsAsync);
     }
 
     /// <summary>
@@ -21,12 +22,12 @@ public class GetGroupByIdValidator : AbstractValidator<Group>
     /// </summary>
     public GetGroupByIdValidator()
     {
-
+        RuleFor(x => x.Id).MustAsync(IsGroupExistsAsync);
     }
 
-    private async Task<bool> IsGroupExistsAsync(Group group, CancellationToken cancellation)
+    private async Task<bool> IsGroupExistsAsync(string groupId, CancellationToken cancellation)
     {
-        bool isExists = await this.groupRepo.AnyAsync(x => x.Id == group.Id);
+        bool isExists = await this.groupRepo.AnyAsync(x => x.Id == groupId);
 
         return isExists;
     }
