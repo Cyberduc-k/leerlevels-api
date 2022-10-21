@@ -5,6 +5,6 @@ using Model.Response;
 namespace Service.Interfaces;
 public interface ITokenService
 {
-    Task<LoginResponse> CreateToken(LoginDTO Login);
+    Task<LoginResponse> Login(LoginDTO Login);
     Task<ClaimsPrincipal> GetByValue(string Value);
 }

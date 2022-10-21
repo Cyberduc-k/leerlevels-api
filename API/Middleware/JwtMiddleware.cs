@@ -33,9 +33,12 @@ public class JwtMiddleware : IFunctionsWorkerMiddleware
                 try {
                     AuthenticationHeaderValue BearerHeader = AuthenticationHeaderValue.Parse(AuthorizationHeader);
 
-                    ClaimsPrincipal User = await TokenService.GetByValue(BearerHeader.Parameter!);
+                    if(BearerHeader != null && BearerHeader.Parameter!.StartsWith("Bearer ")) {
 
-                    Context.Items["User"] = User;
+                        ClaimsPrincipal User = await TokenService.GetByValue(BearerHeader.Parameter!);
+
+                        Context.Items["User"] = User;
+                    }
 
                 } catch (Exception e) {
                     Logger.LogError(e.Message);

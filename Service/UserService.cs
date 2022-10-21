@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Model;
 using Model.DTO;
+using Repository;
 using Repository.Interfaces;
 using Service.Exceptions;
 using Service.Interfaces;
@@ -11,11 +12,15 @@ public class UserService : IUserService
 {
     private readonly ILogger _logger;
     private readonly IUserRepository _userRepository;
+    private readonly IGroupRepository _groupRepository;
+    private readonly ISetRepository _setRepository;
 
-    public UserService(ILoggerFactory loggerFactory, IUserRepository userRepository)
+    public UserService(ILoggerFactory loggerFactory, IUserRepository userRepository, IGroupRepository groupRepository, ISetRepository setRepository)
     {
         _logger = loggerFactory.CreateLogger<UserService>();
         _userRepository = userRepository;
+        _groupRepository = groupRepository;
+        _setRepository = setRepository;
     }
 
     // get users
@@ -68,4 +73,16 @@ public class UserService : IUserService
 
         _logger.LogInformation($"delete function soft-deleted user {user.UserName} with id: {user.Id}");
     }
+
+    /*public async Task<ICollection<Group>> GetUserGroups(string userId)
+    {
+        //this has to be a query where all the groups that a user is a member of are retrieved (might have to rewrite this as another linq query in the userRepository if it doesn't work)
+        return await _groupRepository.GetAllIncludingAsync(g => g.Users.Where(u => u.Id == userId)).ToArrayAsync();
+    }
+
+    public async Task<ICollection<Set>> GetUserSets(string userId)
+    {
+        // same goes here since I now added a collection of users to a set (might also have to add a collection of sets to a user?) in order to grab the sets of a user...
+        return await _setRepository.GetAllIncludingAsync(s => s.Users.Where(u => u.Id == userId)).ToArrayAsync();
+    }*/
 }

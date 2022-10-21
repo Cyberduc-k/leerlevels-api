@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Newtonsoft.Json;
 
 namespace Model.Response;
@@ -6,16 +7,17 @@ public class LoginResponse
 {
     private JwtSecurityToken Token { get; }
 
-    //[OpenApiProperty(Description = "The access token to be used in every subsequent operation for this user.")]
     [JsonRequired]
+    [OpenApiProperty(Description = "The access token to be used in every subsequent operation for this user.")]
     public string AccessToken => new JwtSecurityTokenHandler().WriteToken(Token);
 
-    //[OpenApiProperty(Description = "The token type.")]
     [JsonRequired]
+    [OpenApiProperty(Description = "The token type.")]
     public static string TokenType => "Bearer";
 
-    //[OpenApiProperty(Description = "The amount of seconds until the token expires.")]  2do: create logic for generating refresh tokens until specific point
+    //2do: create logic for generating refresh tokens until specific point
     [JsonRequired]
+    [OpenApiProperty(Description = "The amount of seconds until the token expires.")]
     public int ExpiresIn => (int)(Token.ValidTo - DateTime.UtcNow).TotalSeconds;
 
     public LoginResponse(JwtSecurityToken token)
