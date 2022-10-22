@@ -13,6 +13,7 @@ using Model;
 using Model.DTO;
 using Model.Response;
 using Newtonsoft.Json;
+using Service.Exceptions;
 using Service.Interfaces;
 
 namespace API.Controllers;
@@ -47,8 +48,15 @@ public class UserController
     { 
         // Authentication validation
         if (!await _tokenService.ValidateAuthentication(req)) {
+            _logger.LogInformation("Authentication for the GetUsers request failed.");
             HttpResponseData unauthorized = req.CreateResponse(HttpStatusCode.Unauthorized);
             return unauthorized;
+        }
+
+        // Authorization for this endpoint (teachers or administrators only)
+        if(_tokenService.User.Role == UserRole.Student) {
+            _logger.LogInformation("Authorization issue detected for the GetUsers request.");
+            throw new AuthorizationException("not authorized to retrieve all of these freaking users dude!");
         }
 
         _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");

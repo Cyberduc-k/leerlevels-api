@@ -16,6 +16,7 @@ public class ExceptionMiddleware : IFunctionsWorkerMiddleware
         AddHandler<NotImplementedException>(HttpStatusCode.NotImplemented);
         AddHandler<NotFoundException>(HttpStatusCode.NotFound);
         AddHandler<AuthenticationException>(HttpStatusCode.Unauthorized);
+        AddHandler<AuthorizationException>(HttpStatusCode.Forbidden);
     }
 
     internal void AddHandler<TException>(HttpStatusCode statusCode) where TException : Exception

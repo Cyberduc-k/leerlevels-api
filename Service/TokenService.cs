@@ -28,16 +28,18 @@ public class TokenService : ITokenService
     private SigningCredentials Credentials { get; }
     private TokenIdentityValidationParameters ValidationParameters { get; }
 
+    public User User { get; set; }
+
     public TokenService(IConfiguration Configuration, ILogger<TokenService> Logger, IUserRepository userRepository)
     {
         this.Logger = Logger;
 
         UserRepository = userRepository;
 
-        Issuer = Configuration["LeerLevels"] ?? "DebugIssuer";
-        Audience = Configuration["Users of the LeerLevels application"] ?? "DebugIssuer"; /*Configuration.GetClassValueChecked("JWT:Audience", "DebugAudience";//, Logger);*/
-        ValidityDuration = TimeSpan.FromDays(1);// Todo: configure an appropriate validity duration (2 hours and then generate refresh tokens? read from config somewhere when another login is required/so until how long refresh tokens are generated after init login)
-        string Key = Configuration["The LeerLevels JWT token keys tring used for authentication and authorization purposes"] ?? "DebugKey DebugKey that is a long size by default"; /*Configuration.GetClassValueChecked("JWT:Key", "DebugKey DebugKey";//, Logger);*/
+        Issuer = "LeerLevels";
+        Audience = "Users of the LeerLevels applications";
+        ValidityDuration = TimeSpan.FromDays(1); // 2do: configure an appropriate validity duration (2 hours and then generate refresh tokens? read from config somewhere when another login is required/so until how long refresh tokens are generated after init login)
+        string Key = "The LeerLevels JWT token keys tring used for authentication and authorization purposes";
 
         SymmetricSecurityKey SecurityKey = new(Encoding.UTF8.GetBytes(Key));
 
@@ -105,7 +107,7 @@ public class TokenService : ITokenService
             throw new AuthenticationException("No authorization header provided");
         }
 
-        //get headers as dictionary
+        // get headers as dictionary
         Dictionary<string, string> headers = req.Headers.ToDictionary(h => h.Key, h => string.Join(";", h.Value));
 
         if (string.IsNullOrEmpty(headers["Authorization"])) {
@@ -114,25 +116,40 @@ public class TokenService : ITokenService
 
         AuthenticationHeaderValue BearerHeader = AuthenticationHeaderValue.Parse(headers["Authorization"]);
 
-        //validation of token based on the validation parameters (also done in the JwtMiddleware)
+        // validation of token based on the validation parameters (also done in the JwtMiddleware)
         ClaimsPrincipal Token = await GetByValue(BearerHeader.Parameter!);
 
         if(Token == null || !Token.Claims.Any()) {
             throw new AuthenticationException("An Invalid or expired token was provided");
         }
+        
+        Dictionary<string, string> claims = Token.Claims.ToDictionary(t => t.Type, t => t.Value);
 
-        Claim[] claims = Token.Claims.ToArray();
-
-        if (claims[0].Type != "userId" || claims[1].Type != "userName" || claims[2].Type != "userRole") {
-            throw new AuthenticationException("an Invalid JWT type token was supplied");
+        // validation of token set user related claims (id, name and role)
+        if (!claims.ContainsKey("userId") || !claims.ContainsKey("userName") || !claims.ContainsKey("userRole")) {
+            throw new AuthenticationException("Insufficient data or invalid token provided");
         }
 
-        string userId = claims[0].Value;
+        // validation of token issuer and audience
+        if (claims["iss"] != "LeerLevels" || claims["aud"] != "Users of the LeerLevels applications") {
+            throw new AuthenticationException("Incorrect token issuer or audience provided");
+        }
+
+        // validation of token expiration? (is already done by the ValidateToken method but we might want to implement this here again?)
+        /*if (claims["nbf"] != DateTime.UtcNow.ToLocalTime().Seconds) {
+
+        }*/
+
+        string userId = claims["userId"];
         User user = await UserRepository.GetByIdAsync(userId);
 
-        if (user!.IsActive == false /*|| user!.LoggedIn == false*/) {
+        if (!user!.IsActive/*|| user!.LoggedIn == false*/) {
             throw new AuthenticationException("Invalid token due to a logged out or deleted user");
         }
+
+        //set the interface user to check authorization in the controller endpoints
+        User = user;
+        
 
         return true;
     }
