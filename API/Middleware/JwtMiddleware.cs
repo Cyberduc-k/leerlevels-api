@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Service.Interfaces;
+using Service.Exceptions;
 
 namespace API.Middleware;
 
@@ -23,7 +24,7 @@ public class JwtMiddleware : IFunctionsWorkerMiddleware
     {
         KeyValuePair<string, BindingMetadata> binding = Context.FunctionDefinition.InputBindings.FirstOrDefault(b => b.Value.Type == "httpTrigger");
 
-        // only check authentication when in an http trigger
+        // only validate and check authentication when in an http trigger
         if (binding.Key != null) {
             string HeadersString = (string)Context.BindingContext.BindingData["Headers"]!;
 
@@ -33,12 +34,10 @@ public class JwtMiddleware : IFunctionsWorkerMiddleware
                 try {
                     AuthenticationHeaderValue BearerHeader = AuthenticationHeaderValue.Parse(AuthorizationHeader);
 
-                    if(BearerHeader != null && BearerHeader.Parameter!.StartsWith("Bearer ")) {
-
-                        ClaimsPrincipal User = await TokenService.GetByValue(BearerHeader.Parameter!);
-
-                        Context.Items["User"] = User;
-                    }
+                    //validation of token based on the validation parameters
+                    ClaimsPrincipal Token = await TokenService.GetByValue(BearerHeader.Parameter!);
+                        
+                    Context.Items["userToken"] = Token;
 
                 } catch (Exception e) {
                     Logger.LogError(e.Message);

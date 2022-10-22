@@ -18,6 +18,7 @@ public class UserRepository : Repository<User>, IUserRepository
     {
         IQueryable<User> query = Users;
         query = query.Where(x => x.UserName == userName && x.Password == password);
+        // This is allowed to return a default value (null) when no user is found, so don't alter this to be non-nullable with an ! please, thank you ;)
         return await query.FirstOrDefaultAsync();
     }
 }

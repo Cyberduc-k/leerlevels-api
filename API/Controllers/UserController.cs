@@ -2,6 +2,7 @@ using System.Net;
 using API.Attributes;
 using API.Examples;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -21,12 +22,14 @@ public class UserController
     private readonly ILogger _logger;
     private readonly IMapper _mapper;
     private readonly IUserService _userService;
+    private readonly ITokenService _tokenService;
 
-    public UserController(ILoggerFactory loggerFactory, IMapper mapper, IUserService userservice)
+    public UserController(ILoggerFactory loggerFactory, IMapper mapper, IUserService userservice, ITokenService tokenSerivce)
     {
         _logger = loggerFactory.CreateLogger<UserController>();
         _mapper = mapper;
         _userService = userservice;
+        _tokenService = tokenSerivce;
     }
 
     // Get users
@@ -36,10 +39,18 @@ public class UserController
     [OpenApiAuthentication(Name = "LeerLevelsAuthentication", In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT", Description = "Java Web Token used for authentication")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse[]), Description = "A list of users.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, contentType: "application/json", bodyType: typeof(OpenApiErrorResponse), Description = "Unauthorized to perform this operation.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, contentType: "application/json", bodyType: typeof(OpenApiErrorResponse), Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
-    public async Task<HttpResponseData> GetUsers([HttpTrigger(AuthorizationLevel.Anonymous /*2do: fix authorization*/, "get", Route = "users")] HttpRequestData req)
-    {
+    public async Task<HttpResponseData> GetUsers([HttpTrigger(AuthorizationLevel.User, "get", Route = "users")] HttpRequestData req)
+    { 
+        // Authentication validation
+        if (!await _tokenService.ValidateAuthentication(req)) {
+            HttpResponseData unauthorized = req.CreateResponse(HttpStatusCode.Unauthorized);
+            return unauthorized;
+        }
+
         _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");
 
         ICollection<User> users = await _userService.GetUsers();

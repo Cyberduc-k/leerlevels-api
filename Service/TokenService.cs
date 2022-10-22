@@ -1,6 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Reflection.PortableExecutable;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -52,7 +56,7 @@ public class TokenService : ITokenService
         return new LoginResponse(Token);
     }
 
-    private async Task<JwtSecurityToken> CreateToken(User user)
+    public async Task<JwtSecurityToken> CreateToken(User user)
     {
         JwtHeader Header = new(Credentials);
 
@@ -79,7 +83,7 @@ public class TokenService : ITokenService
     public async Task<ClaimsPrincipal> GetByValue(string Value)
     {
         if (Value == null) {
-            throw new Exception("No Token supplied");
+            throw new AuthenticationException("No JWT type token was supplied");
         }
 
         JwtSecurityTokenHandler Handler = new();
@@ -92,5 +96,44 @@ public class TokenService : ITokenService
             Logger.LogInformation(e.Message);
             throw;
         }
+    }
+
+    public async Task<bool> ValidateAuthentication(HttpRequestData req)
+    {
+        // see if authorization key exists (also done in the JwtMiddleware)
+        if(!req.Headers.Contains("Authorization")) {
+            throw new AuthenticationException("No authorization header provided");
+        }
+
+        //get headers as dictionary
+        Dictionary<string, string> headers = req.Headers.ToDictionary(h => h.Key, h => string.Join(";", h.Value));
+
+        if (string.IsNullOrEmpty(headers["Authorization"])) {
+            throw new AuthenticationException("No readable data present in provided authorization header");
+        }
+
+        AuthenticationHeaderValue BearerHeader = AuthenticationHeaderValue.Parse(headers["Authorization"]);
+
+        //validation of token based on the validation parameters (also done in the JwtMiddleware)
+        ClaimsPrincipal Token = await GetByValue(BearerHeader.Parameter!);
+
+        if(Token == null || !Token.Claims.Any()) {
+            throw new AuthenticationException("An Invalid or expired token was provided");
+        }
+
+        Claim[] claims = Token.Claims.ToArray();
+
+        if (claims[0].Type != "userId" || claims[1].Type != "userName" || claims[2].Type != "userRole") {
+            throw new AuthenticationException("an Invalid JWT type token was supplied");
+        }
+
+        string userId = claims[0].Value;
+        User user = await UserRepository.GetByIdAsync(userId);
+
+        if (user!.IsActive == false /*|| user!.LoggedIn == false*/) {
+            throw new AuthenticationException("Invalid token due to a logged out or deleted user");
+        }
+
+        return true;
     }
 }
