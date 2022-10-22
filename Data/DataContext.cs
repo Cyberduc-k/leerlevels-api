@@ -32,7 +32,7 @@ public class DataContext : DbContext
     {
         modelBuilder.Entity<User>().HasData(
             new {
-                Id = "1",
+                Id = Guid.NewGuid().ToString(),
                 Email = "JohnDoe@gmail.com",
                 FirstName = "John",
                 LastName = "Doe",
@@ -44,7 +44,7 @@ public class DataContext : DbContext
                 IsActive = true
             },
             new {
-                Id = "2",
+                Id = Guid.NewGuid().ToString(),
                 Email = "MarySue@gmail.com",
                 FirstName = "Mary",
                 LastName = "Sue",
