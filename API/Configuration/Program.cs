@@ -26,13 +26,13 @@ IHost host = new HostBuilder()
         services.AddTransient<ISetRepository, SetRepository>();
         services.AddTransient<ITargetRepository, TargetRepository>();
 
-        services.AddTransient<ITokenService, TokenService>();
-        services.AddTransient<IUserService, UserService>();
-        services.AddTransient<IForumService, ForumService>();
-        services.AddTransient<IMcqService, McqService>();
-        services.AddTransient<IGroupService, GroupService>();
-        services.AddTransient<ISetService, SetService>();
-        services.AddTransient<ITargetService, TargetService>();
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IForumService, ForumService>();
+        services.AddScoped<IMcqService, McqService>();
+        services.AddScoped<IGroupService, GroupService>();
+        services.AddScoped<ISetService, SetService>();
+        services.AddScoped<ITargetService, TargetService>();
 
         services.AddAutoMapper(typeof(Program));
         services.AddValidatorsFromAssemblyContaining<Program>();

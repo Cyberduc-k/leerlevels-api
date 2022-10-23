@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Newtonsoft.Json;
 
 namespace Model.DTO;
 
 public class ForumReplyDTO
 {
-    [JsonRequired]
+    [OpenApiProperty(Nullable = true)]
     public string FromId { get; set; }
 
     [JsonRequired]

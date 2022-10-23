@@ -17,9 +17,9 @@ internal class ForumConverter : ITypeConverter<ForumDTO, Task<Forum>>
     public async Task<Forum> Convert(ForumDTO source, Task<Forum> destination, ResolutionContext context)
     {
         return new() {
+            From = await _userService.GetUserById(source.FromId),
             Title = source.Title,
             Description = source.Description,
-            From = await _userService.GetUserById(source.FromId)
         };
     }
 }
