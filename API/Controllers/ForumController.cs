@@ -33,7 +33,7 @@ public class ForumController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> GetForums([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "forums")] HttpRequestData req)
     {
-        await ValidateAuthentication(req, UserRole.Student, "/forums");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums");
         ICollection<Forum> forums = await _forumService.GetAll();
         IEnumerable<ForumResponse> forumResponses = forums.Select(f => _mapper.Map<ForumResponse>(f));
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
@@ -51,7 +51,7 @@ public class ForumController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> CreateForum([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "forums")] HttpRequestData req)
     {
-        await ValidateAuthentication(req, UserRole.Student, "/forums");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums");
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         ForumDTO forumDTO = JsonConvert.DeserializeObject<ForumDTO>(body)!;
         forumDTO.FromId ??= _tokenService.User.Id;
@@ -76,7 +76,7 @@ public class ForumController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "forums/{forumId}")] HttpRequestData req,
         string forumId)
     {
-        await ValidateAuthentication(req, UserRole.Student, "/forums/{forumId}");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}");
         Forum forum = await _forumService.GetById(forumId);
         ForumResponse forumResponse = _mapper.Map<ForumResponse>(forum);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
@@ -98,7 +98,7 @@ public class ForumController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "forums/{forumId}")] HttpRequestData req,
         string forumId)
     {
-        await ValidateAuthentication(req, UserRole.Student, "/forums/{forumId}");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}");
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         UpdateForumDTO forumDTO = JsonConvert.DeserializeObject<UpdateForumDTO>(body)!;
 
@@ -119,7 +119,7 @@ public class ForumController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "forums/{forumId}/replies")] HttpRequestData req,
         string forumId)
     {
-        await ValidateAuthentication(req, UserRole.Student, "/forums/{forumId}/replies");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}/replies");
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         ForumReplyDTO forumReplyDTO = JsonConvert.DeserializeObject<ForumReplyDTO>(body)!;
         forumReplyDTO.FromId ??= _tokenService.User.Id;
@@ -146,7 +146,7 @@ public class ForumController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "forums/{forumId}/replies/{replyId}")] HttpRequestData req,
         string replyId)
     {
-        await ValidateAuthentication(req, UserRole.Student, "/forums/{forumId}/replies/{replyId}");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}/replies/{replyId}");
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         UpdateForumReplyDTO forumReplyDTO = JsonConvert.DeserializeObject<UpdateForumReplyDTO>(body)!;
 
@@ -168,7 +168,7 @@ public class ForumController : ControllerWithAuthentication
         string forumId,
         string replyId)
     {
-        await ValidateAuthentication(req, UserRole.Student, "/forums/{forumId}/replies/{replyId}");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}/replies/{replyId}");
         await _forumService.DeleteForumReply(forumId, replyId);
 
         return req.CreateResponse(HttpStatusCode.OK);

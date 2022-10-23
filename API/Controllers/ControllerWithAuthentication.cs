@@ -16,7 +16,7 @@ public abstract class ControllerWithAuthentication : ControllerBase
         _tokenService = tokenService;
     }
 
-    public async Task ValidateAuthentication(HttpRequestData req, UserRole role, string endpoint)
+    public async Task ValidateAuthenticationAndAuthorization(HttpRequestData req, UserRole role, string endpoint)
     {
         // Authentication validation
         if (!await _tokenService.AuthenticationValidation(req)) {
