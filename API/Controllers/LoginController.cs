@@ -3,13 +3,11 @@ using API.Attributes;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Model.DTO;
 using Model.Response;
 using Newtonsoft.Json;
-using Service.Exceptions;
 using Service.Interfaces;
 
 namespace API.Controllers;
@@ -36,7 +34,7 @@ public class LoginController
         _logger.LogInformation("C# HTTP trigger function processed the Login request.");
 
         LoginDTO login = JsonConvert.DeserializeObject<LoginDTO>(await new StreamReader(req.Body).ReadToEndAsync())!;
-        
+
         LoginResponse result = await TokenService.Login(login);
 
         HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);

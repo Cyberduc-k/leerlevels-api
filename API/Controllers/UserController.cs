@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Model;
@@ -37,15 +36,15 @@ public class UserController
 
     [Function(nameof(GetUsers))]
     [OpenApiOperation(operationId: nameof(GetUsers), tags: new[] { "Users" }, Summary = "A list of users", Description = "Will return a (full) list of users if a teacher or admin token is used.")]
-    [OpenApiAuthentication(Name = "LeerLevelsAuthentication", In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT", Description = "Java Web Token used for authentication")]
+    [OpenApiAuthentication]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse[]), Description = "A list of users.")]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, contentType: "application/json", bodyType: typeof(OpenApiErrorResponse), Description = "Unauthorized to perform this operation.")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, contentType: "application/json", bodyType: typeof(OpenApiErrorResponse), Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to perform this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> GetUsers([HttpTrigger(AuthorizationLevel.User, "get", Route = "users")] HttpRequestData req)
-    { 
+    {
         // Authentication validation
         if (!await _tokenService.ValidateAuthentication(req)) {
             _logger.LogInformation("Authentication for the GetUsers request failed.");
@@ -54,7 +53,7 @@ public class UserController
         }
 
         // Authorization for this endpoint (teachers or administrators only)
-        if(_tokenService.User.Role == UserRole.Student) {
+        if (_tokenService.User.Role == UserRole.Student) {
             _logger.LogInformation("Authorization issue detected for the GetUsers request.");
             throw new AuthorizationException("not authorized to retrieve all of these freaking users dude!");
         }
@@ -77,7 +76,7 @@ public class UserController
     //[OpenApiAuthentication(Name = "LeerLevelsAuthentication", In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT", Description = "Java Web Token used for authentication")]
     [OpenApiParameter(name: "Id", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "A single retrieved user.", Example = typeof(UserResponseExample))]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
+    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> GetUserById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/{id}")] HttpRequestData req,
@@ -102,10 +101,10 @@ public class UserController
 
     [Function(nameof(CreateUser))]
     [OpenApiOperation(operationId: nameof(CreateUser), tags: new[] { "Users" }, Summary = "Create a new user", Description = "Will create and return the new user.")]
-    [OpenApiAuthentication(Name = "LeerLevelsAuthentication", In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT", Description = "Java Web Token used for authentication")]
+    [OpenApiAuthentication]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UserDTO), Required = true, Description = "Data for the user that has to be created.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "The newly created user.", Example = typeof(UserResponseExample))]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to create a new user.")]
+    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> CreateUser([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequestData req)
@@ -128,11 +127,11 @@ public class UserController
 
     [Function(nameof(UpdateUser))]
     [OpenApiOperation(operationId: nameof(UpdateUser), tags: new[] { "Users" }, Summary = "Edit a user", Description = "Allows for modification of a user.")]
-    [OpenApiAuthentication(Name = "LeerLevelsAuthentication", In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT", Description = "Java Web Token used for authentication")]
+    [OpenApiAuthentication]
     [OpenApiParameter(name: "Id", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateUserDTO), Required = true, Description = "The edited user data.", Example = typeof(UpdateUserExample))]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "The updated user", Example = typeof(UserResponseExample))]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to update the user.")]
+    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> UpdateUser(
@@ -154,11 +153,11 @@ public class UserController
 
     [Function(nameof(DeleteUser))]
     [OpenApiOperation(operationId: nameof(DeleteUser), tags: new[] { "Users" }, Summary = "Delete a user", Description = "Allows for the soft-deletion of a user.")]
-    [OpenApiAuthentication(Name = "LeerLevelsAuthentication", In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT", Description = "Java Web Token used for authentication")]
+    [OpenApiAuthentication]
     [OpenApiParameter(name: "Id", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The user has been soft deleted (no longer active).")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, contentType: "application/json", bodyType: typeof(OpenApiErrorResponse), Description = "Unauthorized to perform this operation.")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, contentType: "application/json", bodyType: typeof(OpenApiErrorResponse), Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to perform this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> DeleteUser(

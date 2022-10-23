@@ -3,9 +3,10 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 
 namespace API.Attributes;
-public class OpenApiAuthentication : OpenApiSecurityAttribute
+
+public class OpenApiAuthenticationAttribute : OpenApiSecurityAttribute
 {
-    public OpenApiAuthentication() : base("LeerLevelsAuthentication", SecuritySchemeType.Http)
+    public OpenApiAuthenticationAttribute() : base("LeerLevelsAuthentication", SecuritySchemeType.Http)
     {
         Description = "JWT used for authorization";
         In = OpenApiSecurityLocationType.Header;

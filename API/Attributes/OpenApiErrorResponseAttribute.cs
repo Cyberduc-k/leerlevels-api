@@ -4,9 +4,9 @@ using Model.Response;
 
 namespace API.Attributes;
 
-public class OpenApiErrorResponse : OpenApiResponseWithBodyAttribute
+public class OpenApiErrorResponseAttribute : OpenApiResponseWithBodyAttribute
 {
-    public OpenApiErrorResponse(HttpStatusCode statusCode)
+    public OpenApiErrorResponseAttribute(HttpStatusCode statusCode)
         : base(statusCode, "application/json", typeof(ErrorResponse))
     {
     }
