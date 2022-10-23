@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Functions.Worker.Http;
+﻿using System.Net;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 using Service.Exceptions;
@@ -18,9 +19,9 @@ public abstract class ControllerWithAuthentication : ControllerBase
     public async Task ValidateAuthentication(HttpRequestData req, UserRole role, string endpoint)
     {
         // Authentication validation
-        if (!await _tokenService.ValidateAuthentication(req)) {
+        if (!await _tokenService.AuthenticationValidation(req)) {
             _logger.LogInformation($"Authentication for the {endpoint} request failed");
-            throw new AuthenticationException($"{endpoint} requires authentication");
+            throw new AuthenticationException($"{endpoint} requires authentication, error: {_tokenService.Message}");
         }
 
         // Authorization for this endpoint

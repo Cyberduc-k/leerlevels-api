@@ -17,19 +17,16 @@ using Service.Interfaces;
 
 namespace API.Controllers;
 
-public class UserController
+public class UserController : ControllerWithAuthentication
 {
-    private readonly ILogger _logger;
     private readonly IMapper _mapper;
     private readonly IUserService _userService;
-    private readonly ITokenService _tokenService;
 
-    public UserController(ILoggerFactory loggerFactory, IMapper mapper, IUserService userservice, ITokenService tokenSerivce)
+    public UserController(ILoggerFactory loggerFactory, ITokenService tokenService, IMapper mapper, IUserService userservice) 
+        : base(loggerFactory.CreateLogger<UserController>(), tokenService)
     {
-        _logger = loggerFactory.CreateLogger<UserController>();
         _mapper = mapper;
         _userService = userservice;
-        _tokenService = tokenSerivce;
     }
 
     // Get users
@@ -39,24 +36,13 @@ public class UserController
     [OpenApiAuthentication]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse[]), Description = "A list of users.")]
     [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
-    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to perform this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
-    [OpenApiErrorResponse(HttpStatusCode.NotFound)]
-    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find a list of users.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> GetUsers([HttpTrigger(AuthorizationLevel.User, "get", Route = "users")] HttpRequestData req)
     {
-        // Authentication validation
-        if (!await _tokenService.ValidateAuthentication(req)) {
-            _logger.LogInformation("Authentication for the GetUsers request failed.");
-            HttpResponseData unauthorized = req.CreateResponse(HttpStatusCode.Unauthorized);
-            return unauthorized;
-        }
-
-        // Authorization for this endpoint (teachers or administrators only)
-        if (_tokenService.User.Role == UserRole.Student) {
-            _logger.LogInformation("Authorization issue detected for the GetUsers request.");
-            throw new AuthorizationException("not authorized to retrieve all of these freaking users dude!");
-        }
+        await ValidateAuthentication(req, UserRole.Teacher, "/users");
 
         _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");
 
@@ -73,18 +59,21 @@ public class UserController
 
     [Function(nameof(GetUserById))]
     [OpenApiOperation(operationId: nameof(GetUserById), tags: new[] { "Users" }, Summary = "A single user", Description = "Will return a specified user's info for a logged in user or from the full list of users if a teacher, coach or administrator token is used")]
-    //[OpenApiAuthentication(Name = "LeerLevelsAuthentication", In = OpenApiSecurityLocationType.Header, Scheme = OpenApiSecuritySchemeType.Bearer, BearerFormat = "JWT", Description = "Java Web Token used for authentication")]
-    [OpenApiParameter(name: "Id", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
+    [OpenApiAuthentication]
+    [OpenApiParameter(name: "userId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "A single retrieved user.", Example = typeof(UserResponseExample))]
-    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
+    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve the user.")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
-    public async Task<HttpResponseData> GetUserById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/{id}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetUserById([HttpTrigger(AuthorizationLevel.User, "get", Route = "users/{userId}")] HttpRequestData req,
         string userId)
     {
+        await ValidateAuthentication(req, UserRole.Student, "/users/{userId}");
+
         _logger.LogInformation("C# HTTP trigger function processed the GetUser request.");
 
-        //string userId = req.Query("Id"); delete this line
         User user = await _userService.GetUserById(userId);
 
         // map retrieved user to the UserRepsonse model
@@ -104,11 +93,15 @@ public class UserController
     [OpenApiAuthentication]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UserDTO), Required = true, Description = "Data for the user that has to be created.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "The newly created user.", Example = typeof(UserResponseExample))]
-    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
+    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error occured while trying to create the user.")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
-    public async Task<HttpResponseData> CreateUser([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequestData req)
+    public async Task<HttpResponseData> CreateUser([HttpTrigger(AuthorizationLevel.User, "post", Route = "users")] HttpRequestData req)
     {
+        await ValidateAuthentication(req, UserRole.Student, "/users");
+
         _logger.LogInformation("C# HTTP trigger function processed the CreateUser request.");
 
         string body = await new StreamReader(req.Body).ReadToEndAsync();
@@ -128,16 +121,20 @@ public class UserController
     [Function(nameof(UpdateUser))]
     [OpenApiOperation(operationId: nameof(UpdateUser), tags: new[] { "Users" }, Summary = "Edit a user", Description = "Allows for modification of a user.")]
     [OpenApiAuthentication]
-    [OpenApiParameter(name: "Id", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
+    [OpenApiParameter(name: "userId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateUserDTO), Required = true, Description = "The edited user data.", Example = typeof(UpdateUserExample))]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "The updated user", Example = typeof(UserResponseExample))]
-    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve users.")]
-    [OpenApiErrorResponse(HttpStatusCode.NotFound)]
-    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
+    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error occured while trying to update the user.")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the user to update.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> UpdateUser(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "users/{id}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.User, "put", Route = "users/{userId}")] HttpRequestData req,
         string userId)
     {
+        await ValidateAuthentication(req, UserRole.Student, "/users/{userId}");
+
         _logger.LogInformation("C# HTTP trigger function processed the UpdateUser request.");
 
         string body = await new StreamReader(req.Body).ReadToEndAsync();
@@ -154,16 +151,18 @@ public class UserController
     [Function(nameof(DeleteUser))]
     [OpenApiOperation(operationId: nameof(DeleteUser), tags: new[] { "Users" }, Summary = "Delete a user", Description = "Allows for the soft-deletion of a user.")]
     [OpenApiAuthentication]
-    [OpenApiParameter(name: "Id", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
+    [OpenApiParameter(name: "userId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The user has been soft deleted (no longer active).")]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to perform this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> DeleteUser(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "users/{id}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.User, "delete", Route = "users/{userId}")] HttpRequestData req,
         string userId)
     {
+        await ValidateAuthentication(req, UserRole.Student, "/users/{userId}");
+
         _logger.LogInformation("C# HTTP trigger function processed the DeleteUser request.");
 
         await _userService.DeleteUser(userId);
@@ -171,5 +170,5 @@ public class UserController
         return req.CreateResponse(HttpStatusCode.OK);
     }
 
-    //
+
 }

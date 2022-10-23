@@ -42,32 +42,4 @@ public class LoginController
 
         return response;
     }
-
-    /*[Function("GetUsers")]
-    [ExampleAuth]
-    [OpenApiOperation(operationId: "GetUsers", tags: new[] { "Users" }, Summary = "Get the users in the application", Description = "Some description.")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(User[]), Description = "The users in the system")]
-    public HttpResponseData GetUsers([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req, FunctionContext executionContext)
-    {
-        ClaimsPrincipal user = executionContext.GetUser();
-
-        if (user == null) {
-            HttpResponseData unauthortized = req.CreateResponse(HttpStatusCode.Unauthorized);
-            return unauthortized;
-        }
-
-
-        string Name = user.Identity.Name;
-
-
-        _logger.LogInformation("C# HTTP trigger function processed a request.");
-
-        var response = req.CreateResponse(HttpStatusCode.OK);
-        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-
-        response.WriteString("Welcome to Azure Functions!");
-
-        return response;
-    }*/
-
 }

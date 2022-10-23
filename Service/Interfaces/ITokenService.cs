@@ -9,8 +9,10 @@ namespace Service.Interfaces;
 public interface ITokenService
 {
     User User { get; set; }
+    string Message { get; set; }
+
     Task<LoginResponse> Login(LoginDTO Login);
     Task<JwtSecurityToken> CreateToken(User user);
     Task<ClaimsPrincipal> GetByValue(string Value);
-    Task<bool> ValidateAuthentication(HttpRequestData request);
+    Task<bool> AuthenticationValidation(HttpRequestData request);
 }

@@ -30,6 +30,8 @@ public class TokenService : ITokenService
 
     public User User { get; set; }
 
+    public string Message { get; set; }
+
     public TokenService(IConfiguration Configuration, ILogger<TokenService> Logger, IUserRepository userRepository)
     {
         this.Logger = Logger;
@@ -100,18 +102,20 @@ public class TokenService : ITokenService
         }
     }
 
-    public async Task<bool> ValidateAuthentication(HttpRequestData req)
+    public async Task<bool> AuthenticationValidation(HttpRequestData req)
     {
         // see if authorization key exists (also done in the JwtMiddleware)
         if(!req.Headers.Contains("Authorization")) {
-            throw new AuthenticationException("No authorization header provided");
+            Message = "No authorization header provided";
+            return false;
         }
 
         // get headers as dictionary
         Dictionary<string, string> headers = req.Headers.ToDictionary(h => h.Key, h => string.Join(";", h.Value));
 
         if (string.IsNullOrEmpty(headers["Authorization"])) {
-            throw new AuthenticationException("No readable data present in provided authorization header");
+            Message = "No readable data present in provided authorization header";
+            return false;
         }
 
         AuthenticationHeaderValue BearerHeader = AuthenticationHeaderValue.Parse(headers["Authorization"]);
@@ -120,19 +124,22 @@ public class TokenService : ITokenService
         ClaimsPrincipal Token = await GetByValue(BearerHeader.Parameter!);
 
         if(Token == null || !Token.Claims.Any()) {
-            throw new AuthenticationException("An Invalid or expired token was provided");
+            Message = "An Invalid or expired token was provided";
+            return false;
         }
         
         Dictionary<string, string> claims = Token.Claims.ToDictionary(t => t.Type, t => t.Value);
 
         // validation of token set user related claims (id, name and role)
         if (!claims.ContainsKey("userId") || !claims.ContainsKey("userName") || !claims.ContainsKey("userRole")) {
-            throw new AuthenticationException("Insufficient data or invalid token provided");
+            Message = "Insufficient data or invalid token provided";
+            return false;
         }
 
         // validation of token issuer and audience
         if (claims["iss"] != "LeerLevels" || claims["aud"] != "Users of the LeerLevels applications") {
-            throw new AuthenticationException("Incorrect token issuer or audience provided");
+            Message = "Incorrect token issuer or audience provided";
+            return false;
         }
 
         // validation of token expiration? (is already done by the ValidateToken method but we might want to implement this here again?)
@@ -140,11 +147,11 @@ public class TokenService : ITokenService
 
         }*/
 
-        string userId = claims["userId"];
-        User user = await UserRepository.GetByIdAsync(userId);
+        User user = await UserRepository.GetByIdAsync(claims["userId"]);
 
         if (!user!.IsActive/*|| user!.LoggedIn == false*/) {
-            throw new AuthenticationException("Invalid token due to a logged out or deleted user");
+            Message = "Invalid token due to a logged out or deleted user";
+            return false;
         }
 
         //set the interface user to check authorization in the controller endpoints
