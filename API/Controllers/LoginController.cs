@@ -11,14 +11,13 @@ using Newtonsoft.Json;
 using Service.Interfaces;
 
 namespace API.Controllers;
-public class LoginController
+public class LoginController : ControllerBase
 {
-    private readonly ILogger _logger;
     private readonly ITokenService TokenService;
 
     public LoginController(ILoggerFactory loggerFactory, ITokenService tokenService)
+        : base(loggerFactory.CreateLogger<LoginController>())
     {
-        _logger = loggerFactory.CreateLogger<LoginController>();
         TokenService = tokenService;
     }
 

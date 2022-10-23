@@ -5,13 +5,11 @@ using Newtonsoft.Json;
 
 namespace API.Controllers;
 
-public class NotificationController
+public class NotificationController : ControllerBase
 {
-    private readonly ILogger _logger;
-
     public NotificationController(ILoggerFactory loggerFactory)
+        : base(loggerFactory.CreateLogger<NotificationController>())
     {
-        _logger = loggerFactory.CreateLogger<NotificationController>();
     }
 
     [Function(nameof(SendNotification))]
