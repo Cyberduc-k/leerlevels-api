@@ -35,7 +35,7 @@ public class McqController : ControllerWithAuthentication
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(McqResponse[]), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve mcqs.")]
 
-    public async Task<HttpResponseData> GetAllMcqs([HttpTrigger(AuthorizationLevel.User, "get", Route = "mcqs")] HttpRequestData req)
+    public async Task<HttpResponseData> GetAllMcqs([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs")] HttpRequestData req)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs");
 
@@ -58,7 +58,7 @@ public class McqController : ControllerWithAuthentication
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Mcq), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Mcq Id.")]
 
-    public async Task<HttpResponseData> GetMcqById([HttpTrigger(AuthorizationLevel.User, "get", Route = "mcqs/{id}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetMcqById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs/{id}")] HttpRequestData req,
         string mcqId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}");

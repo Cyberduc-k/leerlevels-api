@@ -39,7 +39,7 @@ public class UserController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find a list of users.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
-    public async Task<HttpResponseData> GetUsers([HttpTrigger(AuthorizationLevel.User, "get", Route = "users")] HttpRequestData req)
+    public async Task<HttpResponseData> GetUsers([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequestData req)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Teacher, "/users");
 
@@ -66,7 +66,7 @@ public class UserController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the user.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
-    public async Task<HttpResponseData> GetUserById([HttpTrigger(AuthorizationLevel.User, "get", Route = "users/{userId}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetUserById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users/{userId}")] HttpRequestData req,
         string userId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users/{userId}");
@@ -96,7 +96,7 @@ public class UserController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
-    public async Task<HttpResponseData> CreateUser([HttpTrigger(AuthorizationLevel.User, "post", Route = "users")] HttpRequestData req)
+    public async Task<HttpResponseData> CreateUser([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequestData req)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users");
 
@@ -128,7 +128,7 @@ public class UserController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the user to update.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> UpdateUser(
-        [HttpTrigger(AuthorizationLevel.User, "put", Route = "users/{userId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "users/{userId}")] HttpRequestData req,
         string userId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users/{userId}");
@@ -156,7 +156,7 @@ public class UserController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the user.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> DeleteUser(
-        [HttpTrigger(AuthorizationLevel.User, "delete", Route = "users/{userId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "users/{userId}")] HttpRequestData req,
         string userId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users/{userId}");
@@ -179,7 +179,7 @@ public class UserController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find a list of a user's groups.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
-    public async Task<HttpResponseData> GetUserGroups([HttpTrigger(AuthorizationLevel.User, "get", Route = "users/{userId}/groups")] HttpRequestData req,
+    public async Task<HttpResponseData> GetUserGroups([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users/{userId}/groups")] HttpRequestData req,
         string userId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users/{userId}/groups");
@@ -205,7 +205,7 @@ public class UserController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find a list of a user's sets.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
-    public async Task<HttpResponseData> GetUserSets([HttpTrigger(AuthorizationLevel.User, "get", Route = "users/{userId}/sets")] HttpRequestData req,
+    public async Task<HttpResponseData> GetUserSets([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users/{userId}/sets")] HttpRequestData req,
         string userId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users/{userId}/sets");

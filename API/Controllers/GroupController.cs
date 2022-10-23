@@ -36,7 +36,7 @@ public class GroupController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find a list of groups.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
-    public async Task<HttpResponseData> GetAllGroups([HttpTrigger(AuthorizationLevel.User, "get", Route = "groups")] HttpRequestData req)
+    public async Task<HttpResponseData> GetAllGroups([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "groups")] HttpRequestData req)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/groups");
 
@@ -59,7 +59,7 @@ public class GroupController : ControllerWithAuthentication
     [OpenApiParameter(name: "groupId", In = ParameterLocation.Path, Required = true, Type = typeof(Guid), Description = "The group ID parameter")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Group), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Group Id.")]
-    public async Task<HttpResponseData> GetGroupById([HttpTrigger(AuthorizationLevel.User, "get", Route = "groups/{groupId}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetGroupById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "groups/{groupId}")] HttpRequestData req,
         string groupId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/groups/{groupId}");

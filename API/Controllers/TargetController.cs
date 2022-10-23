@@ -34,7 +34,7 @@ public class TargetController : ControllerWithAuthentication
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<Target>), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve targets.")]
 
-    public async Task<HttpResponseData> GetAllTargets([HttpTrigger(AuthorizationLevel.User, "get", Route = "targets")] HttpRequestData req)
+    public async Task<HttpResponseData> GetAllTargets([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "targets")] HttpRequestData req)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets");
 
@@ -58,7 +58,7 @@ public class TargetController : ControllerWithAuthentication
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Mcq), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Target Id.")]
 
-    public async Task<HttpResponseData> GetTargetById([HttpTrigger(AuthorizationLevel.User, "get", Route = "targets/{targetId}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetTargetById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "targets/{targetId}")] HttpRequestData req,
         string targetId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}");

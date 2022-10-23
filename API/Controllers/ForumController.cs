@@ -31,7 +31,7 @@ public class ForumController : ControllerWithAuthentication
     [OpenApiAuthentication]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ForumResponse[]), Description = "A list of forum posts")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
-    public async Task<HttpResponseData> GetForums([HttpTrigger(AuthorizationLevel.User, "get", Route = "forums")] HttpRequestData req)
+    public async Task<HttpResponseData> GetForums([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "forums")] HttpRequestData req)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums");
         ICollection<Forum> forums = await _forumService.GetAll();
@@ -49,7 +49,7 @@ public class ForumController : ControllerWithAuthentication
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(ForumDTO), Required = true, Description = "The new forum post")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ForumResponse), Description = "The forum post is created")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
-    public async Task<HttpResponseData> CreateForum([HttpTrigger(AuthorizationLevel.User, "post", Route = "forums")] HttpRequestData req)
+    public async Task<HttpResponseData> CreateForum([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "forums")] HttpRequestData req)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums");
         string body = await new StreamReader(req.Body).ReadToEndAsync();
@@ -73,7 +73,7 @@ public class ForumController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> GetForum(
-        [HttpTrigger(AuthorizationLevel.User, "get", Route = "forums/{forumId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "forums/{forumId}")] HttpRequestData req,
         string forumId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}");
@@ -95,7 +95,7 @@ public class ForumController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> UpdateForum(
-        [HttpTrigger(AuthorizationLevel.User, "put", Route = "forums/{forumId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "forums/{forumId}")] HttpRequestData req,
         string forumId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}");
@@ -116,7 +116,7 @@ public class ForumController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> CreateReply(
-        [HttpTrigger(AuthorizationLevel.User, "post", Route = "forums/{forumId}/replies")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "forums/{forumId}/replies")] HttpRequestData req,
         string forumId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}/replies");
@@ -143,7 +143,7 @@ public class ForumController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> UpdateForumReply(
-        [HttpTrigger(AuthorizationLevel.User, "put", Route = "forums/{forumId}/replies/{replyId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "forums/{forumId}/replies/{replyId}")] HttpRequestData req,
         string replyId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}/replies/{replyId}");
@@ -164,7 +164,7 @@ public class ForumController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> DeleteForumReply(
-        [HttpTrigger(AuthorizationLevel.User, "delete", Route = "forums/{forumId}/replies/{replyId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "forums/{forumId}/replies/{replyId}")] HttpRequestData req,
         string forumId,
         string replyId)
     {

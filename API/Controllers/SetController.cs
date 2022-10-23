@@ -32,7 +32,7 @@ public class SetController : ControllerWithAuthentication
     [OpenApiAuthentication]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<Set>), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve sets.")]
-    public async Task<HttpResponseData> GetAllSets([HttpTrigger(AuthorizationLevel.User, "get", Route = "sets")] HttpRequestData req)
+    public async Task<HttpResponseData> GetAllSets([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sets")] HttpRequestData req)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Teacher, "/sets");
 
@@ -55,7 +55,7 @@ public class SetController : ControllerWithAuthentication
     [OpenApiParameter(name: "setId", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The set ID parameter")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Set), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Set Id.")]
-    public async Task<HttpResponseData> GetSetById([HttpTrigger(AuthorizationLevel.User, "get", Route = "sets/{setId}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetSetById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sets/{setId}")] HttpRequestData req,
         string setId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/sets/{setId}");
