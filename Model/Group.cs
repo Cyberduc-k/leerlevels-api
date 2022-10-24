@@ -8,7 +8,7 @@ public class Group
     public EducationType EducationType { get; set; }
     public SchoolYear SchoolYear { get; set; }
     public virtual ICollection<Set> Set { get; set; }
-    public ICollection<User> Users { get; set; }
+    public virtual ICollection<User> Users { get; set; }
 
     public Group()
     {

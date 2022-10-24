@@ -31,6 +31,15 @@ public class DataContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>()
+            .HasMany<Group>(u => u.Groups)
+                .WithMany(g => g.Users);
+
+        modelBuilder.Entity<User>()
+            .HasMany<Set>(u => u.Sets)
+                .WithMany(s => s.Users);
+                
+
         modelBuilder.Entity<User>().HasData(
             new {
                 Id = Guid.NewGuid().ToString(),
@@ -58,7 +67,7 @@ public class DataContext : DbContext
                 IsLoggedIn = false,
                 IsActive = true
             }
-        ); ;
+        );
 
         modelBuilder.Entity<Target>().HasData(
             new {
