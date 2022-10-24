@@ -53,7 +53,12 @@ public class TokenService : ITokenService
     public async Task<LoginResponse> Login(LoginDTO loginDTO)
     {
         //authentication of the login information
-        User user = await UserRepository.GetUserByLoginInfo(loginDTO.UserName, loginDTO.Password) ?? throw new NotFoundException("user to create a valid token");
+        User user = await UserRepository.GetUserByLoginInfo(loginDTO.Email, EncryptPassword(loginDTO.Password)) ?? throw new NotFoundException("user to create a valid token");
+
+        //set the user login status to true
+        user.IsLoggedIn = true;
+
+        await UserRepository.SaveChanges();
 
         JwtSecurityToken Token = await CreateToken(user);
 
@@ -67,6 +72,7 @@ public class TokenService : ITokenService
         Claim[] Claims = new Claim[] {
             new Claim("userId", user.Id),
             new Claim("userName", user.UserName),
+            new Claim("userEmail", user.Email),
             new Claim("userRole", user.Role.ToString()),
         };
 
@@ -131,7 +137,7 @@ public class TokenService : ITokenService
         Dictionary<string, string> claims = Token.Claims.ToDictionary(t => t.Type, t => t.Value);
 
         // validation of token set user related claims (id, name and role)
-        if (!claims.ContainsKey("userId") || !claims.ContainsKey("userName") || !claims.ContainsKey("userRole")) {
+        if (!claims.ContainsKey("userId") || !claims.ContainsKey("userName") || !claims.ContainsKey("userEmail") || !claims.ContainsKey("userRole")) {
             Message = "Insufficient data or invalid token provided";
             return false;
         }
@@ -149,7 +155,7 @@ public class TokenService : ITokenService
 
         User user = await UserRepository.GetByIdAsync(claims["userId"]);
 
-        if (!user!.IsActive/*|| user!.LoggedIn == false*/) {
+        if (!user!.IsActive || !user!.IsLoggedIn) {
             Message = "Invalid token due to a logged out or deleted user";
             return false;
         }
@@ -159,5 +165,13 @@ public class TokenService : ITokenService
         
 
         return true;
+    }
+
+    //password encryption
+    public string EncryptPassword(string password)
+    {
+        byte[] data = System.Text.Encoding.ASCII.GetBytes(password);
+        data = new System.Security.Cryptography.HMACSHA256().ComputeHash(data);
+        return System.Text.Encoding.ASCII.GetString(data);
     }
 }

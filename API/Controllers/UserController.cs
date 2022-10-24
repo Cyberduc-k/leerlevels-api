@@ -138,6 +138,11 @@ public class UserController : ControllerWithAuthentication
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         UpdateUserDTO updateUserDTO = JsonConvert.DeserializeObject<UpdateUserDTO>(body)!;
 
+        // encrypt the password if one has been entered, otherwise, there is nu password given for the user to update and just don't update it
+        if(updateUserDTO.Password != null) {
+           updateUserDTO.Password =  _tokenService.EncryptPassword(updateUserDTO.Password);
+        }
+
         await _userService.UpdateUser(userId, updateUserDTO);
 
         return req.CreateResponse(HttpStatusCode.OK);

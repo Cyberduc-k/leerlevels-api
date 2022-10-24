@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Model;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace Data;
 
@@ -37,10 +39,11 @@ public class DataContext : DbContext
                 FirstName = "John",
                 LastName = "Doe",
                 UserName = "JohnD#1",
-                Password = "J0nh#001!",
+                Password = Encoding.ASCII.GetString(new HMACSHA256().ComputeHash(Encoding.ASCII.GetBytes("J0nh#001!"))),
                 Role = UserRole.Student,
                 LastLogin = DateTime.Parse("2022-10-05 13:27:00"),
                 ShareCode = "DTRY-WQER-PIGU-VNSA",
+                IsLoggedIn = false,
                 IsActive = true
             },
             new {
@@ -49,10 +52,11 @@ public class DataContext : DbContext
                 FirstName = "Mary",
                 LastName = "Sue",
                 UserName = "MarySue#22",
-                Password = "M4rySu3san#22!",
-                Role = UserRole.Student,
+                Password = Encoding.ASCII.GetString(new HMACSHA256().ComputeHash(Encoding.ASCII.GetBytes("M4rySu3san#22!"))),
+                Role = UserRole.Teacher,
                 LastLogin = DateTime.Now,
                 ShareCode = "RIBN-QWOR-DCPL-AXCU",
+                IsLoggedIn = false,
                 IsActive = true
             }
         ); ;
@@ -69,7 +73,7 @@ public class DataContext : DbContext
         );
 
         modelBuilder.Entity<Group>().HasData(
-            new { Id = "1", Name = "Inholland", Subject = "Programming", EducationType = EducationType.Mavo, SchoolYear = SchoolYear.Seven }
+            new { Id = "DRWA-KCMN-PXYB-ZLQU", Name = "Inholland", Subject = "Programming", EducationType = EducationType.Mavo, SchoolYear = SchoolYear.Seven }
         );
 
         modelBuilder.Entity<Mcq>().HasData(

@@ -5,7 +5,7 @@ namespace Model.DTO;
 public class LoginDTO
 {
     [JsonRequired]
-    public string UserName { get; set; }
+    public string Email { get; set; }
 
     [JsonRequired]
     public string Password { get; set; }
@@ -14,9 +14,9 @@ public class LoginDTO
     {
     }
 
-    public LoginDTO(string userName, string password)
+    public LoginDTO(string email, string password)
     {
-        UserName = userName;
+        Email = email;
         Password = password;
     }
 }

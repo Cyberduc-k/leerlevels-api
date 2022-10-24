@@ -54,8 +54,10 @@ public class UserService : IUserService
         user.LastName = changes.LastName ?? user.LastName;
         user.UserName = changes.UserName ?? user.UserName;
 
-        //user.Password = changes.Password ?? user.Password;
-        //user.Role = changes.Role ?? user.Role;
+        user.Password = changes.Password ?? user.Password;
+        user.Role = changes.Role ?? user.Role;
+
+        user.IsLoggedIn = changes.IsLoggedIn ?? user.IsLoggedIn;
 
         await _userRepository.SaveChanges();
         return user;
