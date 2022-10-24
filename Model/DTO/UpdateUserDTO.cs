@@ -19,7 +19,7 @@ public class UpdateUserDTO
     [OpenApiProperty(Default = "J0nh#001!", Description = "The new password of a user", Nullable = true)]
     public string? Password { get; set; }
 
-    [OpenApiProperty(Default = UserRole.Student, Description = "The new role of a user", Nullable = true)]
+    [OpenApiProperty(Default = "Student", Description = "The new role of a user", Nullable = true)]
     public UserRole? Role { get; set; }
 
     [OpenApiProperty(Default = true, Description = "The (changed) login status of a user", Nullable = true)]

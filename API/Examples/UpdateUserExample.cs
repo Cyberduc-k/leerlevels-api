@@ -12,8 +12,8 @@ public class UpdateUserExample : OpenApiExample<UpdateUserDTO>
 {
     public override IOpenApiExample<UpdateUserDTO> Build(NamingStrategy namingStrategy)
     {
-        Examples.Add(OpenApiExampleResolver.Resolve("John", new UpdateUserDTO() { Email = "JohnDoe@gmail.com", FirstName = "John", LastName = "Doe", UserName = "JohnD#1", Password = Encoding.ASCII.GetString(new HMACSHA256().ComputeHash(Encoding.ASCII.GetBytes("J0nh#001!"))), Role = UserRole.Student, IsLoggedIn = false }, namingStrategy));
-        Examples.Add(OpenApiExampleResolver.Resolve("Mary", new UpdateUserDTO() { Email = "MarySue@gmail.com", FirstName = "Mary", LastName = "Sue", UserName = "MarySue#22", Password = Encoding.ASCII.GetString(new HMACSHA256().ComputeHash(Encoding.ASCII.GetBytes("MarySue#22"))), Role = UserRole.Student, IsLoggedIn = false }, namingStrategy));
+        Examples.Add(OpenApiExampleResolver.Resolve("John", new UpdateUserDTO() { Email = "JohnDoe@gmail.com", FirstName = "John", LastName = "Doe", UserName = "JohnD#1", Password = Convert.ToBase64String(Encoding.UTF8.GetBytes("J0nh#001!")), Role = UserRole.Student, IsLoggedIn = false }, namingStrategy));
+        Examples.Add(OpenApiExampleResolver.Resolve("Mary", new UpdateUserDTO() { Email = "MarySue@gmail.com", FirstName = "Mary", LastName = "Sue", UserName = "MarySue#22", Password = Convert.ToBase64String(Encoding.UTF8.GetBytes("M4rySu3san#22!")), Role = UserRole.Student, IsLoggedIn = false }, namingStrategy));
 
         return this;
     }

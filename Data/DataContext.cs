@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Model;
 using System.Text;
-using System.Security.Cryptography;
 
 namespace Data;
 
@@ -39,7 +38,7 @@ public class DataContext : DbContext
                 FirstName = "John",
                 LastName = "Doe",
                 UserName = "JohnD#1",
-                Password = Encoding.ASCII.GetString(new HMACSHA256().ComputeHash(Encoding.ASCII.GetBytes("J0nh#001!"))),
+                Password = Convert.ToBase64String(Encoding.UTF8.GetBytes("J0nh#001!")),
                 Role = UserRole.Student,
                 LastLogin = DateTime.Parse("2022-10-05 13:27:00"),
                 ShareCode = "DTRY-WQER-PIGU-VNSA",
@@ -52,7 +51,7 @@ public class DataContext : DbContext
                 FirstName = "Mary",
                 LastName = "Sue",
                 UserName = "MarySue#22",
-                Password = Encoding.ASCII.GetString(new HMACSHA256().ComputeHash(Encoding.ASCII.GetBytes("M4rySu3san#22!"))),
+                Password = Convert.ToBase64String(Encoding.UTF8.GetBytes("M4rySu3san#22!")),
                 Role = UserRole.Teacher,
                 LastLogin = DateTime.Now,
                 ShareCode = "RIBN-QWOR-DCPL-AXCU",

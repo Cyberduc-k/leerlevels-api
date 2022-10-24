@@ -170,8 +170,6 @@ public class TokenService : ITokenService
     //password encryption
     public string EncryptPassword(string password)
     {
-        byte[] data = System.Text.Encoding.ASCII.GetBytes(password);
-        data = new System.Security.Cryptography.HMACSHA256().ComputeHash(data);
-        return System.Text.Encoding.ASCII.GetString(data);
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(password));
     }
 }
