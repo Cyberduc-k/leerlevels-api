@@ -31,13 +31,13 @@ public class DataContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>()
+        /*modelBuilder.Entity<User>()
             .HasMany<Group>(u => u.Groups)
                 .WithMany(g => g.Users);
 
         modelBuilder.Entity<User>()
             .HasMany<Set>(u => u.Sets)
-                .WithMany(s => s.Users);
+                .WithMany(s => s.Users);*/
                 
 
         modelBuilder.Entity<User>().HasData(
@@ -47,8 +47,8 @@ public class DataContext : DbContext
                 FirstName = "John",
                 LastName = "Doe",
                 UserName = "JohnD#1",
-                Password = Convert.ToBase64String(Encoding.UTF8.GetBytes("J0nh#001!")),
-                Role = UserRole.Student,
+                Password = Convert.ToBase64String(Encoding.UTF8.GetBytes("J0nh#001!")).ToString(),
+                Role = UserRole.Student.ToString(),
                 LastLogin = DateTime.Parse("2022-10-05 13:27:00"),
                 ShareCode = "DTRY-WQER-PIGU-VNSA",
                 IsLoggedIn = false,
@@ -60,8 +60,8 @@ public class DataContext : DbContext
                 FirstName = "Mary",
                 LastName = "Sue",
                 UserName = "MarySue#22",
-                Password = Convert.ToBase64String(Encoding.UTF8.GetBytes("M4rySu3san#22!")),
-                Role = UserRole.Teacher,
+                Password = Convert.ToBase64String(Encoding.UTF8.GetBytes("M4rySu3san#22!")).ToString(),
+                Role = UserRole.Teacher.ToString(),
                 LastLogin = DateTime.Now,
                 ShareCode = "RIBN-QWOR-DCPL-AXCU",
                 IsLoggedIn = false,

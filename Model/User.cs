@@ -21,7 +21,7 @@ public class User
     {
     }
 
-    public User(string id, string email, string firstName, string lastName, string userName, string password, UserRole role, DateTime lastLogin, string shareCode, bool isActive, bool isLoggedIn, ICollection<Group> groups, ICollection<Set> sets)
+    public User(string id, string email, string firstName, string lastName, string userName, string password, UserRole role, DateTime lastLogin, string shareCode, bool isActive, bool isLoggedIn)
     {
         Id = id;
         Email = email;
@@ -34,7 +34,5 @@ public class User
         ShareCode = shareCode;
         IsActive = isActive;
         IsLoggedIn = isLoggedIn;
-        Groups = groups;
-        Sets = sets;
     }
 }

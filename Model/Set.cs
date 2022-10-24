@@ -11,10 +11,9 @@ public class Set
     {
 
     }
-    public Set(string id, ICollection<Target> targets, ICollection<User> users)
+    public Set(string id, ICollection<Target> targets)
     {
         Id = id;
         Targets = targets;
-        Users = users;
     }
 }
