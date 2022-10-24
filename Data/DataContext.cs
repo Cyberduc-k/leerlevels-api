@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text;
+using Microsoft.EntityFrameworkCore;
 using Model;
-using System.Text;
 
 namespace Data;
 
@@ -31,20 +31,17 @@ public class DataContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>()
-            .HasMany<Group>(u => u.Groups)
-                .WithMany(g => g.Users);
-                /*.Map(ug =>
-                    {
-                        ug.MapLeftKey("UserRefId");
-                        ug.MapRightKey("GroupRefId");
-                        ug.ToTable("UserGroups");
-                });*/
+        modelBuilder.Entity<Group>()
+            .HasMany(g => g.Users)
+            .WithMany(u => u.Groups);
 
-        modelBuilder.Entity<User>()
-            .HasMany<Set>(u => u.Sets)
-                .WithMany(s => s.Users);
-                
+        modelBuilder.Entity<Set>()
+            .HasMany(s => s.Users)
+            .WithMany(u => u.Sets);
+
+        modelBuilder.Entity<Set>()
+            .HasMany(s => s.Targets)
+            .WithMany(t => t.Sets);
 
         modelBuilder.Entity<User>().HasData(
             new {
@@ -54,7 +51,7 @@ public class DataContext : DbContext
                 LastName = "Doe",
                 UserName = "JohnD#1",
                 Password = Convert.ToBase64String(Encoding.UTF8.GetBytes("J0nh#001!")).ToString(),
-                Role = UserRole.Student.ToString(),
+                Role = UserRole.Student,
                 LastLogin = DateTime.Parse("2022-10-05 13:27:00"),
                 ShareCode = "DTRY-WQER-PIGU-VNSA",
                 IsLoggedIn = false,
@@ -67,7 +64,7 @@ public class DataContext : DbContext
                 LastName = "Sue",
                 UserName = "MarySue#22",
                 Password = Convert.ToBase64String(Encoding.UTF8.GetBytes("M4rySu3san#22!")).ToString(),
-                Role = UserRole.Teacher.ToString(),
+                Role = UserRole.Teacher,
                 LastLogin = DateTime.Now,
                 ShareCode = "RIBN-QWOR-DCPL-AXCU",
                 IsLoggedIn = false,

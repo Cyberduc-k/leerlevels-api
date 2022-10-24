@@ -8,7 +8,9 @@ public class Target
     public string TargetExplanation { get; set; }
     public string YoutubeId { get; set; }
     public string ImageUrl { get; set; }
+
     public virtual ICollection<Mcq> Mcqs { get; set; }
+    public virtual ICollection<Set> Sets { get; set; }
 
     public Target()
     {
