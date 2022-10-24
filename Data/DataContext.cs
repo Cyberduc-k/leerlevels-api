@@ -31,13 +31,19 @@ public class DataContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        /*modelBuilder.Entity<User>()
+        modelBuilder.Entity<User>()
             .HasMany<Group>(u => u.Groups)
                 .WithMany(g => g.Users);
+                /*.Map(ug =>
+                    {
+                        ug.MapLeftKey("UserRefId");
+                        ug.MapRightKey("GroupRefId");
+                        ug.ToTable("UserGroups");
+                });*/
 
         modelBuilder.Entity<User>()
             .HasMany<Set>(u => u.Sets)
-                .WithMany(s => s.Users);*/
+                .WithMany(s => s.Users);
                 
 
         modelBuilder.Entity<User>().HasData(
