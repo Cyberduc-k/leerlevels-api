@@ -38,7 +38,7 @@ public class GroupController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> GetAllGroups([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "groups")] HttpRequestData req)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/groups");
+      //  await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/groups");
 
         _logger.LogInformation("C# HTTP trigger function processed the getGroups request.");
 
@@ -56,13 +56,13 @@ public class GroupController : ControllerWithAuthentication
     [Function(nameof(GetGroupById))]
     [OpenApiOperation(operationId: "getGroup", tags: new[] { "Groups" })]
     [OpenApiAuthentication]
-    [OpenApiParameter(name: "groupId", In = ParameterLocation.Path, Required = true, Type = typeof(Guid), Description = "The group ID parameter")]
+    [OpenApiParameter(name: "groupId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The group ID parameter")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Group), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Group Id.")]
     public async Task<HttpResponseData> GetGroupById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "groups/{groupId}")] HttpRequestData req,
         string groupId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/groups/{groupId}");
+        //await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/groups/{groupId}");
 
         _logger.LogInformation("C# HTTP trigger function processed the getGroup request.");
 

@@ -19,7 +19,7 @@ public class GroupService : IGroupService
 
     public async Task<ICollection<Group>> GetAllGroupsAsync()
     {
-        return await _groupRepsitory.GetAllIncludingAsync(x => x.Set).ToArrayAsync();
+        return await _groupRepsitory.GetAllIncludingAsync(x => x.Set, x =>x.Users).ToArrayAsync();
     }
 
     public async Task<Group> GetGroupByIdAsync(string groupId)

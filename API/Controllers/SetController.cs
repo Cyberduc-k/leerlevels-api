@@ -34,7 +34,7 @@ public class SetController : ControllerWithAuthentication
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve sets.")]
     public async Task<HttpResponseData> GetAllSets([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sets")] HttpRequestData req)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Teacher, "/sets");
+      //  await ValidateAuthenticationAndAuthorization(req, UserRole.Teacher, "/sets");
 
         _logger.LogInformation("C# HTTP trigger function processed the getsets request.");
 
@@ -58,7 +58,7 @@ public class SetController : ControllerWithAuthentication
     public async Task<HttpResponseData> GetSetById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sets/{setId}")] HttpRequestData req,
         string setId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/sets/{setId}");
+       // await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/sets/{setId}");
 
         _logger.LogInformation("C# HTTP trigger function processed the getSet request.");
 

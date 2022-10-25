@@ -29,7 +29,7 @@ public class SetServiceTests
 
         }
 
-        _setRepository.Setup(r => r.GetAllIncludingAsync(x =>x.Targets)).Returns(MockSets);
+        _setRepository.Setup(r => r.GetAllIncludingAsync(x =>x.Targets, x =>x.Users)).Returns(MockSets);
 
         ICollection<Set> sets = await _service.GetAllSetsAsync();
 

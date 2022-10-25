@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.Logging;
 using Model;
 using Repository.Interfaces;
 using Service.Exceptions;
@@ -19,7 +20,7 @@ public class TargetService : ITargetService
 
     public async Task<ICollection<Target>> GetAllTargetsAsync()
     {
-        return await _targetRepository.GetAllAsync().ToArrayAsync();
+        return await _targetRepository.GetAllIncludingAsync(x =>x.Mcqs).ToArrayAsync();
     }
 
     public async Task<Target> GetTargetByIdAsync(string targetId)
