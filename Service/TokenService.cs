@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Reflection.PortableExecutable;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -15,11 +16,16 @@ using Model.Response;
 using Repository.Interfaces;
 using Service.Exceptions;
 using Service.Interfaces;
+using YamlDotNet.Core.Tokens;
 
 namespace Service;
 
 public class TokenService : ITokenService
 {
+    private const int HashSize = 20;
+    private const int SaltSize = 16;
+    private const int Iterations = 10000;
+
     private ILogger Logger { get; }
     private  IUserRepository UserRepository { get; set; }
     private string Issuer { get; }
@@ -40,7 +46,7 @@ public class TokenService : ITokenService
 
         Issuer = "LeerLevels";
         Audience = "Users of the LeerLevels applications";
-        ValidityDuration = TimeSpan.FromDays(1); // 2do: configure an appropriate validity duration (2 hours and then generate refresh tokens? read from config somewhere when another login is required/so until how long refresh tokens are generated after init login)
+        ValidityDuration = TimeSpan.FromMinutes(15); // 2do: configure an appropriate validity duration (2 hours and then generate refresh tokens? read from config somewhere when another login is required/so until how long refresh tokens are generated after init login)
 
         string Key = Environment.GetEnvironmentVariable("LeerLevelsTokenKey")!;
 
@@ -49,12 +55,20 @@ public class TokenService : ITokenService
         Credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256Signature);
 
         ValidationParameters = new TokenIdentityValidationParameters(Issuer, Audience, SecurityKey);
+
     }
 
     public async Task<LoginResponse> Login(LoginDTO loginDTO)
     {
         //authentication of the login information
-        User user = await UserRepository.GetUserByLoginInfo(loginDTO.Email, EncryptPassword(loginDTO.Password)) ?? throw new NotFoundException("user to create a valid token");
+        User user = await UserRepository.GetUserByLoginInfo(loginDTO.Email) ?? throw new NotFoundException("user to create a valid token");
+
+        //check if given password is valid for the saved hash of the users password
+        if(!VerifyPassword(loginDTO.Password, user.Password)) {
+            throw new AuthenticationException("Incorrect user password entered");
+        }
+
+        user.LastLogin = DateTime.UtcNow;
 
         await UserRepository.SaveChanges();
 
@@ -134,7 +148,7 @@ public class TokenService : ITokenService
         
         Dictionary<string, string> claims = Token.Claims.ToDictionary(t => t.Type, t => t.Value);
 
-        // validation of token set user related claims (id, name and role)
+        // validation of token set/presence of user related claims (id, name and role)
         if (!claims.ContainsKey("userId") || !claims.ContainsKey("userName") || !claims.ContainsKey("userEmail") || !claims.ContainsKey("userRole")) {
             Message = "Insufficient data or invalid token provided";
             return false;
@@ -146,10 +160,28 @@ public class TokenService : ITokenService
             return false;
         }
 
-        // validation of token expiration? (is already done by the ValidateToken method but we might want to implement this here again?)
-        /*if (claims["nbf"] != DateTime.UtcNow.ToLocalTime().Seconds) {
+        // validation of the presence of token validity claims (not before, expires at & issued at)
+        if (!claims.ContainsKey("nbf") || !claims.ContainsKey("exp") || !claims.ContainsKey("iat")) {
+            Message = "Insufficient token expiration/validation time provided";
+            return false;
+        }
 
-        }*/
+        // validation of token expiration (this is already done by the ValidateToken method but we might want to implement this here again, for additional safety)
+        if (claims["nbf"] != null && claims["exp"] != null && claims["iat"] != null) {
+
+            DateTime notValidBefore = DateTimeOffset.FromUnixTimeSeconds(long.Parse(claims["nbf"])).UtcDateTime;
+            DateTime expiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(claims["exp"])).UtcDateTime;
+            DateTime issuedAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(claims["iat"])).UtcDateTime;
+
+            if (issuedAt > DateTime.UtcNow || notValidBefore > DateTime.UtcNow || expiresAt < DateTime.UtcNow) {
+                Message = "Invalid or expired token detected";
+                return false;
+            }
+
+        } else {
+            Message = "No readable Token validation data provided";
+            return false;
+        }
 
         User user = await UserRepository.GetByIdAsync(claims["userId"]);
 
@@ -161,13 +193,69 @@ public class TokenService : ITokenService
         //set the interface user to check authorization in the controller endpoints
         User = user;
         
-
         return true;
     }
 
-    //password encryption
+    // Password encryption
     public string EncryptPassword(string password)
     {
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(password));
+        // Create a salt using the random number generator class
+        byte[] salt;
+        RandomNumberGenerator.Create().GetBytes(salt = new byte[SaltSize]);
+
+        // Create a hash
+        Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations);
+        byte[] hash = pbkdf2.GetBytes(HashSize);
+
+        // Combine salt and hash
+        byte[] hashBytes = new byte[SaltSize + HashSize];
+        Array.Copy(salt, 0, hashBytes, 0, SaltSize);
+        Array.Copy(hash, 0, hashBytes, SaltSize, HashSize);
+
+        // Convert to base64 string
+        string base64Hash = Convert.ToBase64String(hashBytes);
+
+        // Format hash with extra information
+        return string.Format($"{Environment.GetEnvironmentVariable("TokenHashBase")!}{Iterations}${base64Hash}");
+
+    }
+
+    // Check if hash in the hashed password is supported
+    public static bool IsHashSupported(string hashString)
+    {
+        return hashString.Contains($"{Environment.GetEnvironmentVariable("TokenHashBase")!}");
+    }
+
+    // Verify the password
+    public static bool VerifyPassword(string password, string hashedPassword)
+    {
+        // Check the hash
+        if (!IsHashSupported(hashedPassword)) {
+            throw new AuthenticationException("The password hashtype is not supported");
+        }
+
+        // Extract the iteration and Base64 hash string from the hashed password string
+        string[] splittedHashString = hashedPassword.Replace($"{Environment.GetEnvironmentVariable("TokenHashBase")!}", "").Split('$');
+        int iterations = int.Parse(splittedHashString[0]);
+        string base64Hash = splittedHashString[1];
+
+        // Get the hash bytes
+        byte[] hashBytes = Convert.FromBase64String(base64Hash);
+
+        // Get the salt bytes
+        byte[] salt = new byte[SaltSize];
+        Array.Copy(hashBytes, 0, salt, 0, SaltSize);
+
+        // Create a hash with the given salt
+        Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations);
+        byte[] hash = pbkdf2.GetBytes(HashSize);
+
+        // Work out the result
+        for (int i = 0; i < HashSize; i++) {
+            if (hashBytes[i + SaltSize] != hash[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -4,5 +4,5 @@ namespace Repository.Interfaces;
 
 public interface IUserRepository : IRepository<User>
 {
-    Task<User> GetUserByLoginInfo(string userName, string password);
+    Task<User> GetUserByLoginInfo(string userName);
 }

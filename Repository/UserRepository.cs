@@ -14,10 +14,10 @@ public class UserRepository : Repository<User>, IUserRepository
         Users = context.Users;
     }
 
-    public async Task<User> GetUserByLoginInfo(string email, string password)
+    public async Task<User> GetUserByLoginInfo(string email)
     {
         IQueryable<User> query = Users;
-        query = query.Where(x => x.Email == email && x.Password == password);
+        query = query.Where(x => x.Email == email);
         // This is allowed to return a default value (null) when no user is found, so don't alter this to be non-nullable with an ! please, thank you ;)
         return await query.FirstOrDefaultAsync();
     }
