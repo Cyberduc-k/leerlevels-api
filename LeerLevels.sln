@@ -20,6 +20,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Test", "Service.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{8EC0BF22-30AE-42D1-8AA0-57A30B3AD27C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository.Test", "Repository.Test\Repository.Test.csproj", "{3D845E34-5211-490F-B8DF-09EF0D9DB9BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,14 @@ Global
 		{8EC0BF22-30AE-42D1-8AA0-57A30B3AD27C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8EC0BF22-30AE-42D1-8AA0-57A30B3AD27C}.Release|x64.ActiveCfg = Release|Any CPU
 		{8EC0BF22-30AE-42D1-8AA0-57A30B3AD27C}.Release|x64.Build.0 = Release|Any CPU
+		{3D845E34-5211-490F-B8DF-09EF0D9DB9BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D845E34-5211-490F-B8DF-09EF0D9DB9BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D845E34-5211-490F-B8DF-09EF0D9DB9BF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3D845E34-5211-490F-B8DF-09EF0D9DB9BF}.Debug|x64.Build.0 = Debug|Any CPU
+		{3D845E34-5211-490F-B8DF-09EF0D9DB9BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D845E34-5211-490F-B8DF-09EF0D9DB9BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D845E34-5211-490F-B8DF-09EF0D9DB9BF}.Release|x64.ActiveCfg = Release|Any CPU
+		{3D845E34-5211-490F-B8DF-09EF0D9DB9BF}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

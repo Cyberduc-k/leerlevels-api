@@ -2,6 +2,7 @@ using API.Middleware;
 using Data;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Repository;
@@ -16,7 +17,9 @@ IHost host = new HostBuilder()
         worker.UseMiddleware<ExceptionMiddleware>();
     })
     .ConfigureServices(services => {
-        services.AddDbContext<DataContext>();
+        string connectionString = Environment.GetEnvironmentVariable("LeerLevelsDatabase")!;
+
+        services.AddDbContext<DataContext>(opts => opts.UseSqlServer(connectionString));
 
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IForumRepository, ForumRepository>();
