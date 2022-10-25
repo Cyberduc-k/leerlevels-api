@@ -36,7 +36,7 @@ public class TargetController : ControllerWithAuthentication
 
     public async Task<HttpResponseData> GetAllTargets([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "targets")] HttpRequestData req)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets");
+        //await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets");
 
         _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");
 
@@ -61,7 +61,7 @@ public class TargetController : ControllerWithAuthentication
     public async Task<HttpResponseData> GetTargetById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "targets/{targetId}")] HttpRequestData req,
         string targetId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}");
+      //  await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}");
 
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 

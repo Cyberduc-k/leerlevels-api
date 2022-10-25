@@ -58,7 +58,6 @@ public class DataContext : DbContext
                 Role = UserRole.Student,
                 LastLogin = DateTime.Parse("2022-10-05 13:27:00"),
                 ShareCode = "DTRY-WQER-PIGU-VNSA",
-                IsLoggedIn = false,
                 IsActive = true
             },
             new {
@@ -71,7 +70,6 @@ public class DataContext : DbContext
                 Role = UserRole.Teacher,
                 LastLogin = DateTime.Now,
                 ShareCode = "RIBN-QWOR-DCPL-AXCU",
-                IsLoggedIn = false,
                 IsActive = true
             },
             new {

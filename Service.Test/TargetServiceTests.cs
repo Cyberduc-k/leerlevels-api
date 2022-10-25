@@ -37,7 +37,7 @@ public class TargetServiceTests
 
         }
 
-        _mockRepository.Setup(r => r.GetAllAsync()).Returns(MockTargets);
+        _mockRepository.Setup(r => r.GetAllIncludingAsync(x =>x.Mcqs)).Returns(MockTargets);
 
         ICollection<Target> mcqs = await _service.GetAllTargetsAsync();
 

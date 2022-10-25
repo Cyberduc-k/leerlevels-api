@@ -37,7 +37,7 @@ public class McqController : ControllerWithAuthentication
 
     public async Task<HttpResponseData> GetAllMcqs([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs")] HttpRequestData req)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs");
+      //  await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs");
 
         _logger.LogInformation("C# HTTP trigger function processed the getMcqs request.");
 
@@ -58,10 +58,10 @@ public class McqController : ControllerWithAuthentication
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Mcq), Description = "The OK response")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Mcq Id.")]
 
-    public async Task<HttpResponseData> GetMcqById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs/{id}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetMcqById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs/{mcqId}")] HttpRequestData req,
         string mcqId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}");
+     //   await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}");
 
         _logger.LogInformation("C# HTTP trigger function processed the getMcq request.");
 
