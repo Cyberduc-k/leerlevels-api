@@ -12,7 +12,6 @@ public class User
     public DateTime LastLogin { get; set; }
     public string ShareCode { get; set; }
     public bool IsActive { get; set; }
-    public bool IsLoggedIn { get; set; }
 
     public virtual ICollection<Group> Groups { get; set; }
     public virtual ICollection<Set> Sets { get; set; }
@@ -21,7 +20,7 @@ public class User
     {
     }
 
-    public User(string id, string email, string firstName, string lastName, string userName, string password, UserRole role, DateTime lastLogin, string shareCode, bool isActive, bool isLoggedIn)
+    public User(string id, string email, string firstName, string lastName, string userName, string password, UserRole role, DateTime lastLogin, string shareCode, bool isActive)
     {
         Id = id;
         Email = email;
@@ -33,6 +32,5 @@ public class User
         LastLogin = lastLogin;
         ShareCode = shareCode;
         IsActive = isActive;
-        IsLoggedIn = isLoggedIn;
     }
 }
