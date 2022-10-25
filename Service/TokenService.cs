@@ -41,7 +41,8 @@ public class TokenService : ITokenService
         Issuer = "LeerLevels";
         Audience = "Users of the LeerLevels applications";
         ValidityDuration = TimeSpan.FromDays(1); // 2do: configure an appropriate validity duration (2 hours and then generate refresh tokens? read from config somewhere when another login is required/so until how long refresh tokens are generated after init login)
-        string Key = "The LeerLevels JWT token keys tring used for authentication and authorization purposes";
+
+        string Key = Environment.GetEnvironmentVariable("LeerLevelsTokenKey")!;
 
         SymmetricSecurityKey SecurityKey = new(Encoding.UTF8.GetBytes(Key));
 
@@ -54,9 +55,6 @@ public class TokenService : ITokenService
     {
         //authentication of the login information
         User user = await UserRepository.GetUserByLoginInfo(loginDTO.Email, EncryptPassword(loginDTO.Password)) ?? throw new NotFoundException("user to create a valid token");
-
-        //set the user login status to true
-        user.IsLoggedIn = true;
 
         await UserRepository.SaveChanges();
 
@@ -155,8 +153,8 @@ public class TokenService : ITokenService
 
         User user = await UserRepository.GetByIdAsync(claims["userId"]);
 
-        if (!user!.IsActive || !user!.IsLoggedIn) {
-            Message = "Invalid token due to a logged out or deleted user";
+        if (!user!.IsActive) {
+            Message = "Invalid token since this user is no longer active";
             return false;
         }
 

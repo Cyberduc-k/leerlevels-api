@@ -23,7 +23,6 @@ internal class UserConverter : ITypeConverter<UserDTO, User>
             Role = source.Role,
             //2do: check or create method to auto-generate the proper format of a shareCode for a new user (sharecode is meant for coaching purposes btw)
             ShareCode = Guid.NewGuid().ToString()
-
         };
     }
 }

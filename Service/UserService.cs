@@ -39,6 +39,8 @@ public class UserService : IUserService
     public async Task<User> CreateUser(User user)
     {
         user.Id = Guid.NewGuid().ToString();
+        user.LastLogin = DateTime.UtcNow;
+        user.IsActive = true;
         await _userRepository.InsertAsync(user);
         await _userRepository.SaveChanges();
         return user;
@@ -56,8 +58,6 @@ public class UserService : IUserService
 
         user.Password = changes.Password ?? user.Password;
         user.Role = changes.Role ?? user.Role;
-
-        user.IsLoggedIn = changes.IsLoggedIn ?? user.IsLoggedIn;
 
         await _userRepository.SaveChanges();
         return user;
