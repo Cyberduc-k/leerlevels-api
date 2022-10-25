@@ -17,6 +17,8 @@ public class DataContext : DbContext
     public DbSet<Mcq> Mcqs { get; set; }
     public DbSet<AnswerOption> AnswerOptions { get; set; }
 
+    public DbSet<Bookmark> Bookmarks { get; set; }
+
     public DataContext(DbContextOptions options) : base(options)
     {
         Database.EnsureCreated();
@@ -35,17 +37,19 @@ public class DataContext : DbContext
             .HasMany(g => g.Users)
             .WithMany(u => u.Groups);
 
-        modelBuilder.Entity<Set>()
-            .HasMany(s => s.Users)
-            .WithMany(u => u.Sets);
+        modelBuilder.Entity<Set>(e => {
+            e.HasMany(s => s.Users).WithMany(u => u.Sets);
+            e.HasMany(s => s.Targets).WithMany(t => t.Sets);
+        });
 
-        modelBuilder.Entity<Set>()
-            .HasMany(s => s.Targets)
-            .WithMany(t => t.Sets);
+        modelBuilder.Entity<Bookmark>(e => {
+            e.HasKey(b => new { b.UserId, b.ItemId, b.Type });
+            e.ToTable("Bookmarks");
+        });
 
         modelBuilder.Entity<User>().HasData(
             new {
-                Id = Guid.NewGuid().ToString(),
+                Id = "1",
                 Email = "JohnDoe@gmail.com",
                 FirstName = "John",
                 LastName = "Doe",
@@ -58,7 +62,7 @@ public class DataContext : DbContext
                 IsActive = true
             },
             new {
-                Id = Guid.NewGuid().ToString(),
+                Id = "2",
                 Email = "MarySue@gmail.com",
                 FirstName = "Mary",
                 LastName = "Sue",
@@ -67,6 +71,19 @@ public class DataContext : DbContext
                 Role = UserRole.Teacher,
                 LastLogin = DateTime.Now,
                 ShareCode = "RIBN-QWOR-DCPL-AXCU",
+                IsLoggedIn = false,
+                IsActive = true
+            },
+            new {
+                Id = "3",
+                Email = "Admin@gmail.com",
+                FirstName = "Admin",
+                LastName = "Admin",
+                UserName = "Admin",
+                Password = Convert.ToBase64String(Encoding.UTF8.GetBytes("123")).ToString(),
+                Role = UserRole.Administrator,
+                LastLogin = DateTime.Now,
+                ShareCode = "RIBN-QWOR-DCPL-AXCV",
                 IsLoggedIn = false,
                 IsActive = true
             }

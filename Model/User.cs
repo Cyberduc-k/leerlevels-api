@@ -14,6 +14,7 @@ public class User
     public bool IsActive { get; set; }
     public bool IsLoggedIn { get; set; }
 
+    public virtual ICollection<Bookmark> Bookmarks { get; set; }
     public virtual ICollection<Group> Groups { get; set; }
     public virtual ICollection<Set> Sets { get; set; }
 

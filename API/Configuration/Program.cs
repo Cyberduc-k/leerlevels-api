@@ -25,6 +25,7 @@ IHost host = new HostBuilder()
         services.AddTransient<IGroupRepository, GroupRepository>();
         services.AddTransient<ISetRepository, SetRepository>();
         services.AddTransient<ITargetRepository, TargetRepository>();
+        services.AddTransient<IBookmarkRepository, BookmarkRepository>();
 
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUserService, UserService>();
@@ -33,6 +34,7 @@ IHost host = new HostBuilder()
         services.AddScoped<IGroupService, GroupService>();
         services.AddScoped<ISetService, SetService>();
         services.AddScoped<ITargetService, TargetService>();
+        services.AddScoped<IBookmarkService, BookmarkService>();
 
         services.AddAutoMapper(typeof(Program));
         services.AddValidatorsFromAssemblyContaining<Program>();
