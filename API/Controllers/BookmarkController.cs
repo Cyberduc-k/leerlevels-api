@@ -1,5 +1,6 @@
 using System.Net;
 using API.Attributes;
+using AutoMapper;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -13,11 +14,13 @@ namespace API.Controllers;
 
 public class BookmarkController : ControllerWithAuthentication
 {
+    private readonly IMapper _mapper;
     private readonly IBookmarkService _bookmarkService;
 
-    public BookmarkController(ILoggerFactory loggerFactory, ITokenService tokenService, IBookmarkService bookmarkService)
+    public BookmarkController(ILoggerFactory loggerFactory, ITokenService tokenService, IMapper mapper, IBookmarkService bookmarkService)
         : base(loggerFactory.CreateLogger<BookmarkController>(), tokenService)
     {
+        _mapper = mapper;
         _bookmarkService = bookmarkService;
     }
 
@@ -30,7 +33,12 @@ public class BookmarkController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "bookmarks")] HttpRequestData req)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/bookmarks");
-        BookmarksResponse bookmarks = await _bookmarkService.GetBookmarksAsync(_tokenService.User);
+        (ICollection<Target> targets, ICollection<Mcq> mcqs) = await _bookmarkService.GetBookmarksAsync(_tokenService.User);
+        BookmarksResponse bookmarks = new(
+            targets.Select(t => _mapper.Map<TargetResponse>(t)).ToArray(),
+            mcqs.Select(m => _mapper.Map<McqResponse>(m)).ToArray()
+        );
+
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(bookmarks);
