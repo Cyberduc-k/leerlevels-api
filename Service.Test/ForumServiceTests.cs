@@ -172,7 +172,7 @@ public class ForumServiceTests
         Forum forum = new("1", "Test Title", "Test Description", null!, new List<ForumReply>() { reply });
 
         _mockReplyRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => reply);
-        _mockReplyRepository.Setup(r => r.RemoveAsync("1")).Verifiable();
+        _mockReplyRepository.Setup(r => r.Remove(reply)).Verifiable();
         _mockRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => forum);
         _mockRepository.Setup(r => r.SaveChanges()).Verifiable();
 
@@ -180,7 +180,7 @@ public class ForumServiceTests
 
         Assert.DoesNotContain(reply, forum.Replies);
 
-        _mockReplyRepository.Verify(r => r.RemoveAsync("1"), Times.Once);
+        _mockReplyRepository.Verify(r => r.Remove(reply), Times.Once);
         _mockRepository.Verify(r => r.SaveChanges(), Times.Once);
     }
 
