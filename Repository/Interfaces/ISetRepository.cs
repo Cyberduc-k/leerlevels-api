@@ -1,6 +1,7 @@
 ﻿using Model;
 
 namespace Repository.Interfaces;
-public interface ISetRepository : IRepository<Set>
+
+public interface ISetRepository : IRepository<Set, string>
 {
 }

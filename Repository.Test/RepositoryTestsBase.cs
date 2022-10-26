@@ -1,23 +1,25 @@
-﻿using Data;
+﻿using System.Linq.Expressions;
+using Data;
 using Microsoft.EntityFrameworkCore;
 using Repository.Interfaces;
 using Xunit;
 
 namespace Repository.Test;
 
-public abstract class RepositoryTestsBase<TRepository, TEntity> : IAsyncDisposable
-    where TRepository : IRepository<TEntity>
+public abstract class RepositoryTestsBase<TRepository, TEntity, TId> : IAsyncDisposable
+    where TRepository : IRepository<TEntity, TId>
     where TEntity : class
+    where TId : notnull
 {
-    private readonly Func<TEntity, string> _getId;
+    private readonly Func<TEntity, TId> _getId;
     protected readonly DataContext _context;
     protected TRepository _repository;
 
-    public RepositoryTestsBase()
+    public RepositoryTestsBase(Func<TEntity, TId>? getId = null)
     {
         DbContextOptions opts = new DbContextOptionsBuilder().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
         _context = new(opts, false);
-        _getId = typeof(TEntity).GetProperty("Id")!.GetMethod!.CreateDelegate<Func<TEntity, string>>();
+        _getId = getId ?? typeof(TEntity).GetProperty("Id")!.GetMethod!.CreateDelegate<Func<TEntity, TId>>();
     }
 
     public async ValueTask DisposeAsync()
@@ -28,6 +30,9 @@ public abstract class RepositoryTestsBase<TRepository, TEntity> : IAsyncDisposab
     }
 
     protected abstract TEntity CreateMockEntity();
+    protected abstract Expression<Func<TEntity, object>> CreateIncludeExpr();
+    protected abstract Expression<Func<TEntity, bool>> CreateAnyTrueExpr(TEntity entity);
+    protected abstract Expression<Func<TEntity, bool>> CreateAnyFalseExpr();
 
     [Fact]
     public async Task Get_All_Async_Should_Return_Async_Enumerable()
@@ -45,22 +50,41 @@ public abstract class RepositoryTestsBase<TRepository, TEntity> : IAsyncDisposab
     }
 
     [Fact]
+    public async Task Get_All_Including_Async_Should_Return_Async_Enumerable()
+    {
+        if (CreateIncludeExpr() is Expression<Func<TEntity, object>> includeExpr) {
+            await _context.AddRangeAsync(
+                CreateMockEntity(),
+                CreateMockEntity(),
+                CreateMockEntity()
+            );
+            await _context.SaveChangesAsync();
+
+            IAsyncEnumerable<TEntity> entities = _repository.GetAllIncludingAsync(includeExpr);
+
+            Assert.Equal(3, await entities.CountAsync());
+        }
+    }
+
+    [Fact]
     public async Task Get_By_Id_Async_Should_Return_Entity()
     {
-        TEntity mockEntity = CreateMockEntity();
-        await _context.AddAsync(mockEntity);
-        await _context.SaveChangesAsync();
+        if (_getId is not null) {
+            TEntity mockEntity = CreateMockEntity();
+            await _context.AddAsync(mockEntity);
+            await _context.SaveChangesAsync();
 
-        TEntity? entity = await _repository.GetByIdAsync(_getId(mockEntity));
+            TEntity? entity = await _repository.GetByIdAsync(_getId(mockEntity));
 
-        Assert.NotNull(entity);
-        Assert.Equal(_getId(mockEntity), _getId(entity!));
+            Assert.NotNull(entity);
+            Assert.Equal(_getId(mockEntity), _getId(entity!));
+        }
     }
 
     [Fact]
     public async Task Get_By_Id_Async_Should_Return_Null()
     {
-        TEntity? entity = await _repository.GetByIdAsync("INVALID");
+        TEntity? entity = await _repository.GetByIdAsync(default!);
 
         Assert.Null(entity);
     }
@@ -83,7 +107,7 @@ public abstract class RepositoryTestsBase<TRepository, TEntity> : IAsyncDisposab
         await _context.AddRangeAsync(CreateMockEntity(), entity);
         await _context.SaveChangesAsync();
 
-        await _repository.RemoveAsync(_getId(entity));
+        _repository.Remove(entity);
         await _context.SaveChangesAsync();
 
         Assert.Equal(1, await _context.Set<TEntity>().CountAsync());
@@ -99,5 +123,25 @@ public abstract class RepositoryTestsBase<TRepository, TEntity> : IAsyncDisposab
         await _repository.SaveChanges();
 
         Assert.Equal(2, await _context.Set<TEntity>().CountAsync());
+    }
+
+    [Fact]
+    public async Task Any_Async_Should_Return_True()
+    {
+        TEntity mockEntity = CreateMockEntity();
+        await _context.AddAsync(mockEntity);
+        await _context.SaveChangesAsync();
+
+        bool any = await _repository.AnyAsync(CreateAnyTrueExpr(mockEntity));
+
+        Assert.True(any);
+    }
+
+    [Fact]
+    public async Task Any_Async_Should_Return_False()
+    {
+        bool any = await _repository.AnyAsync(CreateAnyFalseExpr());
+
+        Assert.False(any);
     }
 }

@@ -4,7 +4,7 @@ using Repository.Interfaces;
 
 namespace Repository;
 
-public class ForumRepository : Repository<Forum>, IForumRepository
+public class ForumRepository : Repository<Forum, string>, IForumRepository
 {
     public ForumRepository(DataContext context) : base(context, context.Forums)
     {

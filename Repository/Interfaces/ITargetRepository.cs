@@ -1,6 +1,7 @@
 ﻿using Model;
 
 namespace Repository.Interfaces;
-public interface ITargetRepository : IRepository<Target>
+
+public interface ITargetRepository : IRepository<Target, string>
 {
 }

@@ -2,6 +2,6 @@
 
 namespace Repository.Interfaces;
 
-public interface IForumReplyRepository : IRepository<ForumReply>
+public interface IForumReplyRepository : IRepository<ForumReply, string>
 {
 }

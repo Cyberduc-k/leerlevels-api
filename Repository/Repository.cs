@@ -4,51 +4,50 @@ using Repository.Interfaces;
 
 namespace Repository;
 
-public abstract class Repository<T> : IRepository<T> where T : class
+public abstract class Repository<TEntity, TId> : IRepository<TEntity, TId> where TEntity : class
 {
     private readonly DbContext _context;
-    private readonly DbSet<T> _dbset;
+    protected readonly DbSet<TEntity> _dbset;
 
-    protected Repository(DbContext context, DbSet<T> dbset)
+    protected Repository(DbContext context, DbSet<TEntity> dbset)
     {
         _context = context;
         _dbset = dbset;
     }
 
-    public IAsyncEnumerable<T> GetAllAsync()
+    public IAsyncEnumerable<TEntity> GetAllAsync()
     {
         return _dbset.AsAsyncEnumerable();
     }
 
-    public IAsyncEnumerable<T> GetAllIncludingAsync(params Expression<Func<T, object>>[] included)
+    public IAsyncEnumerable<TEntity> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] included)
     {
-        IQueryable<T> query = _dbset.AsQueryable();
+        IQueryable<TEntity> query = _dbset.AsQueryable();
 
-        foreach (Expression<Func<T, object>> include in included)
+        foreach (Expression<Func<TEntity, object>> include in included)
             query = query.Include(include);
 
         return query.AsAsyncEnumerable();
     }
 
-    public async Task<T?> GetByIdAsync(string id)
+    public virtual async Task<TEntity?> GetByIdAsync(TId id)
     {
         return await _dbset.FindAsync(id);
     }
 
-    public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+    public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
     {
         return await _dbset.AnyAsync(predicate);
     }
 
-    public async Task InsertAsync(T entity)
+    public async Task InsertAsync(TEntity entity)
     {
         await _dbset.AddAsync(entity);
     }
 
-    public async Task RemoveAsync(string id)
+    public void Remove(TEntity entity)
     {
-        T? entity = await _dbset.FindAsync(id);
-        _dbset.Remove(entity!);
+        _dbset.Remove(entity);
     }
 
     public Task SaveChanges()

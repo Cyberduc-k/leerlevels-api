@@ -1,9 +1,9 @@
-﻿using Model;
-using Xunit;
+﻿using System.Linq.Expressions;
+using Model;
 
 namespace Repository.Test;
 
-public class ForumReplyRepositoryTests : RepositoryTestsBase<ForumReplyRepository, ForumReply>
+public class ForumReplyRepositoryTests : RepositoryTestsBase<ForumReplyRepository, ForumReply, string>
 {
     public ForumReplyRepositoryTests()
     {
@@ -18,23 +18,7 @@ public class ForumReplyRepositoryTests : RepositoryTestsBase<ForumReplyRepositor
         };
     }
 
-    [Fact]
-    public async Task Any_Async_Should_Return_True()
-    {
-        ForumReply mockEntity = CreateMockEntity();
-        await _context.AddAsync(mockEntity);
-        await _context.SaveChangesAsync();
-
-        bool any = await _repository.AnyAsync(e => e.Text == mockEntity.Text);
-
-        Assert.True(any);
-    }
-
-    [Fact]
-    public async Task Any_Async_Should_Return_False()
-    {
-        bool any = await _repository.AnyAsync(e => e.Text == "INVALID");
-
-        Assert.False(any);
-    }
+    protected override Expression<Func<ForumReply, object>> CreateIncludeExpr() => null!;
+    protected override Expression<Func<ForumReply, bool>> CreateAnyTrueExpr(ForumReply entity) => e => e.Text == entity.Text;
+    protected override Expression<Func<ForumReply, bool>> CreateAnyFalseExpr() => e => e.Text == "INVALID";
 }

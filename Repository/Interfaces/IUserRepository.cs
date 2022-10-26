@@ -2,7 +2,7 @@
 
 namespace Repository.Interfaces;
 
-public interface IUserRepository : IRepository<User>
+public interface IUserRepository : IRepository<User, string>
 {
-    Task<User> GetUserByLoginInfo(string userName);
+    Task<User?> GetUserByLoginInfo(string userName);
 }

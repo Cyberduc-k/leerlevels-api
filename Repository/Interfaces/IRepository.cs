@@ -2,14 +2,14 @@
 
 namespace Repository.Interfaces;
 
-public interface IRepository<T> where T : class
+public interface IRepository<TEntity, TId> where TEntity : class
 {
-    public IAsyncEnumerable<T> GetAllAsync();
-    public IAsyncEnumerable<T> GetAllIncludingAsync(params Expression<Func<T, object>>[] included);
-    public Task<T?> GetByIdAsync(string id);
-    public Task InsertAsync(T entity);
-    public Task RemoveAsync(string id);
+    public IAsyncEnumerable<TEntity> GetAllAsync();
+    public IAsyncEnumerable<TEntity> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] included);
+    public Task<TEntity?> GetByIdAsync(TId id);
+    public Task InsertAsync(TEntity entity);
+    public void Remove(TEntity entity);
     public Task SaveChanges();
 
-    public Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
+    public Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
 }

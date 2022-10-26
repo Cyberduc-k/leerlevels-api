@@ -81,7 +81,7 @@ public class ForumService : IForumService
         ForumReply reply = await GetReplyById(replyId);
 
         forum.Replies.Remove(reply);
-        await _forumReplyRepository.RemoveAsync(replyId);
+        _forumReplyRepository.Remove(reply);
         await _forumRepository.SaveChanges();
     }
 }

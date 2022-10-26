@@ -4,7 +4,7 @@ using Repository.Interfaces;
 
 namespace Repository;
 
-public class GroupRepository : Repository<Group>, IGroupRepository
+public class GroupRepository : Repository<Group, string>, IGroupRepository
 {
     public GroupRepository(DataContext context) : base(context, context.Groups)
     {
