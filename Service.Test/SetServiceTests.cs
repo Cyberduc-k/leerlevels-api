@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MockQueryable.Moq;
 using Model;
 using Moq;
 using Repository.Interfaces;
@@ -6,6 +7,7 @@ using Service.Exceptions;
 using Xunit;
 
 namespace Service.Test;
+
 public class SetServiceTests
 {
     private readonly Mock<ISetRepository> _setRepository;
@@ -20,21 +22,18 @@ public class SetServiceTests
     [Fact]
     public async Task Get_All_Sets_Should_return_an_array_of_Sets()
     {
+        Set[] mockSets = new[] {
+            new Set("1", null!),
+            new Set("2", null!),
+        };
 
-        async IAsyncEnumerable<Set> MockSets()
-        {
-            yield return new Set("1", null!);
-
-            yield return new Set("2", null!);
-
-        }
-
-        _setRepository.Setup(r => r.GetAllIncludingAsync(x =>x.Targets, x =>x.Users)).Returns(MockSets);
+        _setRepository.Setup(r => r.GetAllIncludingAsync(x => x.Targets, x => x.Users)).Returns(mockSets.BuildMock());
 
         ICollection<Set> sets = await _service.GetAllSetsAsync();
 
         Assert.Equal(2, sets.Count);
     }
+
     [Fact]
     public async Task Get_Set_By_Id_Should_return_A_Set_Object()
     {

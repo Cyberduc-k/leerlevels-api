@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MockQueryable.Moq;
 using Model;
 using Moq;
 using Repository.Interfaces;
@@ -20,31 +21,18 @@ public class GroupServiceTests
     [Fact]
     public async Task Get_All_Groups_Should_return_an_array_of_Groups()
     {
+        Group[] mockGroups = new[] {
+            new Group("1", "bestgroup", "this is our group", EducationType.Mavo, SchoolYear.One, null!),
+            new Group("2", "second bestgroup", "this is the rest of the groups", EducationType.Havo, SchoolYear.One, null!),
+        };
 
-        async IAsyncEnumerable<Group> MockGroups()
-        {
-            yield return new Group("1",
-            "bestgroup",
-            "this is our group",
-            EducationType.Mavo,
-            SchoolYear.One,
-            null!);
-
-            yield return new Group("2",
-           "second bestgroup",
-           "this is the rest of the groups",
-           EducationType.Havo,
-           SchoolYear.One,
-           null!);
-
-        }
-
-        _groupRepository.Setup(r => r.GetAllIncludingAsync(x =>x.Set, x =>x.Users)).Returns(MockGroups);
+        _groupRepository.Setup(r => r.GetAllIncludingAsync(x => x.Set, x => x.Users)).Returns(mockGroups.BuildMock());
 
         ICollection<Group> groups = await _service.GetAllGroupsAsync();
 
         Assert.Equal(2, groups.Count);
     }
+
     [Fact]
     public async Task Get_Group_By_Id_Should_return_A_Group_Object()
     {

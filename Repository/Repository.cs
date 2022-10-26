@@ -15,19 +15,19 @@ public abstract class Repository<TEntity, TId> : IRepository<TEntity, TId> where
         _dbset = dbset;
     }
 
-    public IAsyncEnumerable<TEntity> GetAllAsync()
+    public IQueryable<TEntity> GetAllAsync()
     {
-        return _dbset.AsAsyncEnumerable();
+        return _dbset.AsQueryable();
     }
 
-    public IAsyncEnumerable<TEntity> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] included)
+    public IQueryable<TEntity> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] included)
     {
         IQueryable<TEntity> query = _dbset.AsQueryable();
 
         foreach (Expression<Func<TEntity, object>> include in included)
             query = query.Include(include);
 
-        return query.AsAsyncEnumerable();
+        return query;
     }
 
     public virtual async Task<TEntity?> GetByIdAsync(TId id)

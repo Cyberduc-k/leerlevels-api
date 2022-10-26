@@ -35,7 +35,7 @@ public abstract class RepositoryTestsBase<TRepository, TEntity, TId> : IAsyncDis
     protected abstract Expression<Func<TEntity, bool>> CreateAnyFalseExpr();
 
     [Fact]
-    public async Task Get_All_Async_Should_Return_Async_Enumerable()
+    public async Task Get_All_Async_Should_Return_Entities()
     {
         await _context.AddRangeAsync(
             CreateMockEntity(),
@@ -44,13 +44,13 @@ public abstract class RepositoryTestsBase<TRepository, TEntity, TId> : IAsyncDis
         );
         await _context.SaveChangesAsync();
 
-        IAsyncEnumerable<TEntity> entities = _repository.GetAllAsync();
+        IQueryable<TEntity> entities = _repository.GetAllAsync();
 
         Assert.Equal(3, await entities.CountAsync());
     }
 
     [Fact]
-    public async Task Get_All_Including_Async_Should_Return_Async_Enumerable()
+    public async Task Get_All_Including_Async_Should_Return_Entities()
     {
         if (CreateIncludeExpr() is Expression<Func<TEntity, object>> includeExpr) {
             await _context.AddRangeAsync(
@@ -60,7 +60,7 @@ public abstract class RepositoryTestsBase<TRepository, TEntity, TId> : IAsyncDis
             );
             await _context.SaveChangesAsync();
 
-            IAsyncEnumerable<TEntity> entities = _repository.GetAllIncludingAsync(includeExpr);
+            IQueryable<TEntity> entities = _repository.GetAllIncludingAsync(includeExpr);
 
             Assert.Equal(3, await entities.CountAsync());
         }

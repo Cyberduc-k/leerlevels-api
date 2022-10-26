@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MockQueryable.Moq;
 using Model;
 using Model.DTO;
 using Moq;
@@ -24,13 +25,12 @@ public class ForumServiceTests
     [Fact]
     public async Task Get_All_Forums_Should_Return_An_Array_Of_Forums()
     {
-        async IAsyncEnumerable<Forum> MockForums()
-        {
-            yield return new Forum("1", "Test Forum 1", "test", null!, null!);
-            yield return new Forum("2", "Test Forum 2", "test test", null!, null!);
-        }
+        Forum[] mockForums = new[] {
+            new Forum("1", "Test Forum 1", "test", null!, null!),
+            new Forum("2", "Test Forum 2", "test test", null!, null!),
+        };
 
-        _mockRepository.Setup(r => r.GetAllAsync()).Returns(() => MockForums());
+        _mockRepository.Setup(r => r.GetAllAsync()).Returns(mockForums.BuildMock());
 
         ICollection<Forum> forums = await _service.GetAll();
 

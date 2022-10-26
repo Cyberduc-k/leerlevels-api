@@ -4,8 +4,8 @@ namespace Repository.Interfaces;
 
 public interface IRepository<TEntity, TId> where TEntity : class
 {
-    public IAsyncEnumerable<TEntity> GetAllAsync();
-    public IAsyncEnumerable<TEntity> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] included);
+    public IQueryable<TEntity> GetAllAsync();
+    public IQueryable<TEntity> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] included);
     public Task<TEntity?> GetByIdAsync(TId id);
     public Task InsertAsync(TEntity entity);
     public void Remove(TEntity entity);

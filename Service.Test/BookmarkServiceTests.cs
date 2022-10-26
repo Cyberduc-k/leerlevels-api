@@ -1,4 +1,5 @@
-﻿using Model;
+﻿using MockQueryable.Moq;
+using Model;
 using Moq;
 using Repository.Interfaces;
 using Xunit;
@@ -28,13 +29,12 @@ public class BookmarkServiceTests
     [Fact]
     public async Task Get_Bookmarks_Should_Return_An_Array_Of_Targets_And_An_Array_Of_Mcqs()
     {
-        async IAsyncEnumerable<Bookmark> MockBookmarks()
-        {
-            yield return new Bookmark("1", Bookmark.BookmarkType.Target) { UserId = "1" };
-            yield return new Bookmark("1", Bookmark.BookmarkType.Mcq) { UserId = "1" };
-        }
+        Bookmark[] mockBookmarks = new[] {
+            new Bookmark("1", Bookmark.BookmarkType.Target) { UserId = "1" },
+            new Bookmark("1", Bookmark.BookmarkType.Mcq) { UserId = "1" },
+        };
 
-        _bookmarkRepository.Setup(r => r.GetAllAsync()).Returns(MockBookmarks());
+        _bookmarkRepository.Setup(r => r.GetAllAsync()).Returns(mockBookmarks.BuildMock());
 
         (ICollection<Target> targets, ICollection<Mcq> mcqs) = await _service.GetBookmarksAsync(_user);
 
