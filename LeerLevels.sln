@@ -22,7 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository.Test", "Repository.Test\Repository.Test.csproj", "{3D845E34-5211-490F-B8DF-09EF0D9DB9BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API.Test", "API.Test\API.Test.csproj", "{5DD1B830-E27B-424F-A4A7-2D0324B1AD28}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API.Test", "API.Test\API.Test.csproj", "{5DD1B830-E27B-424F-A4A7-2D0324B1AD28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notifications", "Notifications\Notifications.csproj", "{76A7CAD0-F673-40AD-A3C1-B299EC608A28}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -96,6 +98,14 @@ Global
 		{5DD1B830-E27B-424F-A4A7-2D0324B1AD28}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5DD1B830-E27B-424F-A4A7-2D0324B1AD28}.Release|x64.ActiveCfg = Release|Any CPU
 		{5DD1B830-E27B-424F-A4A7-2D0324B1AD28}.Release|x64.Build.0 = Release|Any CPU
+		{76A7CAD0-F673-40AD-A3C1-B299EC608A28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76A7CAD0-F673-40AD-A3C1-B299EC608A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76A7CAD0-F673-40AD-A3C1-B299EC608A28}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{76A7CAD0-F673-40AD-A3C1-B299EC608A28}.Debug|x64.Build.0 = Debug|Any CPU
+		{76A7CAD0-F673-40AD-A3C1-B299EC608A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76A7CAD0-F673-40AD-A3C1-B299EC608A28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76A7CAD0-F673-40AD-A3C1-B299EC608A28}.Release|x64.ActiveCfg = Release|Any CPU
+		{76A7CAD0-F673-40AD-A3C1-B299EC608A28}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
