@@ -27,4 +27,10 @@ public class TargetService : ITargetService
     {
         return await _targetRepository.GetByIdAsync(targetId) ?? throw new NotFoundException("target");
     }
+
+    public async Task<Target> GetTargetWithMcqByIdAsync(string targetId)
+    {
+        return await _targetRepository.GetAllAsync().Include(t => t.Mcqs).FirstOrDefaultAsync(t => t.Id == targetId)
+            ?? throw new NotFoundException("target");
+    }
 }

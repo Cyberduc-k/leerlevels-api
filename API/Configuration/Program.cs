@@ -29,6 +29,8 @@ IHost host = new HostBuilder()
         services.AddTransient<ISetRepository, SetRepository>();
         services.AddTransient<ITargetRepository, TargetRepository>();
         services.AddTransient<IBookmarkRepository, BookmarkRepository>();
+        services.AddTransient<ITargetProgressRepository, TargetProgressRepository>();
+        services.AddTransient<IMcqProgressRepository, McqProgressRepository>();
 
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUserService, UserService>();
@@ -38,6 +40,7 @@ IHost host = new HostBuilder()
         services.AddScoped<ISetService, SetService>();
         services.AddScoped<ITargetService, TargetService>();
         services.AddScoped<IBookmarkService, BookmarkService>();
+        services.AddScoped<IProgressService, ProgressService>();
 
         services.AddAutoMapper(typeof(Program));
         services.AddValidatorsFromAssemblyContaining<Program>();
