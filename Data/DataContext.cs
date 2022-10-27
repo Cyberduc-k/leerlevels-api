@@ -20,6 +20,9 @@ public class DataContext : DbContext
 
     public DbSet<Bookmark> Bookmarks { get; set; }
 
+    public DbSet<TargetProgress> TargetProgress { get; set; }
+    public DbSet<McqProgress> McqProgress { get; set; }
+
     public DataContext(DbContextOptions options) : base(options)
     {
         Database.EnsureCreated();
