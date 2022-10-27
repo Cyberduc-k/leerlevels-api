@@ -42,7 +42,7 @@ public class ExceptionMiddleware : IFunctionsWorkerMiddleware
 
                 HttpResponseData res = req.CreateResponse(statusCode);
 
-                await res.WriteAsJsonAsync(new ErrorResponse(ex.Message), statusCode);
+                await res.WriteAsJsonAsync(new ErrorResponse(ex), statusCode);
 
                 InvocationResult invocation = context.GetInvocationResult();
                 OutputBindingData<HttpResponseData>? binding = context.GetOutputBindings<HttpResponseData>().FirstOrDefault(b => b.BindingType == "http" && b.Name != "$return");

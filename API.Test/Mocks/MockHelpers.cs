@@ -1,8 +1,10 @@
 ﻿using System.Text;
+using API.Middleware;
 using Azure.Core.Serialization;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
 namespace API.Test.Mocks;
@@ -37,9 +39,8 @@ public static class MockHelpers
 
         services.AddOptions();
         services.AddFunctionsWorkerCore(c => {
-            //c.UseMiddleware();
             c.Serializer = serializer;
-        });
+        }).UseMiddleware<ExceptionMiddleware>();
 
         context.InstanceServices = services.BuildServiceProvider();
 

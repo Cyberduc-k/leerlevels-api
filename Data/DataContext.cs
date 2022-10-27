@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Model;
 
 namespace Data;
@@ -51,7 +50,7 @@ public class DataContext : DbContext
         if (_addBasicEntities) {
             modelBuilder.Entity<User>().HasData(
             new {
-                Id =  "1",
+                Id = "1",
                 Email = "JohnDoe@gmail.com",
                 FirstName = "John",
                 LastName = "Doe",
