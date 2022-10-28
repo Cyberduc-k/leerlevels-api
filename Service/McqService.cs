@@ -20,7 +20,7 @@ public class McqService : IMcqService
 
     public async Task<ICollection<Mcq>> GetAllMcqsAsync()
     {
-        return await _mcqRepository.GetAllIncludingAsync(m => m.AnswerOptions).ToArrayAsync();
+        return await _mcqRepository.Include(m => m.AnswerOptions).GetAllAsync().ToArrayAsync();
     }
 
     public async Task<Mcq> GetMcqByIdAsync(string mcqId)

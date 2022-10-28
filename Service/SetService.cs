@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Model;
+using Repository;
 using Repository.Interfaces;
 using Service.Exceptions;
 using Service.Interfaces;
@@ -20,7 +21,7 @@ public class SetService : ISetService
 
     public async Task<ICollection<Set>> GetAllSetsAsync()
     {
-        return await _setRepository.GetAllIncludingAsync(x => x.Targets, x => x.Users).ToArrayAsync();
+        return await _setRepository.Include(x => x.Targets).Include(x => x.Users).GetAllAsync().ToArrayAsync();
     }
 
     public async Task<Set> GetSetByIdAsync(string setId)

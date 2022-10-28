@@ -19,7 +19,6 @@ public class BookmarkRepositoryTests : RepositoryTestsBase<BookmarkRepository, B
         };
     }
 
-    protected override Expression<Func<Bookmark, object>> CreateIncludeExpr() => null!;
     protected override Expression<Func<Bookmark, bool>> CreateAnyTrueExpr(Bookmark entity) => e => e.Type == entity.Type;
     protected override Expression<Func<Bookmark, bool>> CreateAnyFalseExpr() => e => e.Type == Bookmark.BookmarkType.Mcq;
 }

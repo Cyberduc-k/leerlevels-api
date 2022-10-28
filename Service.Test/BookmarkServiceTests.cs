@@ -1,4 +1,4 @@
-﻿using MockQueryable.Moq;
+﻿using System.Linq.Expressions;
 using Model;
 using Moq;
 using Repository.Interfaces;
@@ -34,7 +34,7 @@ public class BookmarkServiceTests
             new Bookmark("1", Bookmark.BookmarkType.Mcq) { UserId = "1" },
         };
 
-        _bookmarkRepository.Setup(r => r.GetAllAsync()).Returns(mockBookmarks.BuildMock());
+        _bookmarkRepository.Setup(r => r.GetAllWhereAsync(It.IsAny<Expression<Func<Bookmark, bool>>>())).Returns(mockBookmarks.ToAsyncEnumerable());
 
         (ICollection<Target> targets, ICollection<Mcq> mcqs) = await _service.GetBookmarksAsync(_user);
 

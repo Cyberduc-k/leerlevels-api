@@ -1,12 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
-using System.Reflection.PortableExecutable;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -16,7 +13,6 @@ using Model.Response;
 using Repository.Interfaces;
 using Service.Exceptions;
 using Service.Interfaces;
-using YamlDotNet.Core.Tokens;
 
 namespace Service;
 
@@ -27,7 +23,7 @@ public class TokenService : ITokenService
     private const int Iterations = 10000;
 
     private ILogger Logger { get; }
-    private  IUserRepository UserRepository { get; set; }
+    private IUserRepository UserRepository { get; set; }
     private string Issuer { get; }
     private string Audience { get; }
     private TimeSpan ValidityDuration { get; }
@@ -61,10 +57,10 @@ public class TokenService : ITokenService
     public async Task<LoginResponse> Login(LoginDTO loginDTO)
     {
         //authentication of the login information
-        User user = await UserRepository.GetUserByLoginInfo(loginDTO.Email) ?? throw new NotFoundException("user to create a valid token");
+        User user = await UserRepository.GetByAsync(u => u.Email == loginDTO.Email) ?? throw new NotFoundException("user to create a valid token");
 
         //check if given password is valid for the saved hash of the users password
-        if(!VerifyPassword(loginDTO.Password, user.Password)) {
+        if (!VerifyPassword(loginDTO.Password, user.Password)) {
             throw new AuthenticationException("Incorrect user password entered");
         }
 
@@ -123,7 +119,7 @@ public class TokenService : ITokenService
     public async Task<bool> AuthenticationValidation(HttpRequestData req)
     {
         // see if authorization key exists (also done in the JwtMiddleware)
-        if(!req.Headers.Contains("Authorization")) {
+        if (!req.Headers.Contains("Authorization")) {
             Message = "No authorization header provided";
             return false;
         }
@@ -141,11 +137,11 @@ public class TokenService : ITokenService
         // validation of token based on the validation parameters (also done in the JwtMiddleware)
         ClaimsPrincipal Token = await GetByValue(BearerHeader.Parameter!);
 
-        if(Token == null || !Token.Claims.Any()) {
+        if (Token == null || !Token.Claims.Any()) {
             Message = "An Invalid or expired token was provided";
             return false;
         }
-        
+
         Dictionary<string, string> claims = Token.Claims.ToDictionary(t => t.Type, t => t.Value);
 
         // validation of token set/presence of user related claims (id, name and role)
@@ -177,7 +173,6 @@ public class TokenService : ITokenService
                 Message = "Invalid or expired token detected";
                 return false;
             }
-
         } else {
             Message = "No readable Token validation data provided";
             return false;
@@ -192,7 +187,7 @@ public class TokenService : ITokenService
 
         //set the interface user to check authorization in the controller endpoints
         User = user;
-        
+
         return true;
     }
 
@@ -204,7 +199,7 @@ public class TokenService : ITokenService
         RandomNumberGenerator.Create().GetBytes(salt = new byte[SaltSize]);
 
         // Create a hash
-        Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations);
+        Rfc2898DeriveBytes pbkdf2 = new(password, salt, Iterations);
         byte[] hash = pbkdf2.GetBytes(HashSize);
 
         // Combine salt and hash
@@ -247,7 +242,7 @@ public class TokenService : ITokenService
         Array.Copy(hashBytes, 0, salt, 0, SaltSize);
 
         // Create a hash with the given salt
-        Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations);
+        Rfc2898DeriveBytes pbkdf2 = new(password, salt, iterations);
         byte[] hash = pbkdf2.GetBytes(HashSize);
 
         // Work out the result
@@ -256,6 +251,7 @@ public class TokenService : ITokenService
                 return false;
             }
         }
+
         return true;
     }
 }

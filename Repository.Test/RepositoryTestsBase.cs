@@ -30,7 +30,6 @@ public abstract class RepositoryTestsBase<TRepository, TEntity, TId> : IAsyncDis
     }
 
     protected abstract TEntity CreateMockEntity();
-    protected abstract Expression<Func<TEntity, object>> CreateIncludeExpr();
     protected abstract Expression<Func<TEntity, bool>> CreateAnyTrueExpr(TEntity entity);
     protected abstract Expression<Func<TEntity, bool>> CreateAnyFalseExpr();
 
@@ -44,26 +43,9 @@ public abstract class RepositoryTestsBase<TRepository, TEntity, TId> : IAsyncDis
         );
         await _context.SaveChangesAsync();
 
-        IQueryable<TEntity> entities = _repository.GetAllAsync();
+        IAsyncEnumerable<TEntity> entities = _repository.GetAllAsync();
 
         Assert.Equal(3, await entities.CountAsync());
-    }
-
-    [Fact]
-    public async Task Get_All_Including_Async_Should_Return_Entities()
-    {
-        if (CreateIncludeExpr() is Expression<Func<TEntity, object>> includeExpr) {
-            await _context.AddRangeAsync(
-                CreateMockEntity(),
-                CreateMockEntity(),
-                CreateMockEntity()
-            );
-            await _context.SaveChangesAsync();
-
-            IQueryable<TEntity> entities = _repository.GetAllIncludingAsync(includeExpr);
-
-            Assert.Equal(3, await entities.CountAsync());
-        }
     }
 
     [Fact]

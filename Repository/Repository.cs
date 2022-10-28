@@ -15,24 +15,24 @@ public abstract class Repository<TEntity, TId> : IRepository<TEntity, TId> where
         _dbset = dbset;
     }
 
-    public IQueryable<TEntity> GetAllAsync()
-    {
-        return _dbset.AsQueryable();
-    }
-
-    public IQueryable<TEntity> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] included)
-    {
-        IQueryable<TEntity> query = _dbset.AsQueryable();
-
-        foreach (Expression<Func<TEntity, object>> include in included)
-            query = query.Include(include);
-
-        return query;
-    }
-
     public virtual async Task<TEntity?> GetByIdAsync(TId id)
     {
         return await _dbset.FindAsync(id);
+    }
+
+    public async Task<TEntity?> GetByAsync(Expression<Func<TEntity, bool>> filter)
+    {
+        return await _dbset.FirstOrDefaultAsync(filter);
+    }
+
+    public IAsyncEnumerable<TEntity> GetAllAsync()
+    {
+        return _dbset.AsAsyncEnumerable();
+    }
+
+    public IAsyncEnumerable<TEntity> GetAllWhereAsync(Expression<Func<TEntity, bool>> filter)
+    {
+        return _dbset.Where(filter).AsAsyncEnumerable();
     }
 
     public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
@@ -53,5 +53,15 @@ public abstract class Repository<TEntity, TId> : IRepository<TEntity, TId> where
     public Task SaveChanges()
     {
         return _context.SaveChangesAsync();
+    }
+
+    public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, IEnumerable<TProp>>> property)
+    {
+        return new IncludableRepository<TEntity, TProp>(_dbset.Include(property));
+    }
+
+    public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, ICollection<TProp>>> property)
+    {
+        return new IncludableRepository<TEntity, TProp>(_dbset.Include(property));
     }
 }

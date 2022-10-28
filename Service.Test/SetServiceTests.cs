@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using MockQueryable.Moq;
 using Model;
 using Moq;
+using Repository;
 using Repository.Interfaces;
 using Service.Exceptions;
 using Xunit;
@@ -27,7 +27,7 @@ public class SetServiceTests
             new Set("2", null!),
         };
 
-        _setRepository.Setup(r => r.GetAllIncludingAsync(x => x.Targets, x => x.Users)).Returns(mockSets.BuildMock());
+        _setRepository.Setup(r => r.Include(x => x.Targets).Include(x => x.Users).GetAllAsync()).Returns(mockSets.ToAsyncEnumerable());
 
         ICollection<Set> sets = await _service.GetAllSetsAsync();
 

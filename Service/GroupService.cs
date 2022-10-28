@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Model;
+using Repository;
 using Repository.Interfaces;
+using Service.Exceptions;
 using Service.Interfaces;
 
 namespace Service;
@@ -19,12 +21,12 @@ public class GroupService : IGroupService
 
     public async Task<ICollection<Group>> GetAllGroupsAsync()
     {
-        return await _groupRepsitory.GetAllIncludingAsync(x => x.Set, x => x.Users).ToArrayAsync();
+        return await _groupRepsitory.Include(x => x.Sets).Include(x => x.Users).GetAllAsync().ToArrayAsync();
     }
 
     public async Task<Group> GetGroupByIdAsync(string groupId)
     {
-        return await _groupRepsitory.GetByIdAsync(groupId);
+        return await _groupRepsitory.GetByIdAsync(groupId) ?? throw new NotFoundException("group");
     }
 
     public async Task<bool> GroupExistsAsync(string id)

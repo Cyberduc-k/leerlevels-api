@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using MockQueryable.Moq;
 using Model;
 using Moq;
+using Repository;
 using Repository.Interfaces;
 using Service.Exceptions;
 using Xunit;
@@ -26,7 +26,7 @@ public class GroupServiceTests
             new Group("2", "second bestgroup", "this is the rest of the groups", EducationType.Havo, SchoolYear.One, null!),
         };
 
-        _groupRepository.Setup(r => r.GetAllIncludingAsync(x => x.Set, x => x.Users)).Returns(mockGroups.BuildMock());
+        _groupRepository.Setup(r => r.Include(x => x.Sets).Include(x => x.Users).GetAllAsync()).Returns(mockGroups.ToAsyncEnumerable());
 
         ICollection<Group> groups = await _service.GetAllGroupsAsync();
 

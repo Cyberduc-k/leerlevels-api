@@ -20,17 +20,15 @@ public class BookmarkService : IBookmarkService
 
     public async Task<(ICollection<Target>, ICollection<Mcq>)> GetBookmarksAsync(User user)
     {
-        IQueryable<Bookmark> bookmarks = _bookmarkRepository.GetAllAsync().Where(b => b.UserId == user.Id);
+        IAsyncEnumerable<Bookmark> bookmarks = _bookmarkRepository.GetAllWhereAsync(b => b.UserId == user.Id);
         Target[] targets = await bookmarks
             .Where(b => b.Type == Bookmark.BookmarkType.Target)
-            .AsAsyncEnumerable()
             .SelectAwait(async b => await _targetRepository.GetByIdAsync(b.ItemId))
             .Select(t => t!)
             .ToArrayAsync();
 
         Mcq[] mcqs = await bookmarks
             .Where(b => b.Type == Bookmark.BookmarkType.Mcq)
-            .AsAsyncEnumerable()
             .SelectAwait(async b => await _mcqRepository.GetByIdAsync(b.ItemId)!)
             .Select(m => m!)
             .ToArrayAsync();

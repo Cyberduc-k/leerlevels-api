@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using MockQueryable.Moq;
 using Model;
 using Model.DTO;
 using Moq;
@@ -30,7 +29,7 @@ public class ForumServiceTests
             new Forum("2", "Test Forum 2", "test test", null!, null!),
         };
 
-        _mockRepository.Setup(r => r.GetAllAsync()).Returns(mockForums.BuildMock());
+        _mockRepository.Setup(r => r.GetAllAsync()).Returns(mockForums.ToAsyncEnumerable());
 
         ICollection<Forum> forums = await _service.GetAll();
 

@@ -26,7 +26,6 @@ public class UserRepositoryTests : RepositoryTestsBase<UserRepository, User, str
         };
     }
 
-    protected override Expression<Func<User, object>> CreateIncludeExpr() => e => e.Groups;
     protected override Expression<Func<User, bool>> CreateAnyTrueExpr(User entity) => e => e.UserName == entity.UserName;
     protected override Expression<Func<User, bool>> CreateAnyFalseExpr() => e => e.UserName == "INVALID";
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using MockQueryable.Moq;
 using Model;
 using Moq;
 using Repository.Interfaces;
@@ -36,7 +35,7 @@ public class TargetServiceTests
                  "https://s3-us-west-2.amazonaws.com/leerlevels/slide_pngs/2.png", null!),
         };
 
-        _mockRepository.Setup(r => r.GetAllIncludingAsync(x => x.Mcqs)).Returns(mockTargets.BuildMock());
+        _mockRepository.Setup(r => r.Include(x => x.Mcqs).GetAllAsync()).Returns(mockTargets.ToAsyncEnumerable());
 
         ICollection<Target> mcqs = await _service.GetAllTargetsAsync();
 

@@ -20,7 +20,7 @@ public class TargetService : ITargetService
 
     public async Task<ICollection<Target>> GetAllTargetsAsync()
     {
-        return await _targetRepository.GetAllIncludingAsync(x => x.Mcqs).ToArrayAsync();
+        return await _targetRepository.Include(x => x.Mcqs).GetAllAsync().ToArrayAsync();
     }
 
     public async Task<Target> GetTargetByIdAsync(string targetId)
@@ -30,7 +30,7 @@ public class TargetService : ITargetService
 
     public async Task<Target> GetTargetWithMcqByIdAsync(string targetId)
     {
-        return await _targetRepository.GetAllAsync().Include(t => t.Mcqs).FirstOrDefaultAsync(t => t.Id == targetId)
+        return await _targetRepository.Include(t => t.Mcqs).GetByAsync(t => t.Id == targetId)
             ?? throw new NotFoundException("target");
     }
 }

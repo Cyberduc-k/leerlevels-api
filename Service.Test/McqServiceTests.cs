@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using MockQueryable.Moq;
 using Model;
 using Moq;
 using Repository.Interfaces;
@@ -41,7 +40,7 @@ public class McqServiceTests
             ),
         };
 
-        _mockRepository.Setup(r => r.GetAllIncludingAsync(x => x.AnswerOptions)).Returns(mockMcqs.BuildMock());
+        _mockRepository.Setup(r => r.Include(x => x.AnswerOptions).GetAllAsync()).Returns(mockMcqs.ToAsyncEnumerable());
 
         ICollection<Mcq> mcqs = await _service.GetAllMcqsAsync();
 

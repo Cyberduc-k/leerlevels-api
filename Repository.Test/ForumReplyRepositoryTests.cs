@@ -18,7 +18,6 @@ public class ForumReplyRepositoryTests : RepositoryTestsBase<ForumReplyRepositor
         };
     }
 
-    protected override Expression<Func<ForumReply, object>> CreateIncludeExpr() => null!;
     protected override Expression<Func<ForumReply, bool>> CreateAnyTrueExpr(ForumReply entity) => e => e.Text == entity.Text;
     protected override Expression<Func<ForumReply, bool>> CreateAnyFalseExpr() => e => e.Text == "INVALID";
 }
