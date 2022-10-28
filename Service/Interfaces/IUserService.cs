@@ -15,7 +15,7 @@ public interface IUserService
 
     Task DeleteUser(string userId);
 
-    Task<ICollection<Group>> GetUserGroups(string userId);
+    Task<List<Group>> GetUserGroups(string userId);
 
-    Task<ICollection<Set>> GetUserSets(string userId);
+    Task<List<Set>> GetUserSets(string userId);
 }

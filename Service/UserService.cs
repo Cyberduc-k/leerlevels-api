@@ -67,7 +67,7 @@ public class UserService : IUserService
     public async Task DeleteUser(string userId)
     {
         // retrieve user
-        User user = await GetUserById(userId);
+        User user = await GetUserById(userId) ?? throw new NotFoundException("user to delete");
 
         // update user.IsActive to false;
         user.IsActive = false;
@@ -76,15 +76,15 @@ public class UserService : IUserService
         _logger.LogInformation($"delete function soft-deleted user {user.UserName} with id: {user.Id}");
     }
 
-    public async Task<ICollection<Group>> GetUserGroups(string userId)
+    public async Task<List<Group>> GetUserGroups(string userId)
     {
         //this has to be a query where all the groups that a user is a member of are retrieved (might have to rewrite this as another linq query in the userRepository if it doesn't work)
-        return await _groupRepository.GetAllIncludingAsync(g => g.Users.Where(u => u.Id == userId)).ToArrayAsync() ?? throw new NotFoundException("groups the user is a part of");
+        return await Task.FromResult(_groupRepository.GetAllIncludingAsync(g => g.Users.Where(u => u.Id == userId)).ToList()) ?? throw new NotFoundException("groups the user is a part of");
     }
 
-    public async Task<ICollection<Set>> GetUserSets(string userId)
+    public async Task<List<Set>> GetUserSets(string userId)
     {
         // same goes here since I now added a collection of users to a set (might also have to add a collection of sets to a user?) in order to grab the sets of a user...
-        return await _setRepository.GetAllIncludingAsync(s => s.Users.Where(u => u.Id == userId)).ToArrayAsync() ?? throw new NotFoundException("sets of the user");
+        return await Task.FromResult(_setRepository.GetAllIncludingAsync(s => s.Users.Where(u => u.Id == userId)).ToList()) ?? throw new NotFoundException("sets of the user");
     }
 }

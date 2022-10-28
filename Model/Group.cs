@@ -15,7 +15,7 @@ public class Group
 
     }
 
-    public Group(string id, string name, string subject, EducationType educationType, SchoolYear schoolYear, ICollection<Set> set)
+    public Group(string id, string name, string subject, EducationType educationType, SchoolYear schoolYear, ICollection<Set> set, ICollection<User> users)
     {
         Id = id;
         Name = name;
@@ -23,5 +23,6 @@ public class Group
         EducationType = educationType;
         SchoolYear = schoolYear;
         Set = set;
+        Users = users;
     }
 }

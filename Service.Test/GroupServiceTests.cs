@@ -22,8 +22,8 @@ public class GroupServiceTests
     public async Task Get_All_Groups_Should_return_an_array_of_Groups()
     {
         Group[] mockGroups = new[] {
-            new Group("1", "bestgroup", "this is our group", EducationType.Mavo, SchoolYear.One, null!),
-            new Group("2", "second bestgroup", "this is the rest of the groups", EducationType.Havo, SchoolYear.One, null!),
+            new Group("1", "bestgroup", "this is our group", EducationType.Mavo, SchoolYear.One, null!, null!),
+            new Group("2", "second bestgroup", "this is the rest of the groups", EducationType.Havo, SchoolYear.One, null!, null!),
         };
 
         _groupRepository.Setup(r => r.GetAllIncludingAsync(x => x.Set, x => x.Users)).Returns(mockGroups.BuildMock());
@@ -41,6 +41,7 @@ public class GroupServiceTests
            "this is the rest of the groups",
            EducationType.Havo,
            SchoolYear.One,
+           null!, 
            null!));
         Group group = await _service.GetGroupByIdAsync("1");
 
