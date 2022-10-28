@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using Repository;
 using Repository.Interfaces;
 using Service.Exceptions;
 using Xunit;
@@ -23,8 +22,8 @@ public class SetServiceTests
     public async Task Get_All_Sets_Should_return_an_array_of_Sets()
     {
         Set[] mockSets = new[] {
-            new Set("1", null!),
-            new Set("2", null!),
+            new Set("1", null!, null!),
+            new Set("2", null!, null!),
         };
 
         _setRepository.Setup(r => r.Include(x => x.Targets).Include(x => x.Users).GetAllAsync()).Returns(mockSets.ToAsyncEnumerable());
@@ -37,7 +36,7 @@ public class SetServiceTests
     [Fact]
     public async Task Get_Set_By_Id_Should_return_A_Set_Object()
     {
-        _setRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => new Set("1", null!));
+        _setRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => new Set("1", null!, null!));
         Set set = await _service.GetSetByIdAsync("1");
 
         Assert.Equal("1", set.Id);

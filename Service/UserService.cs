@@ -67,7 +67,7 @@ public class UserService : IUserService
     public async Task DeleteUser(string userId)
     {
         // retrieve user
-        User user = await GetUserById(userId);
+        User user = await GetUserById(userId) ?? throw new NotFoundException("user to delete");
 
         // update user.IsActive to false;
         user.IsActive = false;
