@@ -21,6 +21,7 @@ public class UserRepositoryTests : RepositoryTestsBase<UserRepository, User, str
             Password = "Password",
             Role = UserRole.Student,
             LastLogin = DateTime.UtcNow,
+            LastDeviceHandle = "LastDeviceHandle",
             ShareCode = "ShareCode",
             IsActive = true,
         };

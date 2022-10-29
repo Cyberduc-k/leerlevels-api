@@ -26,8 +26,8 @@ public class UserServiceTests
     public async Task Get_All_Users_Should_Return_An_Array_Of_Users()
     {
         User[] mockUsers = new[] {
-            new User("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, "UREI-POIQ-DMKL-ALQF", true),
-            new User("2", "mruisberg@mail.com", "Marjan", "Ruisberg", "Mjanneke34", "MJ2U#2", UserRole.Teacher, DateTime.UtcNow, "MLDK-PACL-WUDB-LZQW", true),
+            new User("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true),
+            new User("2", "mruisberg@mail.com", "Marjan", "Ruisberg", "Mjanneke34", "MJ2U#2", UserRole.Teacher, DateTime.UtcNow, null!, "MLDK-PACL-WUDB-LZQW", true),
         };
 
         _mockRepository.Setup(u => u.GetAllAsync()).Returns(mockUsers.ToAsyncEnumerable());
@@ -48,7 +48,7 @@ public class UserServiceTests
     [Fact]
     public async Task Get_By_User_Id_Should_Return_The_User_With_Given_Id()
     {
-        _mockRepository.Setup(u => u.GetByIdAsync("1")).ReturnsAsync(() => new User("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, "UREI-POIQ-DMKL-ALQF", true));
+        _mockRepository.Setup(u => u.GetByIdAsync("1")).ReturnsAsync(() => new User("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true));
         User user = await _service.GetUserById("1");
 
         Assert.Equal("1", user.Id);
@@ -80,7 +80,7 @@ public class UserServiceTests
     [Fact]
     public async Task Update_User_Should_Have_Properties_Changed()
     {
-        User user = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, "UREI-POIQ-DMKL-ALQF", true);
+        User user = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true);
 
         _mockRepository.Setup(u => u.GetByIdAsync("1")).ReturnsAsync(() => user);
         _mockRepository.Setup(u => u.SaveChanges()).Verifiable();
@@ -111,7 +111,7 @@ public class UserServiceTests
     [Fact]
     public async Task Delete_User_Should_Change_Is_Active_Status_As_Soft_Deletion()
     {
-        User user = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, "UREI-POIQ-DMKL-ALQF", true);
+        User user = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true);
 
         _mockRepository.Setup(u => u.GetByIdAsync("1")).ReturnsAsync(() => user);
         _mockRepository.Setup(u => u.SaveChanges()).Verifiable();
@@ -135,8 +135,8 @@ public class UserServiceTests
     public async Task Get_User_Groups_Should_Return_An_Array_Of_Groups_The_User_Is_In()
     {
         User[] mockUsers = new[] {
-            new User("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, "UREI-POIQ-DMKL-ALQF", true),
-            new User("2", "mruisberg@mail.com", "Marjan", "Ruisberg", "Mjanneke34", "MJ2U#2", UserRole.Teacher, DateTime.UtcNow, "MLDK-PACL-WUDB-LZQW", true),
+            new User("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true),
+            new User("2", "mruisberg@mail.com", "Marjan", "Ruisberg", "Mjanneke34", "MJ2U#2", UserRole.Teacher, DateTime.UtcNow, null!, "MLDK-PACL-WUDB-LZQW", true),
         };
 
         _mockRepository.Setup(u => u.GetAllAsync()).Returns(() => mockUsers.ToAsyncEnumerable());
@@ -168,8 +168,8 @@ public class UserServiceTests
     public async Task Get_User_Sets_Should_Return_A_List_Of_Sets_That_Contains_The_User()
     {
         User[] mockUsers = new[] {
-            new User("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, "UREI-POIQ-DMKL-ALQF", true),
-            new User("2", "mruisberg@mail.com", "Marjan", "Ruisberg", "Mjanneke34", "MJ2U#2", UserRole.Teacher, DateTime.UtcNow, "MLDK-PACL-WUDB-LZQW", true),
+            new User("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true),
+            new User("2", "mruisberg@mail.com", "Marjan", "Ruisberg", "Mjanneke34", "MJ2U#2", UserRole.Teacher, DateTime.UtcNow, null!, "MLDK-PACL-WUDB-LZQW", true),
         };
 
         _mockRepository.Setup(u => u.GetAllAsync()).Returns(() => mockUsers.ToAsyncEnumerable());
