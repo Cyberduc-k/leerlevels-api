@@ -8,12 +8,18 @@ namespace Service;
 public class ProgressService : IProgressService
 {
     private readonly ITokenService _tokenService;
+    private readonly INotificationService _notificationService;
     private readonly ITargetProgressRepository _targetProgressRepository;
     private readonly IMcqProgressRepository _mcqProgressRepository;
 
-    public ProgressService(ITokenService tokenService, ITargetProgressRepository targetProgressRepository, IMcqProgressRepository mcqProgressRepository)
+    public ProgressService(
+        ITokenService tokenService,
+        INotificationService notificationService,
+        ITargetProgressRepository targetProgressRepository,
+        IMcqProgressRepository mcqProgressRepository)
     {
         _tokenService = tokenService;
+        _notificationService = notificationService;
         _targetProgressRepository = targetProgressRepository;
         _mcqProgressRepository = mcqProgressRepository;
     }
@@ -35,9 +41,19 @@ public class ProgressService : IProgressService
 
     public async Task AnswerQuestion(Mcq mcq, AnswerOption answer)
     {
-        McqProgress mcqProgress = await _mcqProgressRepository.GetByIdAsync((_tokenService.User.Id, mcq.Id)) ?? throw new NotFoundException("mcq progress");
+        TargetProgress targetProgress = await _targetProgressRepository
+            .Include(t => t.Mcqs)
+            .GetByAsync(t => t.User.Id == _tokenService.User.Id && t.Target.Id == mcq.Target.Id)
+            ?? throw new NotFoundException("target progress");
+        McqProgress mcqProgress = targetProgress.Mcqs.FirstOrDefault(m => m.Mcq.Id == mcq.Id) ?? throw new NotFoundException("mcq progress");
 
         mcqProgress.Answer = answer;
         await _mcqProgressRepository.SaveChanges();
+
+        if (targetProgress.IsComplete) {
+            PersonalNotification notification = new(_tokenService.User.Id, "Target completed", $"You have completed target {targetProgress.Target.Label}");
+
+            await _notificationService.SendNotificationAsync(notification);
+        }
     }
 }

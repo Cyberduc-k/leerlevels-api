@@ -10,6 +10,7 @@ public class User
     public string Password { get; set; }
     public UserRole Role { get; set; }
     public DateTime LastLogin { get; set; }
+    public string LastDeviceHandle { get; set; }
     public string ShareCode { get; set; }
     public bool IsActive { get; set; }
 
@@ -21,7 +22,7 @@ public class User
     {
     }
 
-    public User(string id, string email, string firstName, string lastName, string userName, string password, UserRole role, DateTime lastLogin, string shareCode, bool isActive)
+    public User(string id, string email, string firstName, string lastName, string userName, string password, UserRole role, DateTime lastLogin, string lastDeviceHandle, string shareCode, bool isActive)
     {
         Id = id;
         Email = email;
@@ -31,6 +32,7 @@ public class User
         Password = password;
         Role = role;
         LastLogin = lastLogin;
+        LastDeviceHandle = lastDeviceHandle;
         ShareCode = shareCode;
         IsActive = isActive;
     }

@@ -2,6 +2,6 @@
 
 namespace Repository.Interfaces;
 
-public interface IMcqProgressRepository : IRepository<McqProgress, (string UserId, string McqId)>
+public interface IMcqProgressRepository : IRepository<McqProgress, int>
 {
 }

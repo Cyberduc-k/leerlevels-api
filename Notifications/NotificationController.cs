@@ -2,21 +2,25 @@
 using Microsoft.Azure.NotificationHubs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Service;
+using Service.Interfaces;
 
 namespace Notifications;
 
 public class NotificationController
 {
     private readonly ILogger _logger;
+    private readonly IUserService _userService;
 
-    public NotificationController(ILoggerFactory loggerFactory)
+    public NotificationController(ILoggerFactory loggerFactory, IUserService userService)
     {
         _logger = loggerFactory.CreateLogger<NotificationController>();
+        _userService = userService;
     }
 
     [Function(nameof(SendNotification))]
     public async Task SendNotification(
-        [QueueTrigger("notifications")] string item)
+        [QueueTrigger(NotificationService.QUEUE_NAME)] string item)
     {
         _logger.LogInformation($"send notification: {item}");
         string connectionString = Environment.GetEnvironmentVariable("LeerLevelsNotificationHub")!;
@@ -29,24 +33,20 @@ public class NotificationController
             new AppleNotification($"{{\"aps\":{{\"alert\":\"{n.Message}\"}}}}"),
         };
 
-        if (pn is Model.PersonalNotification _pn) {
-            throw new NotImplementedException("personal notifications");
+        if (pn is not null) {
+            Model.User user = await _userService.GetUserById(pn.UserId);
+
+            foreach (Notification notification in notifications) {
+                NotificationOutcome result = await hub.SendDirectNotificationAsync(notification, user.LastDeviceHandle);
+
+                _logger.LogInformation($"notification sent to: {user.UserName} ({result.Success} devices)");
+            }
         } else {
             foreach (Notification notification in notifications) {
                 NotificationOutcome result = await hub.SendNotificationAsync(notification);
 
-                _logger.LogInformation($"notification sent to: {result.Success}");
+                _logger.LogInformation($"notification sent to {result.Success} devices");
             }
         }
-    }
-
-    [Function(nameof(TestNotifications))]
-    [QueueOutput("notifications")]
-    public async Task<string> TestNotifications(
-        [TimerTrigger("0 */5 * * * *", RunOnStartup = true)] TimerInfo timer)
-    {
-        Model.Notification n = new("Test title", "Test message");
-
-        return JsonConvert.SerializeObject(n);
     }
 }

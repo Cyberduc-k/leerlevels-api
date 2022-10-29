@@ -42,6 +42,8 @@ IHost host = new HostBuilder()
         services.AddScoped<IBookmarkService, BookmarkService>();
         services.AddScoped<IProgressService, ProgressService>();
 
+        services.AddScoped<INotificationService, NotificationService>();
+
         services.AddAutoMapper(typeof(Program));
         services.AddValidatorsFromAssemblyContaining<Program>();
     })
