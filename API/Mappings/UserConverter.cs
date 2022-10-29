@@ -4,9 +4,11 @@ using Model.DTO;
 using Service.Interfaces;
 
 namespace API.Mappings;
-internal class UserConverter : ITypeConverter<UserDTO, User>
+
+public class UserConverter : ITypeConverter<UserDTO, User>
 {
     ITokenService _tokenService;
+
     public UserConverter(ITokenService tokenService)
     {
         _tokenService = tokenService;

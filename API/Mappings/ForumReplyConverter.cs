@@ -5,7 +5,7 @@ using Service.Interfaces;
 
 namespace API.Mappings;
 
-internal class ForumReplyConverter : ITypeConverter<ForumReplyDTO, Task<ForumReply>>
+public class ForumReplyConverter : ITypeConverter<ForumReplyDTO, Task<ForumReply>>
 {
     private readonly IUserService _userService;
 

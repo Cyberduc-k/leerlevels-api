@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.Functions.Worker.Http;
 using Newtonsoft.Json;
 
-namespace API.Test.Mocks;
+namespace API.Test.Mock;
 
 public static class HttpResponseDataExtensions
 {

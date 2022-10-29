@@ -1,13 +1,11 @@
 ﻿using System.Text;
-using API.Middleware;
 using Azure.Core.Serialization;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
-namespace API.Test.Mocks;
+namespace API.Test.Mock;
 
 // taken from: https://github.com/lohithgn/az-fx-isolated-unittest/blob/main/test/Microsoft.Azure.Functions.Isolated.TestDoubles/MockHelpers.cs
 public static class MockHelpers
@@ -40,7 +38,7 @@ public static class MockHelpers
         services.AddOptions();
         services.AddFunctionsWorkerCore(c => {
             c.Serializer = serializer;
-        }).UseMiddleware<ExceptionMiddleware>();
+        });
 
         context.InstanceServices = services.BuildServiceProvider();
 

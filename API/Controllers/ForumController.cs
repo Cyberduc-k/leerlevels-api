@@ -107,15 +107,15 @@ public class ForumController : ControllerWithAuthentication
         return req.CreateResponse(HttpStatusCode.OK);
     }
 
-    [Function(nameof(CreateReply))]
-    [OpenApiOperation(operationId: nameof(CreateReply), tags: new[] { "Forums" }, Summary = "Add a reply to a forum post", Description = "Adds a new reply to a forum post")]
+    [Function(nameof(CreateForumReply))]
+    [OpenApiOperation(operationId: nameof(CreateForumReply), tags: new[] { "Forums" }, Summary = "Add a reply to a forum post", Description = "Adds a new reply to a forum post")]
     [OpenApiAuthentication]
     [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post Id")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(ForumReplyDTO), Required = true, Description = "The new forum post reply")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ForumReplyResponse), Description = "The forum post reply is created")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
-    public async Task<HttpResponseData> CreateReply(
+    public async Task<HttpResponseData> CreateForumReply(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "forums/{forumId}/replies")] HttpRequestData req,
         string forumId)
     {

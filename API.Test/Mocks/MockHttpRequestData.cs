@@ -3,7 +3,7 @@ using System.Security.Claims;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 
-namespace API.Test.Mocks;
+namespace API.Test.Mock;
 
 // taken from: https://github.com/lohithgn/az-fx-isolated-unittest/blob/main/test/Microsoft.Azure.Functions.Isolated.TestDoubles/MockHttpRequestData.cs
 public class MockHttpRequestData : HttpRequestData

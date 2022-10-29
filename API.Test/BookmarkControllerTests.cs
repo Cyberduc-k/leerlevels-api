@@ -1,8 +1,6 @@
 ﻿using System.Net;
 using API.Controllers;
-using API.Mappings;
-using API.Test.Mocks;
-using AutoMapper;
+using API.Test.Mock;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -14,37 +12,27 @@ using Xunit;
 
 namespace API.Test;
 
-public class BookmarkControllerTests
+public class BookmarkControllerTests : ControllerTestsBase
 {
-    private readonly Mock<ITokenService> _tokenService;
     private readonly Mock<IBookmarkService> _bookmarkService;
     private readonly BookmarkController _controller;
 
     public BookmarkControllerTests()
     {
-        Mapper mapper = new(new MapperConfiguration(c => c.AddProfile<MappingProfile>()));
-
-        _tokenService = new();
         _bookmarkService = new();
-        _controller = new(new LoggerFactory(), _tokenService.Object, mapper, _bookmarkService.Object);
+        _controller = new(new LoggerFactory(), _tokenService.Object, _mapper, _bookmarkService.Object);
 
-        // authenticate all requests.
-        _tokenService.Setup(s => s.AuthenticationValidation(It.IsAny<HttpRequestData>())).ReturnsAsync(() => true);
-        _tokenService.SetupGet(s => s.User).Returns(new User() { Id = "1", Role = UserRole.Student });
-    }
-
-    private string GetHeaderValue(HttpResponseData resp, string headerName)
-    {
-        return resp.Headers.First(h => h.Key == headerName).Value.First();
+        _bookmarkService
+            .Setup(s => s.GetBookmarksAsync(It.IsAny<User>()))
+            .ReturnsAsync(() => (
+                new Target[] { new() { Id = "1", Label = "Label", Description = "Description" } },
+                new Mcq[] { new() { Id = "1", QuestionText = "QuestionText" } }
+            ));
     }
 
     [Fact]
     public async Task Get_Bookmarks_Should_Respond_OK()
     {
-        _bookmarkService
-            .Setup(s => s.GetBookmarksAsync(It.IsAny<User>()))
-            .ReturnsAsync(() => (Array.Empty<Target>(), Array.Empty<Mcq>()));
-
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetBookmarks(request);
 
@@ -54,13 +42,6 @@ public class BookmarkControllerTests
     [Fact]
     public async Task Get_Bookmarks_Should_Respond_Json()
     {
-        _bookmarkService
-            .Setup(s => s.GetBookmarksAsync(It.IsAny<User>()))
-            .ReturnsAsync(() => (
-                new Target[] { new() { Id = "1", Label = "Label", Description = "Description" } },
-                new Mcq[] { new() { Id = "1", QuestionText = "QuestionText" } }
-            ));
-
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetBookmarks(request);
         BookmarksResponse? result = await response.ReadFromJsonAsync<BookmarksResponse>();

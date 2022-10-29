@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.Azure.Functions.Worker;
 
-namespace API.Test.Mocks;
+namespace API.Test.Mock;
 
 // taken from: https://github.com/lohithgn/az-fx-isolated-unittest/blob/main/test/Microsoft.Azure.Functions.Isolated.TestDoubles/MockFunctionDefinition.cs
 public class MockFunctionDefinition : FunctionDefinition
