@@ -5,12 +5,12 @@ using Repository.Interfaces;
 
 namespace Repository;
 
-public class IncludableRepository<TEntity, TProp> : IIncludableRepository<TEntity, TProp> where TEntity : class
+public class ThenIncludableRepository<TEntity, TProp> : IThenIncludableRepository<TEntity, TProp> where TEntity : class
 {
-    private readonly IIncludableQueryable<TEntity, TProp> _query;
-    IIncludableQueryable<TEntity, TProp> IIncludableRepository<TEntity, TProp>.Queryable => _query;
+    private readonly IIncludableQueryable<TEntity, IEnumerable<TProp>> _query;
+    IIncludableQueryable<TEntity, IEnumerable<TProp>> IThenIncludableRepository<TEntity, TProp>.Queryable => _query;
 
-    internal IncludableRepository(IIncludableQueryable<TEntity, TProp> query)
+    internal ThenIncludableRepository(IIncludableQueryable<TEntity, IEnumerable<TProp>> query)
     {
         _query = query;
     }
@@ -28,6 +28,21 @@ public class IncludableRepository<TEntity, TProp> : IIncludableRepository<TEntit
     public IThenIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, ICollection<TNew>>> property)
     {
         return new ThenIncludableRepository<TEntity, TNew>(_query.Include(property));
+    }
+
+    public IIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, TNew>> property)
+    {
+        return new IncludableRepository<TEntity, TNew>(_query.ThenInclude(property));
+    }
+
+    public IThenIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, IEnumerable<TNew>>> property)
+    {
+        return new ThenIncludableRepository<TEntity, TNew>(_query.ThenInclude(property));
+    }
+
+    public IThenIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, ICollection<TNew>>> property)
+    {
+        return new ThenIncludableRepository<TEntity, TNew>(_query.ThenInclude(property));
     }
 
     public Task<TEntity?> GetByAsync(Expression<Func<TEntity, bool>> filter)
