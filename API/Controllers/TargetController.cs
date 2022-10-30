@@ -1,29 +1,35 @@
 ﻿using System.Net;
-using System.Text.RegularExpressions;
 using API.Attributes;
 using API.Validators;
-using FluentValidation;
+using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Model;
+using Model.Response;
 using Service.Interfaces;
 
 namespace API.Controllers;
 public class TargetController : ControllerWithAuthentication
 {
+    private readonly IMapper _mapper;
     private readonly ITargetService _targetService;
     private readonly GetTargetByIdValidator validationRules;
 
-    public TargetController(ILoggerFactory loggerFactory, ITokenService tokenService, ITargetService targetservice, GetTargetByIdValidator validations)
+    public TargetController(
+        ILoggerFactory loggerFactory,
+        ITokenService tokenService,
+        ITargetService targetservice,
+        IMapper mapper,
+        GetTargetByIdValidator validations)
         : base(loggerFactory.CreateLogger<TargetController>(), tokenService)
     {
         _targetService = targetservice;
-        validationRules = validations;  
+        _mapper = mapper;
+        validationRules = validations;
     }
 
     // Get Targets
@@ -41,11 +47,10 @@ public class TargetController : ControllerWithAuthentication
         _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");
 
         ICollection<Target> targets = await _targetService.GetAllTargetsAsync();
-
+        IEnumerable<TargetResponse> targetResponses = targets.Select(t => _mapper.Map<TargetResponse>(t));
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-        await res.WriteAsJsonAsync(targets);
-
+        await res.WriteAsJsonAsync(targetResponses);
         return res;
     }
 
@@ -61,7 +66,7 @@ public class TargetController : ControllerWithAuthentication
     public async Task<HttpResponseData> GetTargetById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "targets/{targetId}")] HttpRequestData req,
         string targetId)
     {
-      //  await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}");
+        //  await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}");
 
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -70,13 +75,13 @@ public class TargetController : ControllerWithAuthentication
 
         if (result.IsValid) {
             Target target = await _targetService.GetTargetByIdAsync(targetId);
-
+            TargetResponse targetResponse = _mapper.Map<TargetResponse>(target);
             HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-            await res.WriteAsJsonAsync(target);
-
+            await res.WriteAsJsonAsync(targetResponse);
             return res;
         }
+
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 }

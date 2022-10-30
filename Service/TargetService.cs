@@ -20,7 +20,11 @@ public class TargetService : ITargetService
 
     public async Task<ICollection<Target>> GetAllTargetsAsync()
     {
-        return await _targetRepository.Include(x => x.Mcqs).GetAllAsync().ToArrayAsync();
+        return await _targetRepository
+            .Include(x => x.Mcqs)
+            .ThenInclude(m => m.AnswerOptions)
+            .GetAllAsync()
+            .ToArrayAsync();
     }
 
     public async Task<Target> GetTargetByIdAsync(string targetId)

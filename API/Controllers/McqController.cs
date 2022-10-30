@@ -1,11 +1,9 @@
 ﻿using System.Net;
-using System.Text.RegularExpressions;
 using API.Attributes;
 using API.Validators;
 using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
@@ -26,7 +24,7 @@ public class McqController : ControllerWithAuthentication
     {
         _mcqService = mcqservice;
         _mapper = mapper;
-        validationRules = validations;  
+        validationRules = validations;
     }
 
     [Function(nameof(GetAllMcqs))]
@@ -37,13 +35,12 @@ public class McqController : ControllerWithAuthentication
 
     public async Task<HttpResponseData> GetAllMcqs([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs")] HttpRequestData req)
     {
-      //  await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs");
+        //  await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs");
 
         _logger.LogInformation("C# HTTP trigger function processed the getMcqs request.");
 
         ICollection<Mcq> mcqs = await _mcqService.GetAllMcqsAsync();
         IEnumerable<McqResponse> mappedMcqs = mcqs.Select(f => _mapper.Map<McqResponse>(f));
-
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(mappedMcqs);
@@ -61,7 +58,7 @@ public class McqController : ControllerWithAuthentication
     public async Task<HttpResponseData> GetMcqById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs/{mcqId}")] HttpRequestData req,
         string mcqId)
     {
-     //   await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}");
+        //   await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}");
 
         _logger.LogInformation("C# HTTP trigger function processed the getMcq request.");
 
@@ -70,14 +67,14 @@ public class McqController : ControllerWithAuthentication
 
         if (result.IsValid) {
             Mcq mcq = await _mcqService.GetMcqByIdAsync(mcqId);
-            Mcq mappedMcq = _mapper.Map<Mcq>(mcq);
-
+            McqResponse mappedMcq = _mapper.Map<McqResponse>(mcq);
             HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
             await res.WriteAsJsonAsync(mappedMcq);
 
             return res;
         }
+
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 }

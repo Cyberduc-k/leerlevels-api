@@ -35,7 +35,9 @@ public class TargetServiceTests
                  "https://s3-us-west-2.amazonaws.com/leerlevels/slide_pngs/2.png", null!),
         };
 
-        _mockRepository.Setup(r => r.Include(x => x.Mcqs).GetAllAsync()).Returns(mockTargets.ToAsyncEnumerable());
+        _mockRepository
+            .Setup(r => r.Include(x => x.Mcqs).ThenInclude(m => m.AnswerOptions).GetAllAsync())
+            .Returns(mockTargets.ToAsyncEnumerable());
 
         ICollection<Target> mcqs = await _service.GetAllTargetsAsync();
 
