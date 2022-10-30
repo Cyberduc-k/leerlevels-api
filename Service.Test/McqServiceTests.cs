@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using Repository.Interfaces;
@@ -50,7 +51,7 @@ public class McqServiceTests
     [Fact]
     public async Task Get_Mcq_By_Id_Should_return_A_Mcq_Object()
     {
-        _mockRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => new Mcq("1", null!, "Wat kun je zeggen?", "elkaar aan.", true, null!));
+        _mockRepository.Setup(r => r.Include(m => m.Target).GetByAsync(It.IsAny<Expression<Func<Mcq, bool>>>())).ReturnsAsync(() => new Mcq("1", null!, "Wat kun je zeggen?", "elkaar aan.", true, null!));
         Mcq mcq = await _service.GetMcqByIdAsync("1");
 
         Assert.Equal("1", mcq.Id);

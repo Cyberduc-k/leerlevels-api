@@ -39,10 +39,28 @@ public class ProgressController : ControllerWithAuthentication
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/progress");
         ICollection<TargetProgress> progress = await _progressService.GetAllTargetProgress();
-        IEnumerable<TargetProgressResponse> responses = progress.Select(p => _mapper.Map<TargetProgressResponse>(p));
+        IEnumerable<TargetProgressResponse> responses = progress.Select(p => p.CreateResponse());
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(responses);
+        return res;
+    }
+
+    [Function(nameof(GetTargetProgress))]
+    [OpenApiOperation(nameof(GetTargetProgress), tags: "Progress")]
+    [OpenApiAuthentication]
+    [OpenApiParameter(name: "targetId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The target ID parameter")]
+    [OpenApiResponseWithBody(HttpStatusCode.OK, "applcation/json", typeof(TargetProgressResponse))]
+    public async Task<HttpResponseData> GetTargetProgress(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "GET", Route = "targets/{targetId}/progress")] HttpRequestData req,
+        string targetId)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}/progress");
+        TargetProgress targetProgress = await _progressService.GetTargetProgress(targetId);
+        TargetProgressResponse targetProgressResponse = targetProgress.CreateResponse();
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+        await res.WriteAsJsonAsync(targetProgressResponse);
         return res;
     }
 
@@ -57,10 +75,28 @@ public class ProgressController : ControllerWithAuthentication
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}/progress");
         TargetProgress targetProgress = await _progressService.BeginTarget(targetId);
-        TargetProgressResponse targetProgressResponse = _mapper.Map<TargetProgressResponse>(targetProgress);
+        TargetProgressResponse targetProgressResponse = targetProgress.CreateResponse();
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(targetProgressResponse);
+        return res;
+    }
+
+    [Function(nameof(GetMcqProgress))]
+    [OpenApiOperation(nameof(GetMcqProgress), tags: "Progress")]
+    [OpenApiAuthentication]
+    [OpenApiParameter(name: "mcqId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The mcq ID parameter")]
+    [OpenApiResponseWithBody(HttpStatusCode.OK, "applcation/json", typeof(McqProgressResponse))]
+    public async Task<HttpResponseData> GetMcqProgress(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "GET", Route = "mcqs/{mcqId}/progress")] HttpRequestData req,
+        string mcqId)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}/progress");
+        McqProgress mcqProgress = await _progressService.GetMcqProgress(mcqId);
+        McqProgressResponse mcqProgressResponse = mcqProgress.CreateResponse();
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+        await res.WriteAsJsonAsync(mcqProgressResponse);
         return res;
     }
 
@@ -77,10 +113,28 @@ public class ProgressController : ControllerWithAuthentication
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}/progress");
         McqProgressDTO? mcqProgressDTO = await req.ReadFromJsonAsync<McqProgressDTO>();
         McqProgress mcqProgress = await _progressService.AnswerQuestion(mcqId, mcqProgressDTO!.AnswerOptionId, mcqProgressDTO.AnswerKind);
-        McqProgressResponse mcqProgressResponse = _mapper.Map<McqProgressResponse>(mcqProgress);
+        McqProgressResponse mcqProgressResponse = mcqProgress.CreateResponse();
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(mcqProgressResponse);
+        return res;
+    }
+
+    [Function(nameof(GetSetProgress))]
+    [OpenApiOperation(nameof(GetSetProgress), tags: "Progress")]
+    [OpenApiAuthentication]
+    [OpenApiParameter(name: "setId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The set ID parameter")]
+    [OpenApiResponseWithBody(HttpStatusCode.OK, "applcation/json", typeof(SetProgressResponse))]
+    public async Task<HttpResponseData> GetSetProgress(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "GET", Route = "sets/{setId}/progress")] HttpRequestData req,
+        string setId)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/sets/{setId}/progress");
+        SetProgress setProgress = await _progressService.GetSetProgress(setId);
+        SetProgressResponse setProgresResponse = setProgress.CreateResponse();
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+        await res.WriteAsJsonAsync(setProgresResponse);
         return res;
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Model;
+﻿using Model.Response;
+
+namespace Model;
 
 public class McqProgress
 {
@@ -19,5 +21,24 @@ public class McqProgress
         Mcq = mcq;
         Answer = answer;
         AnswerKind = answerKind;
+    }
+
+    public double CalculateScore()
+    {
+        if (AnswerKind is AnswerKind kind) {
+            if (Answer!.IsCorrect)
+                return kind switch {
+                    Model.AnswerKind.Sure => 1,
+                    Model.AnswerKind.NotSure => 0.6,
+                    Model.AnswerKind.Guess => 0.3,
+                };
+        }
+
+        return 0;
+    }
+
+    public McqProgressResponse CreateResponse()
+    {
+        return new McqProgressResponse(Mcq.Id, Answer?.Id, AnswerKind, CalculateScore());
     }
 }

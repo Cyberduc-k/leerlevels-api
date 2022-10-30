@@ -1,4 +1,6 @@
-﻿namespace Model;
+﻿using Model.Response;
+
+namespace Model;
 
 public class TargetProgress
 {
@@ -19,5 +21,17 @@ public class TargetProgress
         Mcqs = mcqs;
     }
 
-    public bool IsComplete => Mcqs.All(m => m.Answer is not null);
+    public bool IsCompleted => Mcqs.All(m => m.Answer is not null);
+
+    public double CalculateScore()
+    {
+        return Mcqs.Sum(m => m.CalculateScore()) / Mcqs.Count();
+    }
+
+    public TargetProgressResponse CreateResponse()
+    {
+        McqProgressResponse[] mcqs = Mcqs.Select(m => m.CreateResponse()).ToArray();
+
+        return new TargetProgressResponse(Target.Id, mcqs, CalculateScore(), IsCompleted);
+    }
 }

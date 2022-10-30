@@ -9,6 +9,7 @@ public class ProgressService : IProgressService
 {
     private readonly ITokenService _tokenService;
     private readonly INotificationService _notificationService;
+    private readonly ISetService _setService;
     private readonly ITargetService _targetService;
     private readonly IMcqService _mcqService;
     private readonly ITargetProgressRepository _targetProgressRepository;
@@ -18,6 +19,7 @@ public class ProgressService : IProgressService
     public ProgressService(
         ITokenService tokenService,
         INotificationService notificationService,
+        ISetService setService,
         ITargetService targetService,
         IMcqService mcqService,
         ITargetProgressRepository targetProgressRepository,
@@ -26,6 +28,7 @@ public class ProgressService : IProgressService
     {
         _tokenService = tokenService;
         _notificationService = notificationService;
+        _setService = setService;
         _targetService = targetService;
         _mcqService = mcqService;
         _targetProgressRepository = targetProgressRepository;
@@ -43,6 +46,42 @@ public class ProgressService : IProgressService
             .ThenInclude(m => m.Answer)
             .GetAllWhereAsync(t => t.User.Id == _tokenService.User.Id)
             .ToArrayAsync();
+    }
+
+    public async Task<SetProgress> GetSetProgress(string setId)
+    {
+        Set set = await _setService.GetSetByIdAsync(setId);
+        TargetProgress[] targets = await _targetProgressRepository
+            .Include(t => t.Target)
+            .Include(t => t.Mcqs)
+            .ThenInclude(m => m.Mcq)
+            .Include(t => t.Mcqs)
+            .ThenInclude(m => m.Answer)
+            .GetAllWhereAsync(t => set.Targets.Contains(t.Target))
+            .ToArrayAsync();
+
+        return new SetProgress(set, targets);
+    }
+
+    public async Task<TargetProgress> GetTargetProgress(string targetId)
+    {
+        return await _targetProgressRepository
+            .Include(t => t.Target)
+            .Include(t => t.Mcqs)
+            .ThenInclude(m => m.Mcq)
+            .Include(t => t.Mcqs)
+            .ThenInclude(m => m.Answer)
+            .GetByAsync(t => t.User.Id == _tokenService.User.Id && t.Target.Id == targetId)
+            ?? throw new NotFoundException("target progress");
+    }
+
+    public async Task<McqProgress> GetMcqProgress(string mcqId)
+    {
+        return await _mcqProgressRepository
+            .Include(m => m.Mcq)
+            .Include(m => m.Answer)
+            .GetByAsync(m => m.User.Id == _tokenService.User.Id && m.Mcq.Id == mcqId)
+            ?? throw new NotFoundException("mcq progress");
     }
 
     public async Task<TargetProgress> BeginTarget(string targetId)
@@ -85,7 +124,7 @@ public class ProgressService : IProgressService
         mcqProgress.AnswerKind = answerKind;
         await _mcqProgressRepository.SaveChanges();
 
-        if (targetProgress.IsComplete) {
+        if (targetProgress.IsCompleted) {
             PersonalNotification notification = new(_tokenService.User.Id, "Target completed", $"You have completed target {targetProgress.Target.Label}");
 
             await _notificationService.SendNotificationAsync(notification);
