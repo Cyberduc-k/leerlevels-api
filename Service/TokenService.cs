@@ -34,15 +34,16 @@ public class TokenService : ITokenService
 
     public string Message { get; set; }
 
-    public TokenService(IConfiguration Configuration, ILogger<TokenService> Logger, IUserRepository userRepository)
+    public TokenService(ILoggerFactory loggerFactory, IUserRepository userRepository)
     {
-        this.Logger = Logger;
+        Logger = loggerFactory.CreateLogger<TokenService>();
 
         UserRepository = userRepository;
 
         Issuer = "LeerLevels";
         Audience = "Users of the LeerLevels applications";
-        ValidityDuration = TimeSpan.FromMinutes(120); // 2do: configure an appropriate validity duration (2 hours and then generate refresh tokens? read from config somewhere when another login is required/so until how long refresh tokens are generated after init login)
+        // 2do: figure out how to set up refresh tokens (send inital token and refresh token on Login, then after expiration keep providing refresh tokens until 1 year after inital expiration or Logout signal/request is received somewhere?)
+        ValidityDuration = TimeSpan.FromHours(2);
 
         string Key = Environment.GetEnvironmentVariable("LeerLevelsTokenKey")!;
 
@@ -118,7 +119,7 @@ public class TokenService : ITokenService
 
     public async Task<bool> AuthenticationValidation(HttpRequestData req)
     {
-        // see if authorization key exists (also done in the JwtMiddleware)
+        // check if authorization header exists (also done in the JwtMiddleware)
         if (!req.Headers.Contains("Authorization")) {
             Message = "No authorization header provided";
             return false;
@@ -216,13 +217,13 @@ public class TokenService : ITokenService
     }
 
     // Check if hash in the hashed password is supported
-    public static bool IsHashSupported(string hashString)
+    public bool IsHashSupported(string hashString)
     {
         return hashString.Contains($"{Environment.GetEnvironmentVariable("TokenHashBase")!}");
     }
 
     // Verify the password
-    public static bool VerifyPassword(string password, string hashedPassword)
+    public bool VerifyPassword(string password, string hashedPassword)
     {
         // Check the hash
         if (!IsHashSupported(hashedPassword)) {

@@ -61,6 +61,7 @@ public class DataContext : DbContext
                 Password = $"{Environment.GetEnvironmentVariable("TokenHashBase")!}10000$xoUFLA1yQKZA/wvfJ9aBNPAJbbUY65QLhOeNeUA+ASwM5GjK", // "J0hn#001!"
                 Role = UserRole.Student,
                 LastLogin = DateTime.Parse("2022-10-05 13:27:00"),
+                LastDeviceHandle = "11",
                 ShareCode = "DTRY-WQER-PIGU-VNSA",
                 IsActive = true
             },
@@ -73,6 +74,7 @@ public class DataContext : DbContext
                 Password = $"{Environment.GetEnvironmentVariable("TokenHashBase")!}10000$ZR9AMoHqh69WDC8SbEqMFwl2ERkrSDc62BFdt38Sx1tRaE5h", // "M4rySu3san#22!"
                 Role = UserRole.Teacher,
                 LastLogin = DateTime.Now,
+                LastDeviceHandle = "22",
                 ShareCode = "RIBN-QWOR-DCPL-AXCU",
                 IsActive = true
             },
@@ -85,6 +87,7 @@ public class DataContext : DbContext
                 Password = $"{Environment.GetEnvironmentVariable("TokenHashBase")!}10000$qcJ3B566KbRg/qPdPEjwwwpVxtE/T1pMXbLWNiK2JJe/XK1V", // "123"
                 Role = UserRole.Administrator,
                 LastLogin = DateTime.Now,
+                LastDeviceHandle = "33",
                 ShareCode = "RIBN-QWOR-DCPL-AXCV",
                 IsLoggedIn = false,
                 IsActive = true
