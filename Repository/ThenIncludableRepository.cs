@@ -8,7 +8,6 @@ namespace Repository;
 public class ThenIncludableRepository<TEntity, TProp> : IThenIncludableRepository<TEntity, TProp> where TEntity : class
 {
     private readonly IIncludableQueryable<TEntity, IEnumerable<TProp>> _query;
-    IIncludableQueryable<TEntity, IEnumerable<TProp>> IThenIncludableRepository<TEntity, TProp>.Queryable => _query;
 
     internal ThenIncludableRepository(IIncludableQueryable<TEntity, IEnumerable<TProp>> query)
     {
