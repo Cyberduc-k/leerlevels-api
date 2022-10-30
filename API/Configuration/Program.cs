@@ -19,12 +19,16 @@ IHost host = new HostBuilder()
     .ConfigureServices(services => {
         string connectionString = Environment.GetEnvironmentVariable("LeerLevelsDatabase")!;
 
-        services.AddDbContext<DataContext>(opts => opts.UseSqlServer(connectionString));
+        services.AddDbContext<DataContext>(opts => {
+            opts.UseSqlServer(connectionString);
+            opts.EnableSensitiveDataLogging();
+        });
 
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IForumRepository, ForumRepository>();
         services.AddTransient<IForumReplyRepository, ForumReplyRepository>();
         services.AddTransient<IMcqRepository, McqRepository>();
+        services.AddTransient<IAnswerOptionRepository, AnswerOptionRepository>();
         services.AddTransient<IGroupRepository, GroupRepository>();
         services.AddTransient<ISetRepository, SetRepository>();
         services.AddTransient<ITargetRepository, TargetRepository>();

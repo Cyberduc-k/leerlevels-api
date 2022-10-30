@@ -12,7 +12,7 @@ public class NotificationService : INotificationService
 
     public NotificationService()
     {
-        string connectionString = Environment.GetEnvironmentVariable("NotificationsQueue")!;
+        string connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage")!;
 
         _queueClient = new QueueClient(connectionString, QUEUE_NAME, new() { MessageEncoding = QueueMessageEncoding.Base64 });
     }

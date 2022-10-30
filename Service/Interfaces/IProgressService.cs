@@ -4,6 +4,7 @@ namespace Service.Interfaces;
 
 public interface IProgressService
 {
-    public Task BeginTarget(Target target);
-    public Task AnswerQuestion(Mcq mcq, AnswerOption answer);
+    public Task<ICollection<TargetProgress>> GetAllTargetProgress();
+    public Task<TargetProgress> BeginTarget(string targetId);
+    public Task<McqProgress> AnswerQuestion(string mcqId, string answerId, AnswerKind answerKind);
 }

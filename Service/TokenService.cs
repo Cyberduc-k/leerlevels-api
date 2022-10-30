@@ -42,7 +42,7 @@ public class TokenService : ITokenService
 
         Issuer = "LeerLevels";
         Audience = "Users of the LeerLevels applications";
-        ValidityDuration = TimeSpan.FromMinutes(15); // 2do: configure an appropriate validity duration (2 hours and then generate refresh tokens? read from config somewhere when another login is required/so until how long refresh tokens are generated after init login)
+        ValidityDuration = TimeSpan.FromMinutes(120); // 2do: configure an appropriate validity duration (2 hours and then generate refresh tokens? read from config somewhere when another login is required/so until how long refresh tokens are generated after init login)
 
         string Key = Environment.GetEnvironmentVariable("LeerLevelsTokenKey")!;
 

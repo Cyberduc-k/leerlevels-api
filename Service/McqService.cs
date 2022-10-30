@@ -25,6 +25,6 @@ public class McqService : IMcqService
 
     public async Task<Mcq> GetMcqByIdAsync(string mcqId)
     {
-        return await _mcqRepository.GetByIdAsync(mcqId) ?? throw new NotFoundException("multiple choice question");
+        return await _mcqRepository.Include(m => m.Target).GetByAsync(m => m.Id == mcqId) ?? throw new NotFoundException("multiple choice question");
     }
 }

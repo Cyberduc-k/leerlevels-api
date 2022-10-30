@@ -6,16 +6,18 @@ public class McqProgress
     public User User { get; set; }
     public Mcq Mcq { get; set; }
     public AnswerOption? Answer { get; set; }
+    public AnswerKind? AnswerKind { get; set; }
 
     public McqProgress()
     {
     }
 
-    public McqProgress(int id, User user, Mcq mcq, AnswerOption? answer)
+    public McqProgress(int id, User user, Mcq mcq, AnswerOption? answer, AnswerKind? answerKind)
     {
         Id = id;
         User = user;
         Mcq = mcq;
         Answer = answer;
+        AnswerKind = answerKind;
     }
 }

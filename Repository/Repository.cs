@@ -55,13 +55,18 @@ public abstract class Repository<TEntity, TId> : IRepository<TEntity, TId> where
         return _context.SaveChangesAsync();
     }
 
-    public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, IEnumerable<TProp>>> property)
+    public IIncludableRepository<TEntity, TProp, TProp> Include<TProp>(Expression<Func<TEntity, TProp>> property)
     {
-        return new IncludableRepository<TEntity, TProp>(_dbset.Include(property));
+        return new IncludableRepository<TEntity, TProp, TProp>(_dbset.Include(property));
     }
 
-    public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, ICollection<TProp>>> property)
+    public IIncludableRepository<TEntity, TProp, IEnumerable<TProp>> Include<TProp>(Expression<Func<TEntity, IEnumerable<TProp>>> property)
     {
-        return new IncludableRepository<TEntity, TProp>(_dbset.Include(property));
+        return new IncludableRepository<TEntity, TProp, IEnumerable<TProp>>(_dbset.Include(property));
+    }
+
+    public IIncludableRepository<TEntity, TProp, IEnumerable<TProp>> Include<TProp>(Expression<Func<TEntity, ICollection<TProp>>> property)
+    {
+        return new IncludableRepository<TEntity, TProp, IEnumerable<TProp>>(_dbset.Include(property));
     }
 }

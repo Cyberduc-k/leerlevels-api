@@ -3,14 +3,16 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace Repository.Interfaces;
 
-public interface IIncludableRepository<TEntity, TProp>
+public interface IIncludableRepository<TEntity, TProp, TColl>
 {
-    protected IIncludableQueryable<TEntity, IEnumerable<TProp>> Queryable { get; }
+    protected IIncludableQueryable<TEntity, TColl> Queryable { get; }
 
-    public IIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, IEnumerable<TNew>>> property);
-    public IIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, ICollection<TNew>>> property);
-    public IIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, IEnumerable<TNew>>> property);
-    public IIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, ICollection<TNew>>> property);
+    public IIncludableRepository<TEntity, TNew, TNew> Include<TNew>(Expression<Func<TEntity, TNew>> property);
+    public IIncludableRepository<TEntity, TNew, IEnumerable<TNew>> Include<TNew>(Expression<Func<TEntity, IEnumerable<TNew>>> property);
+    public IIncludableRepository<TEntity, TNew, IEnumerable<TNew>> Include<TNew>(Expression<Func<TEntity, ICollection<TNew>>> property);
+    public IIncludableRepository<TEntity, TNew, TNew> ThenInclude<TNew>(Expression<Func<TProp, TNew>> property);
+    public IIncludableRepository<TEntity, TNew, IEnumerable<TNew>> ThenInclude<TNew>(Expression<Func<TProp, IEnumerable<TNew>>> property);
+    public IIncludableRepository<TEntity, TNew, IEnumerable<TNew>> ThenInclude<TNew>(Expression<Func<TProp, ICollection<TNew>>> property);
 
     public Task<TEntity?> GetByAsync(Expression<Func<TEntity, bool>> filter);
     public IAsyncEnumerable<TEntity> GetAllAsync();
