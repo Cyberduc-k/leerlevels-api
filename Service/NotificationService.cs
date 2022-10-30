@@ -17,6 +17,12 @@ public class NotificationService : INotificationService
         _queueClient = new QueueClient(connectionString, QUEUE_NAME, new() { MessageEncoding = QueueMessageEncoding.Base64 });
     }
 
+    //! ONLY USE FOR TESTING
+    public NotificationService(QueueClient queueClient)
+    {
+        _queueClient = queueClient;
+    }
+
     public async Task SendNotificationAsync(Notification notification)
     {
         string json = JsonConvert.SerializeObject(notification);
