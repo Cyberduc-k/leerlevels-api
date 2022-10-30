@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Model;
 using Repository.Interfaces;
+using Service.Exceptions;
 using Service.Interfaces;
 
 namespace Service;
@@ -40,6 +41,13 @@ public class BookmarkService : IBookmarkService
     {
         bookmark.UserId = user.Id;
         await _bookmarkRepository.InsertAsync(bookmark);
+        await _bookmarkRepository.SaveChanges();
+    }
+
+    public async Task DeleteBookmark(User user, string itemId, Bookmark.BookmarkType type)
+    {
+        Bookmark bookmark = await _bookmarkRepository.GetByIdAsync((user.Id, itemId, type)) ?? throw new NotFoundException("bookmark");
+        _bookmarkRepository.Remove(bookmark);
         await _bookmarkRepository.SaveChanges();
     }
 }

@@ -63,4 +63,21 @@ public class BookmarkController : ControllerWithAuthentication
 
         return req.CreateResponse(HttpStatusCode.OK);
     }
+
+    [Function(nameof(DeleteBookmark))]
+    [OpenApiOperation(operationId: nameof(DeleteBookmark), tags: new[] { "Bookmarks" }, Summary = "Delete a bookmark", Description = "Delete a bookmark for the current user")]
+    [OpenApiAuthentication]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(BookmarkDTO), Required = true, Description = "The bookmark to delete")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
+    public async Task<HttpResponseData> DeleteBookmark(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "DELETE", Route = "bookmarks")] HttpRequestData req)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/bookmarks");
+        BookmarkDTO? bookmarkDTO = await req.ReadFromJsonAsync<BookmarkDTO>();
+
+        await _bookmarkService.DeleteBookmark(_tokenService.User, bookmarkDTO!.ItemId, bookmarkDTO.Type);
+
+        return req.CreateResponse(HttpStatusCode.OK);
+    }
 }
