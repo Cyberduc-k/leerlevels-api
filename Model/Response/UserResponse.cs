@@ -30,7 +30,7 @@ public class UserResponse
     public UserRole Role { get; set; }
 
     [JsonRequired]
-    [OpenApiProperty(Default = "AAAA-BBBB-CCCC-DDDD", Description = "The share code for the group/sets of a user", Nullable = false)]
+    [OpenApiProperty(Default = "AAAA-BBBB-CCCC-DDDD", Description = "The share code of a user (coaching)", Nullable = false)]
     public string ShareCode { get; set; }
 
     public UserResponse()

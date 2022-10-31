@@ -27,7 +27,7 @@ public class TokenServiceTests
     public TokenServiceTests()
     {
         Environment.SetEnvironmentVariable("LeerLevelsTokenKey", "randomstring#123455566834737!");
-        Environment.SetEnvironmentVariable("TokenHashBase", "$L33RL3V3LSHASH$V1$");
+        Environment.SetEnvironmentVariable("TokenHashBase", "$TESTP4SSB4S3$");
         _mockUserRepository = new();
         _tokenService = new TokenService(new LoggerFactory(), _mockUserRepository.Object);
     }
@@ -38,7 +38,7 @@ public class TokenServiceTests
 
         LoginDTO login = new() { Email = "hdevries@mail.com", Password = "M4rySu3san#22!" };
 
-        _mockUserRepository.Setup(u => u.GetByAsync(u => u.Email == login.Email)).ReturnsAsync(() => new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "$L33RL3V3LSHASH$V1$10000$ZR9AMoHqh69WDC8SbEqMFwl2ERkrSDc62BFdt38Sx1tRaE5h", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true));
+        _mockUserRepository.Setup(u => u.GetByAsync(u => u.Email == login.Email)).ReturnsAsync(() => new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "$TESTP4SSB4S3$10000$ZR9AMoHqh69WDC8SbEqMFwl2ERkrSDc62BFdt38Sx1tRaE5h", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true));
         _mockUserRepository.Setup(u => u.SaveChanges()).Verifiable();
 
         LoginResponse tokenResponse = await _tokenService.Login(login);
@@ -134,7 +134,6 @@ public class TokenServiceTests
     public async Task Get_By_Value_Should_Throw_Authentication_Exception()
     {
         Assert.ThrowsAsync<AuthenticationException>(async () => await _tokenService.GetByValue(null!));
-
     }
 
     [Fact]

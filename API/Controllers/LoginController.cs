@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using API.Attributes;
+using API.Examples;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -23,8 +24,8 @@ public class LoginController : ControllerBase
 
     [Function(nameof(Authenticate))]
     [OpenApiOperation(operationId: "Login", tags: new[] { "Login" }, Summary = "Login for a user", Description = "This method logs in the user, and retrieves a JWT bearer token.")]
-    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(LoginDTO), Required = true, Description = "The user credentials")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(LoginResponse), Description = "Login success")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(LoginDTO), Required = true, Description = "The user credentials", Example = typeof(LoginExample))]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(LoginResponse), Description = "Login success", Example = typeof(LoginResponseExample))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "A login error has occured.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound)]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]

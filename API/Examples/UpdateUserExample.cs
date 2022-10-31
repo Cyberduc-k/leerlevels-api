@@ -3,8 +3,6 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Resolvers;
 using Model;
 using Model.DTO;
 using Newtonsoft.Json.Serialization;
-using System.Text;
-using System.Security.Cryptography;
 
 namespace API.Examples;
 
