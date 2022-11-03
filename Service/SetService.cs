@@ -21,11 +21,11 @@ public class SetService : ISetService
 
     public async Task<ICollection<Set>> GetAllSetsAsync()
     {
-        return await _setRepository.Include(x => x.Targets).Include(x => x.Users).GetAllAsync().ToArrayAsync();
+        return await _setRepository.Include(x => x.Targets).GetAllAsync().ToArrayAsync() ?? throw new Exception("Inernal Server Error");
     }
 
     public async Task<Set> GetSetByIdAsync(string setId)
     {
-        return await _setRepository.GetByIdAsync(setId) ?? throw new NotFoundException("set");
+        return await _setRepository.Include(x =>x.Targets).GetByAsync(x =>x.Id == setId) ?? throw new NotFoundException("set");
     }
 }

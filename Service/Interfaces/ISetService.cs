@@ -1,4 +1,5 @@
-﻿using Model;
+﻿using System.Linq.Expressions;
+using Model;
 
 namespace Service.Interfaces;
 public interface ISetService

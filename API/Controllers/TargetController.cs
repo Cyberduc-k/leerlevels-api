@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using API.Attributes;
-using API.Validators;
+using API.Examples;
 using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.Azure.Functions.Worker;
@@ -17,19 +17,16 @@ public class TargetController : ControllerWithAuthentication
 {
     private readonly IMapper _mapper;
     private readonly ITargetService _targetService;
-    private readonly GetTargetByIdValidator validationRules;
 
     public TargetController(
         ILoggerFactory loggerFactory,
         ITokenService tokenService,
         ITargetService targetservice,
-        IMapper mapper,
-        GetTargetByIdValidator validations)
+        IMapper mapper)
         : base(loggerFactory.CreateLogger<TargetController>(), tokenService)
     {
         _targetService = targetservice;
         _mapper = mapper;
-        validationRules = validations;
     }
 
     // Get Targets
@@ -37,12 +34,14 @@ public class TargetController : ControllerWithAuthentication
     [Function(nameof(GetAllTargets))]
     [OpenApiOperation(operationId: "getTargets", tags: new[] { "Targets" })]
     [OpenApiAuthentication]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<Target>), Description = "The OK response")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(TargetResponse[]), Description = "The OK response", Example = typeof(List<TargetResponseExample>))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve targets.")]
-
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> GetAllTargets([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "targets")] HttpRequestData req)
     {
-        //await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets");
 
         _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");
 
@@ -60,28 +59,25 @@ public class TargetController : ControllerWithAuthentication
     [OpenApiOperation(operationId: "getTarget", tags: new[] { "Targets" })]
     [OpenApiAuthentication]
     [OpenApiParameter(name: "targetId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The target ID parameter")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Mcq), Description = "The OK response")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(TargetResponse), Description = "The OK response", Example = typeof(TargetResponseExample))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Target Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the Target with the specified Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
 
     public async Task<HttpResponseData> GetTargetById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "targets/{targetId}")] HttpRequestData req,
         string targetId)
     {
-        //  await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}");
+          await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}");
 
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
-        Target targetToValidate = new() { Id = targetId };
-        ValidationResult result = await validationRules.ValidateAsync(targetToValidate);
+        Target target = await _targetService.GetTargetByIdAsync(targetId);
+        TargetResponse targetResponse = _mapper.Map<TargetResponse>(target);
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-        if (result.IsValid) {
-            Target target = await _targetService.GetTargetByIdAsync(targetId);
-            TargetResponse targetResponse = _mapper.Map<TargetResponse>(target);
-            HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
-
-            await res.WriteAsJsonAsync(targetResponse);
-            return res;
-        }
-
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        await res.WriteAsJsonAsync(targetResponse);
+        return res;
     }
 }

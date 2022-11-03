@@ -22,11 +22,11 @@ public class SetServiceTests
     public async Task Get_All_Sets_Should_return_an_array_of_Sets()
     {
         Set[] mockSets = new[] {
-            new Set("1", null!, null!),
-            new Set("2", null!, null!),
+            new Set("1", new List<Target>(), new List<User>()),
+            new Set("2", new List<Target>(), new List<User>()),
         };
 
-        _setRepository.Setup(r => r.Include(x => x.Targets).Include(x => x.Users).GetAllAsync()).Returns(mockSets.ToAsyncEnumerable());
+        _setRepository.Setup(r => r.Include(x => x.Targets).GetAllAsync()).Returns(mockSets.ToAsyncEnumerable());
 
         ICollection<Set> sets = await _service.GetAllSetsAsync();
 
@@ -36,10 +36,18 @@ public class SetServiceTests
     [Fact]
     public async Task Get_Set_By_Id_Should_return_A_Set_Object()
     {
-        _setRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => new Set("1", null!, null!));
-        Set set = await _service.GetSetByIdAsync("1");
+        string setId = "1";
+        Set setEntity = new Set {
+            Id = setId,
+            Targets = new List<Target>(),
+            Users = new List<User>(),
+        };
 
-        Assert.Equal("1", set.Id);
+        _setRepository.Setup(r => r.Include(x => x.Targets).GetByAsync(x => x.Id == setId)).ReturnsAsync(setEntity);
+        
+        Set set = await _service.GetSetByIdAsync(setEntity.Id);
+
+        Assert.Equal(setEntity.Id, set.Id);
     }
 
     [Fact]

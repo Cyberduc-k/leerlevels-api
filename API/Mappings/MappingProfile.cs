@@ -15,7 +15,9 @@ public class MappingProfile : Profile
         CreateMap<ForumReplyDTO, Task<ForumReply>>().ConvertUsing<ForumReplyConverter>();
         CreateMap<Target, TargetResponse>();
         CreateMap<Mcq, McqResponse>();
+        CreateMap<Set, SetResponse>();
         CreateMap<User, UserResponse>();
+        CreateMap<Group, GroupResponse>();
         CreateMap<UserDTO, User>().ConvertUsing<UserConverter>();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using API.Attributes;
-using API.Validation;
+using API.Examples;
+using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
@@ -9,6 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Model;
+using Model.Response;
 using Service.Interfaces;
 using Group = Model.Group;
 
@@ -16,13 +18,13 @@ namespace API.Controllers;
 public class GroupController : ControllerWithAuthentication
 {
     private readonly IGroupService _groupService;
-    private readonly GetGroupByIdValidator validationRules;
+    private readonly IMapper _mapper;
 
-    public GroupController(ILoggerFactory loggerFactory, ITokenService tokenService, IGroupService groupService, GetGroupByIdValidator validations)
+    public GroupController(ILoggerFactory loggerFactory, ITokenService tokenService, IGroupService groupService, IMapper mapper)
         : base(loggerFactory.CreateLogger<GroupController>(), tokenService)
     {
         _groupService = groupService;
-        validationRules = validations;
+        _mapper = mapper;
     }
 
     // Get groups
@@ -30,23 +32,24 @@ public class GroupController : ControllerWithAuthentication
     [Function(nameof(GetAllGroups))]
     [OpenApiOperation(operationId: "getGroups", tags: new[] { "Groups" })]
     [OpenApiAuthentication]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<Group>), Description = "The OK response")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(GroupResponse[]), Description = "The OK response", Example = typeof(GroupResponseExample[]))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve groups.")]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
-    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find a list of groups.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> GetAllGroups([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "groups")] HttpRequestData req)
     {
-      //  await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/groups");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/groups");
 
         _logger.LogInformation("C# HTTP trigger function processed the getGroups request.");
 
         ICollection<Group> groups = await _groupService.GetAllGroupsAsync();
+        IEnumerable<GroupResponse> groupResponses = groups.Select(u => _mapper.Map<GroupResponse>(u));
+
 
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-        await res.WriteAsJsonAsync(groups);
+        await res.WriteAsJsonAsync(groupResponses);
 
         return res;
     }
@@ -57,27 +60,24 @@ public class GroupController : ControllerWithAuthentication
     [OpenApiOperation(operationId: "getGroup", tags: new[] { "Groups" })]
     [OpenApiAuthentication]
     [OpenApiParameter(name: "groupId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The group ID parameter")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Group), Description = "The OK response")]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Group Id.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(GroupResponse), Description = "The OK response", Example = typeof(GroupResponseExample))]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve the group.")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the group with the specified Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> GetGroupById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "groups/{groupId}")] HttpRequestData req,
         string groupId)
     {
-        //await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/groups/{groupId}");
+            await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/groups/{groupId}");
 
-        _logger.LogInformation("C# HTTP trigger function processed the getGroup request.");
-
-        Group groupToValidate = new() { Id = groupId };
-        ValidationResult result = await validationRules.ValidateAsync(groupToValidate);
-
-        if (result.IsValid) {
             Group group = await _groupService.GetGroupByIdAsync(groupId);
+            GroupResponse groupResponse = _mapper.Map<GroupResponse>(group);
 
             HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
             await res.WriteAsJsonAsync(group);
 
             return res;
-        }
-        return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 }

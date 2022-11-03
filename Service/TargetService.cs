@@ -24,7 +24,7 @@ public class TargetService : ITargetService
             .Include(x => x.Mcqs)
             .ThenInclude(m => m.AnswerOptions)
             .GetAllAsync()
-            .ToArrayAsync();
+            .ToArrayAsync() ?? throw new NotFoundException("targets");
     }
 
     public async Task<Target> GetTargetByIdAsync(string targetId)

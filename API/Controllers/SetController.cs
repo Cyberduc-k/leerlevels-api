@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using API.Attributes;
-using API.Validation;
-using API.Validators;
+using API.Examples;
+using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
@@ -10,19 +10,20 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Model;
+using Model.Response;
 using Service.Interfaces;
 
 namespace API.Controllers;
 public class SetController : ControllerWithAuthentication
 {
     private readonly ISetService _setService;
-    private readonly GetSetByIdValidator validationRules;
+    private readonly IMapper _mapper;
 
-    public SetController(ILoggerFactory loggerFactory, ITokenService tokenService, ISetService setservice, GetSetByIdValidator validations)
+    public SetController(ILoggerFactory loggerFactory, ITokenService tokenService, ISetService setservice, IMapper mapper)
         : base(loggerFactory.CreateLogger<SetController>(), tokenService)
     {
         _setService = setservice;
-        validationRules = validations;  
+        _mapper = mapper;
     }
 
     // Get sets
@@ -30,19 +31,24 @@ public class SetController : ControllerWithAuthentication
     [Function(nameof(GetAllSets))]
     [OpenApiOperation(operationId: "getsets", tags: new[] { "Sets" })]
     [OpenApiAuthentication]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<Set>), Description = "The OK response")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SetResponse[]), Description = "The OK response", Example = typeof(SetResponseExample[]))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve sets.")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> GetAllSets([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sets")] HttpRequestData req)
     {
-      //  await ValidateAuthenticationAndAuthorization(req, UserRole.Teacher, "/sets");
+          await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/sets");
 
         _logger.LogInformation("C# HTTP trigger function processed the getsets request.");
 
         ICollection<Set> sets = await _setService.GetAllSetsAsync();
+        IEnumerable<SetResponse> setResponses = sets.Select(u => _mapper.Map<SetResponse>(u));
+
 
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-        await res.WriteAsJsonAsync(sets);
+        await res.WriteAsJsonAsync(setResponses);
 
         return res;
     }
@@ -52,28 +58,30 @@ public class SetController : ControllerWithAuthentication
     [Function(nameof(GetSetById))]
     [OpenApiOperation(operationId: "getSet", tags: new[] { "Sets" })]
     [OpenApiAuthentication]
-    [OpenApiParameter(name: "setId", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The set ID parameter")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Set), Description = "The OK response")]
+    [OpenApiParameter(name: "setId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The set ID parameter")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SetResponse), Description = "The OK response", Example = typeof(SetResponseExample))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Set Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the Set with the specified Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> GetSetById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sets/{setId}")] HttpRequestData req,
         string setId)
     {
-       // await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/sets/{setId}");
+         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/sets/{setId}");
 
         _logger.LogInformation("C# HTTP trigger function processed the getSet request.");
 
-        Set SetToValidate = new() { Id = setId };
-        ValidationResult result = await validationRules.ValidateAsync(SetToValidate);
 
-        if (result.IsValid) {
-            Set set = await _setService.GetSetByIdAsync(setId);
+        Set set = await _setService.GetSetByIdAsync(setId);
+        SetResponse setResponses = _mapper.Map<SetResponse>(set);
 
-            HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-            await res.WriteAsJsonAsync(set);
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-            return res;
-        }
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        await res.WriteAsJsonAsync(set);
+
+        return res;
+
     }
 }
