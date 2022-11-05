@@ -1,5 +1,6 @@
 using System.Net;
 using API.Attributes;
+using API.Examples;
 using AutoMapper;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -27,8 +28,10 @@ public class BookmarkController : ControllerWithAuthentication
     [Function(nameof(GetBookmarks))]
     [OpenApiOperation(operationId: nameof(GetBookmarks), tags: new[] { "Bookmarks" }, Summary = "A list of bookmarks", Description = "Returns a list of all bookmarks for the current user")]
     [OpenApiAuthentication]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(BookmarksResponse), Description = "A list of bookmarks")]
-    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(BookmarksResponse), Description = "A list of bookmarks", Example = typeof(BookmarksResponseExample))]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> GetBookmarks(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "bookmarks")] HttpRequestData req)
     {
@@ -49,9 +52,11 @@ public class BookmarkController : ControllerWithAuthentication
     [Function(nameof(AddBookmark))]
     [OpenApiOperation(operationId: nameof(AddBookmark), tags: new[] { "Bookmarks" }, Summary = "Add a bookmark", Description = "Add a new bookmark for the current user")]
     [OpenApiAuthentication]
-    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(BookmarkDTO), Required = true, Description = "The new bookmark")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(BookmarkDTO), Required = true, Description = "The new bookmark", Example = typeof(BookmarkDTOExample))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
-    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> AddBookmark(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "bookmarks")] HttpRequestData req)
     {
@@ -67,9 +72,12 @@ public class BookmarkController : ControllerWithAuthentication
     [Function(nameof(DeleteBookmark))]
     [OpenApiOperation(operationId: nameof(DeleteBookmark), tags: new[] { "Bookmarks" }, Summary = "Delete a bookmark", Description = "Delete a bookmark for the current user")]
     [OpenApiAuthentication]
-    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(BookmarkDTO), Required = true, Description = "The bookmark to delete")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(BookmarkDTO), Required = true, Description = "The bookmark to delete", Example = typeof(BookmarkDTOExample))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
-    [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the bookmark.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> DeleteBookmark(
         [HttpTrigger(AuthorizationLevel.Anonymous, "DELETE", Route = "bookmarks")] HttpRequestData req)
     {
