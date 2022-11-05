@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿Susing Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Model;
 using Repository;

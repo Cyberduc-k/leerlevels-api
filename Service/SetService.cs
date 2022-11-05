@@ -21,7 +21,7 @@ public class SetService : ISetService
 
     public async Task<ICollection<Set>> GetAllSetsAsync()
     {
-        return await _setRepository.Include(x => x.Targets).GetAllAsync().ToArrayAsync() ?? throw new Exception("Inernal Server Error");
+        return await _setRepository.Include(x => x.Targets).GetAllAsync().ToArrayAsync();
     }
 
     public async Task<Set> GetSetByIdAsync(string setId)
