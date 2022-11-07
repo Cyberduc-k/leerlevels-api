@@ -58,7 +58,7 @@ public class DataContext : DbContext
                 FirstName = "John",
                 LastName = "Doe",
                 UserName = "JohnD#1",
-                Password = $"{Environment.GetEnvironmentVariable("TokenHashBase")!}10000$xoUFLA1yQKZA/wvfJ9aBNPAJbbUY65QLhOeNeUA+ASwM5GjK", // "J0hn#001!"
+                Password = $"{Environment.GetEnvironmentVariable("TokenHashBase")!}$10000$xoUFLA1yQKZA/wvfJ9aBNPAJbbUY65QLhOeNeUA+ASwM5GjK", // "J0hn#001!"
                 Role = UserRole.Student,
                 LastLogin = DateTime.Parse("2022-10-05 13:27:00"),
                 LastDeviceHandle = "11",
@@ -71,7 +71,7 @@ public class DataContext : DbContext
                 FirstName = "Mary",
                 LastName = "Sue",
                 UserName = "MarySue#22",
-                Password = $"{Environment.GetEnvironmentVariable("TokenHashBase")!}10000$ZR9AMoHqh69WDC8SbEqMFwl2ERkrSDc62BFdt38Sx1tRaE5h", // "M4rySu3san#22!"
+                Password = $"{Environment.GetEnvironmentVariable("TokenHashBase")!}$10000$ZR9AMoHqh69WDC8SbEqMFwl2ERkrSDc62BFdt38Sx1tRaE5h", // "M4rySu3san#22!"
                 Role = UserRole.Teacher,
                 LastLogin = DateTime.Now,
                 LastDeviceHandle = "22",
@@ -84,7 +84,7 @@ public class DataContext : DbContext
                 FirstName = "Admin",
                 LastName = "Admin",
                 UserName = "Admin",
-                Password = $"{Environment.GetEnvironmentVariable("TokenHashBase")!}10000$qcJ3B566KbRg/qPdPEjwwwpVxtE/T1pMXbLWNiK2JJe/XK1V", // "123"
+                Password = $"{Environment.GetEnvironmentVariable("TokenHashBase")!}$10000$qcJ3B566KbRg/qPdPEjwwwpVxtE/T1pMXbLWNiK2JJe/XK1V", // "123"
                 Role = UserRole.Administrator,
                 LastLogin = DateTime.Now,
                 LastDeviceHandle = "33",

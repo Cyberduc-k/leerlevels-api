@@ -212,7 +212,7 @@ public class TokenService : ITokenService
         string base64Hash = Convert.ToBase64String(hashBytes);
 
         // Format hash with extra information
-        return string.Format($"{Environment.GetEnvironmentVariable("TokenHashBase")!}{Iterations}${base64Hash}");
+        return string.Format($"{Environment.GetEnvironmentVariable("TokenHashBase")!}${Iterations}${base64Hash}");
 
     }
 
