@@ -8,9 +8,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{16330C5D-5945-47AF-A229-547136420DE4}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		azure-pipeline-api.yml = azure-pipeline-api.yml
 		azure-pipeline-notifications.yml = azure-pipeline-notifications.yml
 		azure-pipeline-tests.yml = azure-pipeline-tests.yml
-		azure-pipeline-api.yml = azure-pipeline-api.yml
+		deploy.bicep = deploy.bicep
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", "{ED3BFC80-E66C-4836-8E05-12162ED90DB4}"

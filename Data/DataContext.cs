@@ -31,7 +31,7 @@ public class DataContext : DbContext
     public DataContext(DbContextOptions options, bool addBasicEntities) : base(options)
     {
         _addBasicEntities = addBasicEntities;
-        Database.EnsureCreated();
+        // Database.EnsureCreated();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
