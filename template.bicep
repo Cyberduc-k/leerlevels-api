@@ -34,56 +34,43 @@ resource leerlevelsstorage 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   }
 }
 
-@description('Generated from /subscriptions/77165f22-39ac-48c3-9768-d70dd3de7f63/resourceGroups/LeerLevels/providers/Microsoft.Storage/storageAccounts/leerlevelsstorage/blobServices/default')
-resource defaultBlobStorage 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
-  name: 'leerlevelsstorage/default'
-  properties: {
-    cors: {
-      corsRules: []
-    }
-    deleteRetentionPolicy: {
-      allowPermanentDelete: false
-      enabled: false
-    }
-  }
-}
+// @description('Generated from /subscriptions/77165f22-39ac-48c3-9768-d70dd3de7f63/resourceGroups/LeerLevels/providers/Microsoft.Storage/storageAccounts/leerlevelsstorage/blobServices/default')
+// resource defaultBlobStorage 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
+//   name: 'leerlevelsstorage/default'
+//   properties: {
+//     deleteRetentionPolicy: {
+//       allowPermanentDelete: false
+//       enabled: false
+//     }
+//   }
+// }
 
-@description('Generated from /subscriptions/77165f22-39ac-48c3-9768-d70dd3de7f63/resourceGroups/LeerLevels/providers/Microsoft.Storage/storageAccounts/leerlevelsstorage/fileServices/default')
-resource defaultFileService 'Microsoft.Storage/storageAccounts/fileServices@2022-05-01' = {
-  name: 'leerlevelsstorage/default'
-  properties: {
-    protocolSettings: {
-      smb: {
-      }
-    }
-    cors: {
-      corsRules: []
-    }
-    shareDeleteRetentionPolicy: {
-      enabled: true
-      days: 7
-    }
-  }
-}
+// @description('Generated from /subscriptions/77165f22-39ac-48c3-9768-d70dd3de7f63/resourceGroups/LeerLevels/providers/Microsoft.Storage/storageAccounts/leerlevelsstorage/fileServices/default')
+// resource defaultFileService 'Microsoft.Storage/storageAccounts/fileServices@2022-05-01' = {
+//   name: 'leerlevelsstorage/default'
+//   properties: {
+//     shareDeleteRetentionPolicy: {
+//       enabled: true
+//       days: 7
+//     }
+//   }
+// }
 
-@description('Generated from /subscriptions/77165f22-39ac-48c3-9768-d70dd3de7f63/resourceGroups/LeerLevels/providers/Microsoft.Storage/storageAccounts/leerlevelsstorage/queueServices/default')
-resource defaultQueue 'Microsoft.Storage/storageAccounts/queueServices@2022-05-01' = {
-  name: 'leerlevelsstorage/default'
-  properties: {
-    logging: {
-      version: '1.0'
-      delete: false
-      read: false
-      write: false
-      retentionPolicy: {
-        enabled: false
-      }
-    }
-    cors: {
-      corsRules: []
-    }
-  }
-}
+// @description('Generated from /subscriptions/77165f22-39ac-48c3-9768-d70dd3de7f63/resourceGroups/LeerLevels/providers/Microsoft.Storage/storageAccounts/leerlevelsstorage/queueServices/default')
+// resource defaultQueue 'Microsoft.Storage/storageAccounts/queueServices@2022-05-01' = {
+//   name: 'leerlevelsstorage/default'
+//   properties: {
+//     logging: {
+//       version: '1.0'
+//       delete: false
+//       read: false
+//       write: false
+//       retentionPolicy: {
+//         enabled: false
+//       }
+//     }
+//   }
+// }
 
 @description('Generated from /subscriptions/77165f22-39ac-48c3-9768-d70dd3de7f63/resourceGroups/LeerLevels/providers/Microsoft.Web/serverFarms/ASP-LeerLevels-859a')
 resource ASPLeerLevelsa 'Microsoft.Web/serverfarms@2022-03-01' = {
