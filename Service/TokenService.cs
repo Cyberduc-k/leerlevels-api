@@ -212,7 +212,7 @@ public class TokenService : ITokenService
         string base64Hash = Convert.ToBase64String(hashBytes);
 
         // Format hash with extra information
-        return string.Format($"{Environment.GetEnvironmentVariable("TokenHashBase")!}{Iterations}${base64Hash}");
+        return string.Format($"{Environment.GetEnvironmentVariable("TokenHashBase")!}${Iterations}${base64Hash}");
 
     }
 
@@ -232,8 +232,8 @@ public class TokenService : ITokenService
 
         // Extract the iteration and Base64 hash string from the hashed password string
         string[] splittedHashString = hashedPassword.Replace($"{Environment.GetEnvironmentVariable("TokenHashBase")!}", "").Split('$');
-        int iterations = int.Parse(splittedHashString[0]);
-        string base64Hash = splittedHashString[1];
+        int iterations = int.Parse(splittedHashString[1]);
+        string base64Hash = splittedHashString[2];
 
         // Get the hash bytes
         byte[] hashBytes = Convert.FromBase64String(base64Hash);
