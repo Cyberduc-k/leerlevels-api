@@ -25,7 +25,7 @@ public class DataContext : DbContext
 
     public DataContext(DbContextOptions options) : base(options)
     {
-        Database.EnsureCreated();
+        // Database.EnsureCreated();
     }
 
     public DataContext(DbContextOptions options, bool addBasicEntities) : base(options)
