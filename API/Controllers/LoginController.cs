@@ -27,7 +27,7 @@ public class LoginController : ControllerBase
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(LoginDTO), Required = true, Description = "The user credentials", Example = typeof(LoginExample))]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(LoginResponse), Description = "Login success", Example = typeof(LoginResponseExample))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "A login error has occured.")]
-    [OpenApiErrorResponse(HttpStatusCode.NotFound)]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "An error occured while attempting to login", Example = typeof(ErrorResponseExample))]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
     public async Task<HttpResponseData> Authenticate([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "login")] HttpRequestData req, FunctionContext executionContext)
     {

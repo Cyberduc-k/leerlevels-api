@@ -15,7 +15,6 @@ public class LoginResponse
     [OpenApiProperty(Description = "The token type.")]
     public static string TokenType => "Bearer";
 
-    //2do: create logic for generating refresh tokens until specific point
     [JsonRequired]
     [OpenApiProperty(Description = "The amount of seconds until the token expires.")]
     public int ExpiresIn => (int)(Token.ValidTo - DateTime.UtcNow).TotalSeconds;

@@ -8,7 +8,8 @@ public class LoginExample : OpenApiExample<LoginDTO>
 {
     public override IOpenApiExample<LoginDTO> Build(NamingStrategy namingStrategy)
     {
-        Examples.Add(OpenApiExampleResolver.Resolve("Login John", new LoginDTO() { Email = "JohnDoe@gmail.com", Password = "J0hnnyb0y#1!" }));
+        Examples.Add(OpenApiExampleResolver.Resolve("Login Student John", new LoginDTO() { Email = "JohnDoe@gmail.com", Password = "J0hn#001!" }));
+        Examples.Add(OpenApiExampleResolver.Resolve("Login Teacher Mary", new LoginDTO() { Email = "MarySue@gmail.com", Password = "M4rySu3san#22!" }));
 
         return this;
     }
