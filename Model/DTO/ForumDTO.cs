@@ -5,13 +5,15 @@ namespace Model.DTO;
 
 public class ForumDTO
 {
-    [OpenApiProperty(Nullable = true)]
+    [OpenApiProperty(Description = "The id of a user posting a forum", Nullable = true)]
     public string FromId { get; set; }
 
     [JsonRequired]
+    [OpenApiProperty(Description = "The title of a new forum", Nullable = false)]
     public string Title { get; set; }
 
     [JsonRequired]
+    [OpenApiProperty(Description = "The description of a new forum", Nullable = false)]
     public string Description { get; set; }
 
     public ForumDTO()

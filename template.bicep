@@ -467,7 +467,7 @@ resource leerlevelsSqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
     administratorLogin: 'LEERLEVELS_ADMIN'
     version: '12.0'
     minimalTlsVersion: '1.2'
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: 'Enabled'
     administrators: {
       administratorType: 'ActiveDirectory'
       principalType: 'Application'
