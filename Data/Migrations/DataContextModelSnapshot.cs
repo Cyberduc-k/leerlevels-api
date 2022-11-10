@@ -402,7 +402,7 @@ namespace Data.Migrations
                             LastDeviceHandle = "11",
                             LastLogin = new DateTime(2022, 10, 5, 13, 27, 0, 0, DateTimeKind.Unspecified),
                             LastName = "Doe",
-                            Password = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCsYBxHvBQzxYHGy5/JEpZvez3Gbw/QINZbNE4fpp9s5xqJT4KV4+aGWbWcp0CwS/8eyG94kBg/sFRc6umG88n1VkFZXJ0GFvvZ7TfC5NXJLpKs06Oebki4dp6ZL2re+WV+3JFfi9W+KtjUKDhhgt7haPkzFrK7LGpOjIvr/f0jQIDAQAB$10000$xoUFLA1yQKZA/wvfJ9aBNPAJbbUY65QLhOeNeUA+ASwM5GjK",
+                            Password = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCsYBxHvBQzxYHGy5/JEpZvez3Gbw/QINZbNE4fpp9s5xqJT4KV4Q+aGWbWcp0CwS/8eyG94kBg/sFRc6umG88n1VkFZXJ0GFvvZ7TfC5NXJLpKs06Oebki4dp6ZL2re+WV+3JFfi9W+KtjUKDhhgt7haPkzFrK7LGpOjIvr/f0jQIDAQAB$10000$xoUFLA1yQKZA/wvfJ9aBNPAJbbUY65QLhOeNeUA+ASwM5GjK",
                             Role = 0,
                             ShareCode = "DTRY-WQER-PIGU-VNSA",
                             UserName = "JohnD#1"
@@ -414,9 +414,9 @@ namespace Data.Migrations
                             FirstName = "Mary",
                             IsActive = true,
                             LastDeviceHandle = "22",
-                            LastLogin = new DateTime(2022, 11, 7, 12, 49, 13, 947, DateTimeKind.Local).AddTicks(9712),
+                            LastLogin = new DateTime(2022, 11, 10, 15, 29, 14, 691, DateTimeKind.Local).AddTicks(66),
                             LastName = "Sue",
-                            Password = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCsYBxHvBQzxYHGy5/JEpZvez3Gbw/QINZbNE4fpp9s5xqJT4KV4+aGWbWcp0CwS/8eyG94kBg/sFRc6umG88n1VkFZXJ0GFvvZ7TfC5NXJLpKs06Oebki4dp6ZL2re+WV+3JFfi9W+KtjUKDhhgt7haPkzFrK7LGpOjIvr/f0jQIDAQAB$10000$ZR9AMoHqh69WDC8SbEqMFwl2ERkrSDc62BFdt38Sx1tRaE5h",
+                            Password = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCsYBxHvBQzxYHGy5/JEpZvez3Gbw/QINZbNE4fpp9s5xqJT4KV4Q+aGWbWcp0CwS/8eyG94kBg/sFRc6umG88n1VkFZXJ0GFvvZ7TfC5NXJLpKs06Oebki4dp6ZL2re+WV+3JFfi9W+KtjUKDhhgt7haPkzFrK7LGpOjIvr/f0jQIDAQAB$10000$ZR9AMoHqh69WDC8SbEqMFwl2ERkrSDc62BFdt38Sx1tRaE5h",
                             Role = 1,
                             ShareCode = "RIBN-QWOR-DCPL-AXCU",
                             UserName = "MarySue#22"
@@ -428,9 +428,9 @@ namespace Data.Migrations
                             FirstName = "Admin",
                             IsActive = true,
                             LastDeviceHandle = "33",
-                            LastLogin = new DateTime(2022, 11, 7, 12, 49, 13, 947, DateTimeKind.Local).AddTicks(9763),
+                            LastLogin = new DateTime(2022, 11, 10, 15, 29, 14, 691, DateTimeKind.Local).AddTicks(102),
                             LastName = "Admin",
-                            Password = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCsYBxHvBQzxYHGy5/JEpZvez3Gbw/QINZbNE4fpp9s5xqJT4KV4+aGWbWcp0CwS/8eyG94kBg/sFRc6umG88n1VkFZXJ0GFvvZ7TfC5NXJLpKs06Oebki4dp6ZL2re+WV+3JFfi9W+KtjUKDhhgt7haPkzFrK7LGpOjIvr/f0jQIDAQAB$10000$qcJ3B566KbRg/qPdPEjwwwpVxtE/T1pMXbLWNiK2JJe/XK1V",
+                            Password = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCsYBxHvBQzxYHGy5/JEpZvez3Gbw/QINZbNE4fpp9s5xqJT4KV4Q+aGWbWcp0CwS/8eyG94kBg/sFRc6umG88n1VkFZXJ0GFvvZ7TfC5NXJLpKs06Oebki4dp6ZL2re+WV+3JFfi9W+KtjUKDhhgt7haPkzFrK7LGpOjIvr/f0jQIDAQAB$10000$qcJ3B566KbRg/qPdPEjwwwpVxtE/T1pMXbLWNiK2JJe/XK1V",
                             Role = 2,
                             ShareCode = "RIBN-QWOR-DCPL-AXCV",
                             UserName = "Admin"

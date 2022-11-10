@@ -9,12 +9,6 @@ public class ErrorResponse
     [OpenApiProperty(Description = "The message of an error", Nullable = false)]
     public string Message { get; set; }
 
-    [OpenApiProperty(Description = "The source of an occured error", Nullable = true)]
-    public string? Source { get; set; }
-
-    [OpenApiProperty(Description = "The stacktrace of the occured error", Nullable = true)]
-    public string? StackTrace { get; set; }
-
     public ErrorResponse()
     {
     }
@@ -22,12 +16,5 @@ public class ErrorResponse
     public ErrorResponse(string message)
     {
         Message = message;
-    }
-
-    public ErrorResponse(Exception ex)
-    {
-        Message = ex.Message;
-        Source = ex.Source;
-        StackTrace = ex.StackTrace;
     }
 }
