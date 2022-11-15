@@ -15,5 +15,6 @@ public interface ITokenService
     Task<JwtSecurityToken> CreateToken(User user);
     Task<ClaimsPrincipal> GetByValue(string Value);
     Task<bool> AuthenticationValidation(HttpRequestData request);
-    string EncryptPassword(string password);
+    string EncryptPassword(User user, string password);
+    Task<bool> VerifyPassword(User user, string storedPassword, string password);
 }

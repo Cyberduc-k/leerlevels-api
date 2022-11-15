@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -30,6 +31,8 @@ public class TokenService : ITokenService
     private SigningCredentials Credentials { get; }
     private TokenIdentityValidationParameters ValidationParameters { get; }
 
+    private PasswordHasher<User> PasswordHasher { get; }
+
     public User User { get; set; }
 
     public string Message { get; set; }
@@ -53,6 +56,8 @@ public class TokenService : ITokenService
 
         ValidationParameters = new TokenIdentityValidationParameters(Issuer, Audience, SecurityKey);
 
+        PasswordHasher = new PasswordHasher<User>();
+
     }
 
     public async Task<LoginResponse> Login(LoginDTO loginDTO)
@@ -61,7 +66,7 @@ public class TokenService : ITokenService
         User user = await UserRepository.GetByAsync(u => u.Email == loginDTO.Email) ?? throw new NotFoundException("user to create a valid token");
 
         //check if given password is valid for the saved hash of the users password
-        if (!VerifyPassword(loginDTO.Password, user.Password)) {
+        if (!await VerifyPassword(user, user.Password, loginDTO.Password)) {
             throw new AuthenticationException("Incorrect user password entered");
         }
 
@@ -179,7 +184,7 @@ public class TokenService : ITokenService
             return false;
         }
 
-        User user = await UserRepository.GetByIdAsync(claims["userId"]);
+        User user = await UserRepository.GetByIdAsync(claims["userId"]) ?? throw new NotFoundException("user");
 
         if (!user!.IsActive) {
             Message = "Invalid token since this user is no longer active";
@@ -193,27 +198,9 @@ public class TokenService : ITokenService
     }
 
     // Password encryption
-    public string EncryptPassword(string password)
+    public string EncryptPassword(User user, string password)
     {
-        // Create a salt using the random number generator class
-        byte[] salt;
-        RandomNumberGenerator.Create().GetBytes(salt = new byte[SaltSize]);
-
-        // Create a hash
-        Rfc2898DeriveBytes pbkdf2 = new(password, salt, Iterations);
-        byte[] hash = pbkdf2.GetBytes(HashSize);
-
-        // Combine salt and hash
-        byte[] hashBytes = new byte[SaltSize + HashSize];
-        Array.Copy(salt, 0, hashBytes, 0, SaltSize);
-        Array.Copy(hash, 0, hashBytes, SaltSize, HashSize);
-
-        // Convert to base64 string
-        string base64Hash = Convert.ToBase64String(hashBytes);
-
-        // Format hash with extra information
-        return string.Format($"{Environment.GetEnvironmentVariable("TokenHashBase")!}${Iterations}${base64Hash}");
-
+        return string.Format($"{Environment.GetEnvironmentVariable("TokenHashBase")!}${PasswordHasher.HashPassword(user, password)}");
     }
 
     // Check if hash in the hashed password is supported
@@ -223,36 +210,30 @@ public class TokenService : ITokenService
     }
 
     // Verify the password
-    public bool VerifyPassword(string password, string hashedPassword)
+    public async Task<bool> VerifyPassword(User user, string storedPassword, string password)
     {
         // Check the hash
-        if (!IsHashSupported(hashedPassword)) {
+        if (!IsHashSupported(storedPassword)) {
             throw new AuthenticationException("The password hashtype is not supported");
         }
 
         // Extract the iteration and Base64 hash string from the hashed password string
-        string[] splittedHashString = hashedPassword.Replace($"{Environment.GetEnvironmentVariable("TokenHashBase")!}", "").Split('$');
-        int iterations = int.Parse(splittedHashString[1]);
-        string base64Hash = splittedHashString[2];
+        string[] splittedHashString = storedPassword.Replace($"{Environment.GetEnvironmentVariable("TokenHashBase")!}", "").Split('$');
+        string hashedPassword = splittedHashString[1];
 
-        // Get the hash bytes
-        byte[] hashBytes = Convert.FromBase64String(base64Hash);
+        PasswordVerificationResult result = PasswordHasher.VerifyHashedPassword(user, hashedPassword, password);
 
-        // Get the salt bytes
-        byte[] salt = new byte[SaltSize];
-        Array.Copy(hashBytes, 0, salt, 0, SaltSize);
-
-        // Create a hash with the given salt
-        Rfc2898DeriveBytes pbkdf2 = new(password, salt, iterations);
-        byte[] hash = pbkdf2.GetBytes(HashSize);
-
-        // Work out the result
-        for (int i = 0; i < HashSize; i++) {
-            if (hashBytes[i + SaltSize] != hash[i]) {
+        switch (result) {
+            case PasswordVerificationResult.Failed:
                 return false;
-            }
+            case PasswordVerificationResult.Success:
+                return true;
+            case PasswordVerificationResult.SuccessRehashNeeded:
+                user.Password = EncryptPassword(user, password);
+                await UserRepository.SaveChanges();
+                return true;
         }
 
-        return true;
+        return false;
     }
 }
