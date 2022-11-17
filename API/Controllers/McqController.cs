@@ -33,7 +33,6 @@ public class McqController : ControllerWithAuthentication
     [OpenApiAuthentication]
     [OpenApiParameter("limit", In = ParameterLocation.Query, Type = typeof(int), Required = false)]
     [OpenApiParameter("page", In = ParameterLocation.Query, Type = typeof(int), Required = false)]
-    [OpenApiParameter("filter", In = ParameterLocation.Query, Type = typeof(string), Required = false)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(McqResponse[]), Description = "The OK response", Example = typeof(McqResponseExample[]))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve mcqs.")]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
@@ -47,10 +46,7 @@ public class McqController : ControllerWithAuthentication
 
         int limit = req.Query("limit").GetInt(int.MaxValue) ?? throw new InvalidQueryParameterException("limit");
         int page = req.Query("page").GetInt() ?? throw new InvalidQueryParameterException("page");
-        string? filter = req.Query("filter").FirstOrDefault();
-        ICollection<Mcq> mcqs = filter is null
-            ? await _mcqService.GetAllMcqsAsync(limit, page)
-            : await _mcqService.GetAllMcqsFilteredAsync(limit, page, filter);
+        ICollection<Mcq> mcqs = await _mcqService.GetAllMcqsAsync(limit, page);
         McqResponse[] mappedMcqs = _mapper.Map<McqResponse[]>(mcqs);
         Paginated<McqResponse> paginated = new(mappedMcqs, page);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
