@@ -7,7 +7,7 @@ namespace Service;
 
 public class ProgressService : IProgressService
 {
-    private readonly ITokenService _tokenService;
+    private readonly IUserService _userService;
     private readonly INotificationService _notificationService;
     private readonly ISetService _setService;
     private readonly ITargetService _targetService;
@@ -17,7 +17,7 @@ public class ProgressService : IProgressService
     private readonly IAnswerOptionRepository _answerOptionRepository;
 
     public ProgressService(
-        ITokenService tokenService,
+        IUserService userService,
         INotificationService notificationService,
         ISetService setService,
         ITargetService targetService,
@@ -26,7 +26,7 @@ public class ProgressService : IProgressService
         IMcqProgressRepository mcqProgressRepository,
         IAnswerOptionRepository answerOptionRepository)
     {
-        _tokenService = tokenService;
+        _userService = userService;
         _notificationService = notificationService;
         _setService = setService;
         _targetService = targetService;
@@ -36,7 +36,7 @@ public class ProgressService : IProgressService
         _answerOptionRepository = answerOptionRepository;
     }
 
-    public async Task<ICollection<TargetProgress>> GetAllTargetProgress()
+    public async Task<ICollection<TargetProgress>> GetAllTargetProgress(string userId)
     {
         return await _targetProgressRepository
             .Include(t => t.Target)
@@ -44,7 +44,7 @@ public class ProgressService : IProgressService
             .ThenInclude(m => m.Mcq)
             .Include(t => t.Mcqs)
             .ThenInclude(m => m.Answer)
-            .GetAllWhereAsync(t => t.User.Id == _tokenService.User.Id)
+            .GetAllWhereAsync(t => t.User.Id == userId)
             .ToArrayAsync();
     }
 
@@ -63,7 +63,7 @@ public class ProgressService : IProgressService
         return new SetProgress(set, targets);
     }
 
-    public async Task<TargetProgress> GetTargetProgress(string targetId)
+    public async Task<TargetProgress> GetTargetProgress(string targetId, string userId)
     {
         return await _targetProgressRepository
             .Include(t => t.Target)
@@ -71,36 +71,38 @@ public class ProgressService : IProgressService
             .ThenInclude(m => m.Mcq)
             .Include(t => t.Mcqs)
             .ThenInclude(m => m.Answer)
-            .GetByAsync(t => t.User.Id == _tokenService.User.Id && t.Target.Id == targetId)
+            .GetByAsync(t => t.User.Id == userId && t.Target.Id == targetId)
             ?? throw new NotFoundException("target progress");
     }
 
-    public async Task<McqProgress> GetMcqProgress(string mcqId)
+    public async Task<McqProgress> GetMcqProgress(string mcqId, string userId)
     {
         return await _mcqProgressRepository
             .Include(m => m.Mcq)
             .Include(m => m.Answer)
-            .GetByAsync(m => m.User.Id == _tokenService.User.Id && m.Mcq.Id == mcqId)
+            .GetByAsync(m => m.User.Id == userId && m.Mcq.Id == mcqId)
             ?? throw new NotFoundException("mcq progress");
     }
 
-    public async Task<TargetProgress> BeginTarget(string targetId)
+    public async Task<TargetProgress> BeginTarget(string targetId, string userId)
     {
         Target target = await _targetService.GetTargetWithMcqByIdAsync(targetId);
         TargetProgress? existing = await _targetProgressRepository
             .Include(t => t.Target)
             .Include(t => t.Mcqs)
             .ThenInclude(m => m.Answer)
-            .GetByAsync(t => t.User.Id == _tokenService.User.Id && t.Target.Id == targetId);
+            .GetByAsync(t => t.User.Id == userId && t.Target.Id == targetId);
 
         if (existing is not null)
             return existing;
 
+        User user = await _userService.GetUserById(userId);
+
         TargetProgress targetProgress = new() {
-            User = _tokenService.User,
+            User = user,
             Target = target,
             Mcqs = target.Mcqs.Select(m => new McqProgress() {
-                User = _tokenService.User,
+                User = user,
                 Mcq = m
             }).ToArray(),
         };
@@ -110,13 +112,13 @@ public class ProgressService : IProgressService
         return targetProgress;
     }
 
-    public async Task<McqProgress> AnswerQuestion(string mcqId, string answerId, AnswerKind answerKind)
+    public async Task<McqProgress> AnswerQuestion(string mcqId, string answerId, AnswerKind answerKind, string userId)
     {
         Mcq mcq = await _mcqService.GetMcqByIdAsync(mcqId);
         AnswerOption answer = await _answerOptionRepository.GetByIdAsync(answerId) ?? throw new NotFoundException("answer option");
         TargetProgress targetProgress = await _targetProgressRepository
             .Include(t => t.Mcqs)
-            .GetByAsync(t => t.User.Id == _tokenService.User.Id && t.Target.Id == mcq.Target.Id)
+            .GetByAsync(t => t.User.Id == userId && t.Target.Id == mcq.Target.Id)
             ?? throw new NotFoundException("target progress");
         McqProgress mcqProgress = targetProgress.Mcqs.FirstOrDefault(m => m.Mcq.Id == mcq.Id) ?? throw new NotFoundException("mcq progress");
 
@@ -125,7 +127,7 @@ public class ProgressService : IProgressService
         await _mcqProgressRepository.SaveChanges();
 
         if (targetProgress.IsCompleted) {
-            PersonalNotification notification = new(_tokenService.User.Id, "Target completed", $"You have completed target {targetProgress.Target.Label}");
+            PersonalNotification notification = new(userId, "Target completed", $"You have completed target {targetProgress.Target.Label}");
 
             await _notificationService.SendNotificationAsync(notification);
         }

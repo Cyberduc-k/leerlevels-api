@@ -41,8 +41,8 @@ public class ProgressController : ControllerWithAuthentication
     public async Task<HttpResponseData> GetAllTargetProgress(
         [HttpTrigger(AuthorizationLevel.Anonymous, "GET", Route = "targets/progress")] HttpRequestData req)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/progress");
-        ICollection<TargetProgress> progress = await _progressService.GetAllTargetProgress();
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/progress");
+        ICollection<TargetProgress> progress = await _progressService.GetAllTargetProgress(userId);
         IEnumerable<TargetProgressResponse> responses = progress.Select(p => p.CreateResponse());
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
@@ -63,8 +63,8 @@ public class ProgressController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "GET", Route = "targets/{targetId}/progress")] HttpRequestData req,
         string targetId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}/progress");
-        TargetProgress targetProgress = await _progressService.GetTargetProgress(targetId);
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}/progress");
+        TargetProgress targetProgress = await _progressService.GetTargetProgress(targetId, userId);
         TargetProgressResponse targetProgressResponse = targetProgress.CreateResponse();
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
@@ -85,8 +85,8 @@ public class ProgressController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "POST", Route = "targets/{targetId}/progress")] HttpRequestData req,
         string targetId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}/progress");
-        TargetProgress targetProgress = await _progressService.BeginTarget(targetId);
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}/progress");
+        TargetProgress targetProgress = await _progressService.BeginTarget(targetId, userId);
         TargetProgressResponse targetProgressResponse = targetProgress.CreateResponse();
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
@@ -107,8 +107,8 @@ public class ProgressController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "GET", Route = "mcqs/{mcqId}/progress")] HttpRequestData req,
         string mcqId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}/progress");
-        McqProgress mcqProgress = await _progressService.GetMcqProgress(mcqId);
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}/progress");
+        McqProgress mcqProgress = await _progressService.GetMcqProgress(mcqId, userId);
         McqProgressResponse mcqProgressResponse = mcqProgress.CreateResponse();
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
@@ -130,9 +130,9 @@ public class ProgressController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "POST", Route = "mcqs/{mcqId}/progress")] HttpRequestData req,
         string mcqId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}/progress");
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}/progress");
         McqProgressDTO? mcqProgressDTO = await req.ReadFromJsonAsync<McqProgressDTO>();
-        McqProgress mcqProgress = await _progressService.AnswerQuestion(mcqId, mcqProgressDTO!.AnswerOptionId, mcqProgressDTO.AnswerKind);
+        McqProgress mcqProgress = await _progressService.AnswerQuestion(mcqId, mcqProgressDTO!.AnswerOptionId, mcqProgressDTO.AnswerKind, userId);
         McqProgressResponse mcqProgressResponse = mcqProgress.CreateResponse();
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 

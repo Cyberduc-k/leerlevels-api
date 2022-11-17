@@ -14,6 +14,7 @@ using Model.Response;
 using Repository.Interfaces;
 using Service.Exceptions;
 using Service.Interfaces;
+using YamlDotNet.Core.Tokens;
 
 namespace Service;
 
@@ -33,7 +34,7 @@ public class TokenService : ITokenService
 
     private PasswordHasher<User> PasswordHasher { get; }
 
-    public User User { get; set; }
+    //public User User { get; set; }
 
     public string Message { get; set; }
 
@@ -192,9 +193,26 @@ public class TokenService : ITokenService
         }
 
         //set the interface user to check authorization in the controller endpoints
-        User = user;
+        //User = user;
 
         return true;
+    }
+
+    public string GetTokenClaim(HttpRequestData req, string claim)
+    {
+        // get headers as dictionary
+        Dictionary<string, string> headers = req.Headers.ToDictionary(h => h.Key, h => string.Join(";", h.Value));
+
+        //get the authorization header value (the token itself)
+        AuthenticationHeaderValue BearerHeader = AuthenticationHeaderValue.Parse(headers["Authorization"]);
+
+        JwtSecurityTokenHandler Handler = new();
+
+        ClaimsPrincipal Token = Handler.ValidateToken(BearerHeader.Parameter, ValidationParameters, out SecurityToken ValidatedToken);
+
+        Dictionary<string, string> claims = Token.Claims.ToDictionary(t => t.Type, t => t.Value);
+
+        return claims[claim];
     }
 
     // Password encryption

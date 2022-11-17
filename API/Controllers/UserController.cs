@@ -41,7 +41,7 @@ public class UserController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> GetUsers([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequestData req)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Teacher, "/users");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users");
 
         _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");
 

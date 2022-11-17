@@ -16,7 +16,7 @@ public abstract class ControllerWithAuthentication : ControllerBase
         _tokenService = tokenService;
     }
 
-    public async Task ValidateAuthenticationAndAuthorization(HttpRequestData req, UserRole role, string endpoint)
+    public async Task<string> ValidateAuthenticationAndAuthorization(HttpRequestData req, UserRole role, string endpoint)
     {
         // Authentication validation
         if (!await _tokenService.AuthenticationValidation(req)) {
@@ -25,9 +25,12 @@ public abstract class ControllerWithAuthentication : ControllerBase
         }
 
         // Authorization for this endpoint
-        if (_tokenService.User.Role < role) {
+        Enum.TryParse(_tokenService.GetTokenClaim(req, "userRole"), out UserRole tokenUserRole);
+        if (tokenUserRole < role) {
             _logger.LogInformation($"Authorization issue detected for the {endpoint} request");
             throw new AuthorizationException($"Must be a {role} to access {endpoint}");
         }
+
+        return _tokenService.GetTokenClaim(req, "userId");
     }
 }
