@@ -19,14 +19,29 @@ public class IncludableRepository<TEntity, TProp> : IIncludableRepository<TEntit
         return new IncludableRepository<TEntity, TNew>(_query.Include(property));
     }
 
-    public IThenIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, IEnumerable<TNew>>> property)
+    public IIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, IEnumerable<TNew>>> property)
     {
         return new ThenIncludableRepository<TEntity, TNew>(_query.Include(property));
     }
 
-    public IThenIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, ICollection<TNew>>> property)
+    public IIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, ICollection<TNew>>> property)
     {
         return new ThenIncludableRepository<TEntity, TNew>(_query.Include(property));
+    }
+
+    public IIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, TNew>> property)
+    {
+        throw new InvalidOperationException();
+    }
+
+    public IIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, IEnumerable<TNew>>> property)
+    {
+        throw new InvalidOperationException();
+    }
+
+    public IIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, ICollection<TNew>>> property)
+    {
+        throw new InvalidOperationException();
     }
 
     public Task<TEntity?> GetByAsync(Expression<Func<TEntity, bool>> filter)

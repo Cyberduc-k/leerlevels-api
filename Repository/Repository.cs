@@ -75,12 +75,12 @@ public abstract class Repository<TEntity, TId> : IRepository<TEntity, TId> where
         return new IncludableRepository<TEntity, TProp>(_dbset.Include(property));
     }
 
-    public IThenIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, IEnumerable<TProp>>> property)
+    public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, IEnumerable<TProp>>> property)
     {
         return new ThenIncludableRepository<TEntity, TProp>(_dbset.Include(property));
     }
 
-    public IThenIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, ICollection<TProp>>> property)
+    public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, ICollection<TProp>>> property)
     {
         return new ThenIncludableRepository<TEntity, TProp>(_dbset.Include(property));
     }

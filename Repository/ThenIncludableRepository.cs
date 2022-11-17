@@ -5,7 +5,7 @@ using Repository.Interfaces;
 
 namespace Repository;
 
-public class ThenIncludableRepository<TEntity, TProp> : IThenIncludableRepository<TEntity, TProp> where TEntity : class
+public class ThenIncludableRepository<TEntity, TProp> : IIncludableRepository<TEntity, TProp> where TEntity : class
 {
     private readonly IIncludableQueryable<TEntity, IEnumerable<TProp>> _query;
 
@@ -19,12 +19,12 @@ public class ThenIncludableRepository<TEntity, TProp> : IThenIncludableRepositor
         return new IncludableRepository<TEntity, TNew>(_query.Include(property));
     }
 
-    public IThenIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, IEnumerable<TNew>>> property)
+    public IIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, IEnumerable<TNew>>> property)
     {
         return new ThenIncludableRepository<TEntity, TNew>(_query.Include(property));
     }
 
-    public IThenIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, ICollection<TNew>>> property)
+    public IIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, ICollection<TNew>>> property)
     {
         return new ThenIncludableRepository<TEntity, TNew>(_query.Include(property));
     }
@@ -34,12 +34,12 @@ public class ThenIncludableRepository<TEntity, TProp> : IThenIncludableRepositor
         return new IncludableRepository<TEntity, TNew>(_query.ThenInclude(property));
     }
 
-    public IThenIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, IEnumerable<TNew>>> property)
+    public IIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, IEnumerable<TNew>>> property)
     {
         return new ThenIncludableRepository<TEntity, TNew>(_query.ThenInclude(property));
     }
 
-    public IThenIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, ICollection<TNew>>> property)
+    public IIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, ICollection<TNew>>> property)
     {
         return new ThenIncludableRepository<TEntity, TNew>(_query.ThenInclude(property));
     }
