@@ -36,17 +36,17 @@ IHost host = new HostBuilder()
         services.AddTransient<ITargetProgressRepository, TargetProgressRepository>();
         services.AddTransient<IMcqProgressRepository, McqProgressRepository>();
 
-        services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IForumService, ForumService>();
-        services.AddScoped<IMcqService, McqService>();
-        services.AddScoped<IGroupService, GroupService>();
-        services.AddScoped<ISetService, SetService>();
-        services.AddScoped<ITargetService, TargetService>();
-        services.AddScoped<IBookmarkService, BookmarkService>();
-        services.AddScoped<IProgressService, ProgressService>();
+        services.AddSingleton<ITokenService, TokenService>();
+        services.AddSingleton<IUserService, UserService>();
+        services.AddSingleton<IForumService, ForumService>();
+        services.AddSingleton<IMcqService, McqService>();
+        services.AddSingleton<IGroupService, GroupService>();
+        services.AddSingleton<ISetService, SetService>();
+        services.AddSingleton<ITargetService, TargetService>();
+        services.AddSingleton<IBookmarkService, BookmarkService>();
+        services.AddSingleton<IProgressService, ProgressService>();
 
-        services.AddScoped<INotificationService, NotificationService>();
+        services.AddSingleton<INotificationService, NotificationService>();
 
         services.AddAutoMapper(typeof(Program));
         services.AddValidatorsFromAssemblyContaining<Program>();

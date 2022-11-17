@@ -153,8 +153,6 @@ public class TokenServiceTests
         HttpRequestData request = MockHelpers.CreateHttpRequestData(null!, null!);
 
         Assert.False(await _tokenService.AuthenticationValidation(request));
-
-        Assert.Equal("No authorization header provided", _tokenService.Message);
     }
 
     [Fact]
@@ -194,8 +192,6 @@ public class TokenServiceTests
         HttpRequestData request = MockHelpers.CreateHttpRequestData(null!, token);
 
         Assert.False(await _tokenService.AuthenticationValidation(request));
-
-        Assert.Equal("Invalid token since this user is no longer active", _tokenService.Message);
     }
 
     [Fact]

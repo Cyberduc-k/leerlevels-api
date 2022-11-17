@@ -8,8 +8,6 @@ using Model.Response;
 namespace Service.Interfaces;
 public interface ITokenService
 {
-    string Message { get; set; }
-
     Task<LoginResponse> Login(LoginDTO Login);
     Task<JwtSecurityToken> CreateToken(User user);
     Task<ClaimsPrincipal> GetByValue(string Value);

@@ -34,8 +34,6 @@ public class TokenService : ITokenService
 
     private PasswordHasher<User> PasswordHasher { get; }
 
-    //public User User { get; set; }
-
     public string Message { get; set; }
 
     public TokenService(ILoggerFactory loggerFactory, IUserRepository userRepository)
@@ -127,7 +125,6 @@ public class TokenService : ITokenService
     {
         // check if authorization header exists (also done in the JwtMiddleware)
         if (!req.Headers.Contains("Authorization")) {
-            Message = "No authorization header provided";
             return false;
         }
 
@@ -135,7 +132,6 @@ public class TokenService : ITokenService
         Dictionary<string, string> headers = req.Headers.ToDictionary(h => h.Key, h => string.Join(";", h.Value));
 
         if (string.IsNullOrEmpty(headers["Authorization"])) {
-            Message = "No readable data present in provided authorization header";
             return false;
         }
 
@@ -145,7 +141,6 @@ public class TokenService : ITokenService
         ClaimsPrincipal Token = await GetByValue(BearerHeader.Parameter!);
 
         if (Token == null || !Token.Claims.Any()) {
-            Message = "An Invalid or expired token was provided";
             return false;
         }
 
@@ -153,19 +148,16 @@ public class TokenService : ITokenService
 
         // validation of token set/presence of user related claims (id, name and role)
         if (!claims.ContainsKey("userId") || !claims.ContainsKey("userName") || !claims.ContainsKey("userEmail") || !claims.ContainsKey("userRole")) {
-            Message = "Insufficient data or invalid token provided";
             return false;
         }
 
         // validation of token issuer and audience
         if (claims["iss"] != "LeerLevels" || claims["aud"] != "Users of the LeerLevels applications") {
-            Message = "Incorrect token issuer or audience provided";
             return false;
         }
 
         // validation of the presence of token validity claims (not before, expires at & issued at)
         if (!claims.ContainsKey("nbf") || !claims.ContainsKey("exp") || !claims.ContainsKey("iat")) {
-            Message = "Insufficient token expiration/validation time provided";
             return false;
         }
 
@@ -177,23 +169,17 @@ public class TokenService : ITokenService
             DateTime issuedAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(claims["iat"])).UtcDateTime;
 
             if (issuedAt > DateTime.UtcNow || notValidBefore > DateTime.UtcNow || expiresAt < DateTime.UtcNow) {
-                Message = "Invalid or expired token detected";
                 return false;
             }
         } else {
-            Message = "No readable Token validation data provided";
             return false;
         }
 
         User user = await UserRepository.GetByIdAsync(claims["userId"]) ?? throw new NotFoundException("user");
 
         if (!user!.IsActive) {
-            Message = "Invalid token since this user is no longer active";
             return false;
         }
-
-        //set the interface user to check authorization in the controller endpoints
-        //User = user;
 
         return true;
     }
