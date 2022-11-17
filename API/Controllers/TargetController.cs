@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using API.Attributes;
 using API.Examples;
+using API.Exceptions;
+using API.Extensions;
 using AutoMapper;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
@@ -29,8 +31,6 @@ public class TargetController : ControllerWithAuthentication
         _mapper = mapper;
     }
 
-    // Get Targets
-
     [Function(nameof(GetAllTargets))]
     [OpenApiOperation(operationId: "getTargets", tags: new[] { "Targets" })]
     [OpenApiAuthentication]
@@ -48,8 +48,8 @@ public class TargetController : ControllerWithAuthentication
 
         _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");
 
-        int limit = req.Query("limit").FirstOrDefault() is string l ? int.Parse(l) : int.MaxValue;
-        int page = req.Query("page").FirstOrDefault() is string p ? int.Parse(p) : 0;
+        int limit = req.Query("limit").GetInt(int.MaxValue) ?? throw new InvalidQueryParameterException("limit");
+        int page = req.Query("page").GetInt() ?? throw new InvalidQueryParameterException("page");
         string? filter = req.Query("filter").FirstOrDefault();
         ICollection<Target> targets = filter is null
             ? await _targetService.GetAllTargetsAsync(limit, page)
@@ -62,8 +62,6 @@ public class TargetController : ControllerWithAuthentication
         return res;
     }
 
-    // Get target
-
     [Function(nameof(GetTargetById))]
     [OpenApiOperation(operationId: "getTarget", tags: new[] { "Targets" })]
     [OpenApiAuthentication]
@@ -74,7 +72,6 @@ public class TargetController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the Target with the specified Id.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
-
     public async Task<HttpResponseData> GetTargetById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "targets/{targetId}")] HttpRequestData req,
         string targetId)
     {

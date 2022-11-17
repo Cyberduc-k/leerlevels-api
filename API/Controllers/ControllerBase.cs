@@ -2,7 +2,7 @@
 
 namespace API.Controllers;
 
-public class ControllerBase
+public abstract class ControllerBase
 {
     protected readonly ILogger _logger;
 

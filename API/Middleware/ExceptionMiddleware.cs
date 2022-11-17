@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using API.Exceptions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
@@ -21,6 +22,7 @@ public class ExceptionMiddleware : IFunctionsWorkerMiddleware
         AddHandler<NotFoundException>(HttpStatusCode.NotFound);
         AddHandler<AuthenticationException>(HttpStatusCode.Unauthorized);
         AddHandler<AuthorizationException>(HttpStatusCode.Forbidden);
+        AddHandler<InvalidQueryParameterException>(HttpStatusCode.BadRequest);
     }
 
     internal void AddHandler<TException>(HttpStatusCode statusCode) where TException : Exception

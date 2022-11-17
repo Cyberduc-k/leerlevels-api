@@ -1,9 +1,11 @@
 ﻿using System.Net;
 using API.Attributes;
 using API.Examples;
+using API.Exceptions;
+using API.Extensions;
 using AutoMapper;
-using FluentValidation.Results;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
@@ -13,6 +15,7 @@ using Model.Response;
 using Service.Interfaces;
 
 namespace API.Controllers;
+
 public class McqController : ControllerWithAuthentication
 {
     private readonly IMcqService _mcqService;
@@ -26,31 +29,39 @@ public class McqController : ControllerWithAuthentication
     }
 
     [Function(nameof(GetAllMcqs))]
-    [OpenApiOperation(operationId: "getMcqs", tags: new[] { "Mcqs" })]
+    [OpenApiOperation(nameof(GetAllMcqs), tags: "Mcqs")]
     [OpenApiAuthentication]
+    [OpenApiParameter("limit", In = ParameterLocation.Query, Type = typeof(int), Required = false)]
+    [OpenApiParameter("page", In = ParameterLocation.Query, Type = typeof(int), Required = false)]
+    [OpenApiParameter("filter", In = ParameterLocation.Query, Type = typeof(string), Required = false)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(McqResponse[]), Description = "The OK response", Example = typeof(McqResponseExample[]))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve mcqs.")]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
-
     public async Task<HttpResponseData> GetAllMcqs([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs")] HttpRequestData req)
     {
-          await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs");
 
         _logger.LogInformation("C# HTTP trigger function processed the getMcqs request.");
 
-        ICollection<Mcq> mcqs = await _mcqService.GetAllMcqsAsync();
-        IEnumerable<McqResponse> mappedMcqs = mcqs.Select(f => _mapper.Map<McqResponse>(f));
+        int limit = req.Query("limit").GetInt(int.MaxValue) ?? throw new InvalidQueryParameterException("limit");
+        int page = req.Query("page").GetInt() ?? throw new InvalidQueryParameterException("page");
+        string? filter = req.Query("filter").FirstOrDefault();
+        ICollection<Mcq> mcqs = filter is null
+            ? await _mcqService.GetAllMcqsAsync(limit, page)
+            : await _mcqService.GetAllMcqsFilteredAsync(limit, page, filter);
+        McqResponse[] mappedMcqs = _mapper.Map<McqResponse[]>(mcqs);
+        Paginated<McqResponse> paginated = new(mappedMcqs, page);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-        await res.WriteAsJsonAsync(mappedMcqs);
+        await res.WriteAsJsonAsync(paginated);
 
         return res;
     }
 
     [Function(nameof(GetMcqById))]
-    [OpenApiOperation(operationId: "getMcq", tags: new[] { "Mcqs" })]
+    [OpenApiOperation(nameof(GetMcqById), tags: "Mcqs")]
     [OpenApiAuthentication]
     [OpenApiParameter(name: "mcqId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The mcq ID parameter")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(McqResponse), Description = "The OK response", Example = typeof(McqResponseExample))]
@@ -59,11 +70,10 @@ public class McqController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the Mcq with the specified Id.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
-
     public async Task<HttpResponseData> GetMcqById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs/{mcqId}")] HttpRequestData req,
         string mcqId)
     {
-           await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}");
 
         _logger.LogInformation("C# HTTP trigger function processed the getMcq request.");
 

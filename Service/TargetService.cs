@@ -19,7 +19,7 @@ public class TargetService : ITargetService
     }
 
     private IQueryableRepository<Target> GetAllQuery(int limit, int page) => _targetRepository
-        .OrderBy(x => x.Id)
+        .OrderBy(x => x.Label)
         .Skip(limit * page)
         .Limit(limit);
 
