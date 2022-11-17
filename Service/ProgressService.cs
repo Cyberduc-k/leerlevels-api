@@ -86,7 +86,7 @@ public class ProgressService : IProgressService
 
     public async Task<TargetProgress> BeginTarget(string targetId, string userId)
     {
-        Target target = await _targetService.GetTargetWithMcqByIdAsync(targetId);
+        Target target = await _targetService.GetTargetByIdAsync(targetId);
         TargetProgress? existing = await _targetProgressRepository
             .Include(t => t.Target)
             .Include(t => t.Mcqs)

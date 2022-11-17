@@ -78,7 +78,7 @@ public class TargetController : ControllerWithAuthentication
     public async Task<HttpResponseData> GetTargetById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "targets/{targetId}")] HttpRequestData req,
         string targetId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}");
+        //await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}");
 
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 

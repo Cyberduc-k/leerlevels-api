@@ -7,5 +7,4 @@ public interface ITargetService
     Task<ICollection<Target>> GetAllTargetsFilteredAsync(int limit, int page, string filter);
 
     Task<Target> GetTargetByIdAsync(string targetId);
-    Task<Target> GetTargetWithMcqByIdAsync(string targetId);
 }
