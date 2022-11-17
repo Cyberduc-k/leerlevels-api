@@ -8,9 +8,7 @@ using Model;
 using Model.DTO;
 using Model.Response;
 using Moq;
-using Service;
 using Service.Exceptions;
-using Service.Interfaces;
 using Xunit;
 
 namespace API.Test;

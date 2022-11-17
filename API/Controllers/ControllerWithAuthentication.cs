@@ -21,7 +21,7 @@ public abstract class ControllerWithAuthentication : ControllerBase
         // Authentication validation
         if (!await _tokenService.AuthenticationValidation(req)) {
             _logger.LogInformation($"Authentication for the {endpoint} request failed");
-            throw new AuthenticationException($"{endpoint} requires authentication, error: {_tokenService.Message}");
+            throw new AuthenticationException($"{endpoint} requires authentication");
         }
 
         // Authorization for this endpoint

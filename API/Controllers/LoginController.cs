@@ -29,7 +29,7 @@ public class LoginController : ControllerBase
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "A login error has occured.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "An error occured while attempting to login", Example = typeof(ErrorResponseExample))]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError)]
-    public async Task<HttpResponseData> Authenticate([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "login")] HttpRequestData req, FunctionContext executionContext)
+    public async Task<HttpResponseData> Authenticate([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "login")] HttpRequestData req)
     {
         _logger.LogInformation("C# HTTP trigger function processed the Login request.");
 
