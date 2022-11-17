@@ -37,7 +37,7 @@ public class TargetController : ControllerWithAuthentication
     [OpenApiParameter("limit", In = ParameterLocation.Query, Type = typeof(int), Required = false)]
     [OpenApiParameter("page", In = ParameterLocation.Query, Type = typeof(int), Required = false)]
     [OpenApiParameter("filter", In = ParameterLocation.Query, Type = typeof(string), Required = false)]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Paginated<TargetResponse>), Description = "The OK response", Example = typeof(List<TargetResponseExample>))]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Paginated<TargetResponse>), Description = "The OK response", Example = typeof(TargetResponseExample))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve targets.")]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
