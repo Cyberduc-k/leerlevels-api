@@ -27,7 +27,7 @@ public class McqControllerTests : ControllerTestsBase
     }
 
     [Fact]
-    public async Task Get_Mcqs_Should_Respond_OK()
+    public async Task Get_All_Mcqs_Should_Respond_OK()
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllMcqs(request);
@@ -40,11 +40,11 @@ public class McqControllerTests : ControllerTestsBase
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllMcqs(request);
-        ICollection<McqResponse>? result = await response.ReadFromJsonAsync<McqResponse[]>();
+        Paginated<McqResponse>? result = await response.ReadFromJsonAsync<Paginated<McqResponse>>();
 
         Assert.Equal("application/json; charset=utf-8", GetHeaderValue(response, "Content-Type"));
         Assert.NotNull(result);
-        Assert.Equal(1, result!.Count);
+        Assert.Single(result!.Items);
     }
 
     [Fact]

@@ -26,7 +26,7 @@ public class TargetControllerTests : ControllerTestsBase
     }
 
     [Fact]
-    public async Task Get_Targets_Should_Respond_OK()
+    public async Task Get_All_Targets_Should_Respond_OK()
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllTargets(request);
@@ -39,11 +39,11 @@ public class TargetControllerTests : ControllerTestsBase
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllTargets(request);
-        ICollection<TargetResponse>? result = await response.ReadFromJsonAsync<TargetResponse[]>();
+        Paginated<TargetResponse>? result = await response.ReadFromJsonAsync<Paginated<TargetResponse>>();
 
         Assert.Equal("application/json; charset=utf-8", GetHeaderValue(response, "Content-Type"));
         Assert.NotNull(result);
-        Assert.Equal(1, result!.Count);
+        Assert.Single(result!.Items);
     }
 
     [Fact]

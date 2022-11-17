@@ -27,7 +27,7 @@ public class SetControllerTests : ControllerTestsBase
     }
 
     [Fact]
-    public async Task Get_Sets_Should_Respond_OK()
+    public async Task Get_All_Sets_Should_Respond_OK()
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllSets(request);
@@ -40,11 +40,11 @@ public class SetControllerTests : ControllerTestsBase
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllSets(request);
-        ICollection<SetResponse>? result = await response.ReadFromJsonAsync<SetResponse[]>();
+        Paginated<SetResponse>? result = await response.ReadFromJsonAsync<Paginated<SetResponse>>();
 
         Assert.Equal("application/json; charset=utf-8", GetHeaderValue(response, "Content-Type"));
         Assert.NotNull(result);
-        Assert.Equal(1, result!.Count);
+        Assert.Single(result!.Items);
     }
 
     [Fact]

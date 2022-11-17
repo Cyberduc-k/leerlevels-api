@@ -15,6 +15,7 @@ public class SetRepositoryTests : RepositoryTestsBase<SetRepository, Set, string
     {
         return new() {
             Id = Guid.NewGuid().ToString(),
+            Name = "Test set",
         };
     }
 

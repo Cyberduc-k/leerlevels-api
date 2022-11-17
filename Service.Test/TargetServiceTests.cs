@@ -35,11 +35,14 @@ public class TargetServiceTests
                  "https://s3-us-west-2.amazonaws.com/leerlevels/slide_pngs/2.png", null!),
         };
 
+        int limit = int.MaxValue;
+        int page = 0;
+
         _mockRepository
-            .Setup(r => r.Include(x => x.Mcqs).ThenInclude(m => m.AnswerOptions).GetAllAsync())
+            .Setup(r => r.OrderBy(x => x.Label).Skip(limit * page).Limit(limit).GetAllAsync())
             .Returns(mockTargets.ToAsyncEnumerable());
 
-        ICollection<Target> mcqs = await _service.GetAllTargetsAsync(int.MaxValue, 0);
+        ICollection<Target> mcqs = await _service.GetAllTargetsAsync(limit, page);
 
         Assert.Equal(2, mcqs.Count);
     }
@@ -47,12 +50,13 @@ public class TargetServiceTests
     [Fact]
     public async Task Get_Target_By_Id_Should_return_A_Target_Object()
     {
-        _mockRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => new Target("1", "Lading concept",
+        var targetId = "1";
+        _mockRepository.Setup(r => r.Include(t => t.Mcqs).ThenInclude(m => m.AnswerOptions).GetByAsync(t => t.Id == targetId)).ReturnsAsync(() => new Target("1", "Lading concept",
                   "Je kan in eigen woorden uitleggen welk effect lading kan hebben.",
                   "Lading is een eigenschap die bepaalt hoe een deeltje wordt beïnvloed door een elektrisch of magnetisch veld.",
                   "0ouf-xbz7_o",
                  "https://s3-us-west-2.amazonaws.com/leerlevels/slide_pngs/2.png", null!));
-        Target target = await _service.GetTargetByIdAsync("1");
+        Target target = await _service.GetTargetByIdAsync(targetId);
 
         Assert.Equal("1", target.Id);
     }

@@ -26,9 +26,16 @@ public class SetServiceTests
             new Set("2", "Set 2", new List<Target>()),
         };
 
-        _setRepository.Setup(r => r.Include(x => x.Targets).GetAllAsync()).Returns(mockSets.ToAsyncEnumerable());
+        int limit = int.MaxValue;
+        int page = 0;
 
-        ICollection<Set> sets = await _service.GetAllSetsAsync(int.MaxValue, 0);
+        _setRepository.Setup(r => r
+            .OrderBy(s => s.Name)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()).Returns(mockSets.ToAsyncEnumerable());
+
+        ICollection<Set> sets = await _service.GetAllSetsAsync(limit, page);
 
         Assert.Equal(2, sets.Count);
     }
