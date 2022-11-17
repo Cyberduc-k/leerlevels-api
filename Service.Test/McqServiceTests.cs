@@ -43,7 +43,7 @@ public class McqServiceTests
 
         _mockRepository.Setup(r => r.Include(x => x.AnswerOptions).GetAllAsync()).Returns(mockMcqs.ToAsyncEnumerable());
 
-        ICollection<Mcq> mcqs = await _service.GetAllMcqsAsync();
+        ICollection<Mcq> mcqs = await _service.GetAllMcqsAsync(int.MaxValue, 0);
 
         Assert.Equal(2, mcqs.Count);
     }

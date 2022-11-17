@@ -39,7 +39,7 @@ public class TargetServiceTests
             .Setup(r => r.Include(x => x.Mcqs).ThenInclude(m => m.AnswerOptions).GetAllAsync())
             .Returns(mockTargets.ToAsyncEnumerable());
 
-        ICollection<Target> mcqs = await _service.GetAllTargetsAsync();
+        ICollection<Target> mcqs = await _service.GetAllTargetsAsync(int.MaxValue, 0);
 
         Assert.Equal(2, mcqs.Count);
     }

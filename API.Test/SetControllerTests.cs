@@ -14,7 +14,7 @@ public class SetControllerTests : ControllerTestsBase
 {
     private readonly Mock<ISetService> _setService;
     private readonly SetController _controller;
-    
+
     static List<Set> sets = new() { new Set() { Id = "1", Users = new List<User>(), Targets = new List<Target>() } };
 
     public SetControllerTests()
@@ -22,7 +22,7 @@ public class SetControllerTests : ControllerTestsBase
         _setService = new Mock<ISetService>();
         _controller = new(new LoggerFactory(), _tokenService.Object, _setService.Object, _mapper);
 
-        _setService.Setup(x => x.GetAllSetsAsync()).ReturnsAsync(sets);
+        _setService.Setup(x => x.GetAllSetsAsync(int.MaxValue, 0)).ReturnsAsync(sets);
         _setService.Setup(x => x.GetSetByIdAsync(sets[0].Id)).ReturnsAsync(sets[0]);
     }
 
