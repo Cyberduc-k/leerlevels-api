@@ -18,19 +18,25 @@ public class SetService : ISetService
         _setRepository = setRepository;
     }
 
-    private IQueryableRepository<Set> GetAllQuery(int limit, int page) => _setRepository
-        .OrderBy(s => s.Name)
-        .Skip(limit * page)
-        .Limit(limit);
-
     public async Task<ICollection<Set>> GetAllSetsAsync(int limit, int page)
     {
-        return await GetAllQuery(limit, page).GetAllAsync().ToArrayAsync();
+        return await _setRepository
+            .OrderBy(s => s.Name)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
     }
 
     public async Task<ICollection<Set>> GetAllSetsFilteredAsync(int limit, int page, string filter)
     {
-        return await GetAllQuery(limit, page).GetAllWhereAsync(s => s.Name.Contains(filter)).ToArrayAsync();
+        return await _setRepository
+            .Where(s => s.Name.Contains(filter))
+            .OrderBy(s => s.Name)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
     }
 
     public async Task<Set> GetSetByIdAsync(string setId)

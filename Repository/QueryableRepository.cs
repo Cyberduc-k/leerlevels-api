@@ -47,4 +47,9 @@ public class QueryableRepository<TEntity> : IQueryableRepository<TEntity>
     {
         return new QueryableRepository<TEntity>(_query.OrderBy(field));
     }
+
+    public IQueryableRepository<TEntity> Where(Expression<Func<TEntity, bool>> filter)
+    {
+        return new QueryableRepository<TEntity>(_query.Where(filter));
+    }
 }

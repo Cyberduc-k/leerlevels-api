@@ -18,20 +18,27 @@ public class McqService : IMcqService
         _mcqRepository = mcqRepository;
     }
 
-    private IQueryableRepository<Mcq> GetAllQuery(int limit, int page) => _mcqRepository
-        .Include(m => m.AnswerOptions)
-        .OrderBy(m => m.Id)
-        .Skip(limit * page)
-        .Limit(limit);
-
     public async Task<ICollection<Mcq>> GetAllMcqsAsync(int limit, int page)
     {
-        return await GetAllQuery(limit, page).GetAllAsync().ToArrayAsync();
+        return await _mcqRepository
+            .Include(m => m.AnswerOptions)
+            .OrderBy(m => m.Id)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
     }
 
     public async Task<ICollection<Mcq>> GetAllMcqsFilteredAsync(int limit, int page, string filter)
     {
-        return await GetAllQuery(limit, page).GetAllWhereAsync(m => m.QuestionText.Contains(filter)).ToArrayAsync();
+        return await _mcqRepository
+            .Include(m => m.AnswerOptions)
+            .Where(m => m.QuestionText.Contains(filter))
+            .OrderBy(m => m.Id)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
     }
 
     public async Task<Mcq> GetMcqByIdAsync(string mcqId)

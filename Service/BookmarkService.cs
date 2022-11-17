@@ -21,7 +21,7 @@ public class BookmarkService : IBookmarkService
 
     public async Task<(ICollection<Target>, ICollection<Mcq>)> GetBookmarksAsync(User user)
     {
-        IAsyncEnumerable<Bookmark> bookmarks = _bookmarkRepository.GetAllWhereAsync(b => b.UserId == user.Id);
+        IAsyncEnumerable<Bookmark> bookmarks = _bookmarkRepository.Where(b => b.UserId == user.Id).GetAllAsync();
         Target[] targets = await bookmarks
             .Where(b => b.Type == Bookmark.BookmarkType.Target)
             .SelectAwait(async b => await _targetRepository.GetByIdAsync(b.ItemId))

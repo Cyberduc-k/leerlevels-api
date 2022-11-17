@@ -44,7 +44,8 @@ public class ProgressService : IProgressService
             .ThenInclude(m => m.Mcq)
             .Include(t => t.Mcqs)
             .ThenInclude(m => m.Answer)
-            .GetAllWhereAsync(t => t.User.Id == userId)
+            .Where(t => t.User.Id == userId)
+            .GetAllAsync()
             .ToArrayAsync();
     }
 
@@ -57,7 +58,8 @@ public class ProgressService : IProgressService
             .ThenInclude(m => m.Mcq)
             .Include(t => t.Mcqs)
             .ThenInclude(m => m.Answer)
-            .GetAllWhereAsync(t => set.Targets.Contains(t.Target))
+            .Where(t => set.Targets.Contains(t.Target))
+            .GetAllAsync()
             .ToArrayAsync();
 
         return new SetProgress(set, targets);

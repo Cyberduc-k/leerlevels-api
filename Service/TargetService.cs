@@ -18,19 +18,25 @@ public class TargetService : ITargetService
         _targetRepository = targetRepository;
     }
 
-    private IQueryableRepository<Target> GetAllQuery(int limit, int page) => _targetRepository
-        .OrderBy(x => x.Label)
-        .Skip(limit * page)
-        .Limit(limit);
-
     public async Task<ICollection<Target>> GetAllTargetsAsync(int limit, int page)
     {
-        return await GetAllQuery(limit, page).GetAllAsync().ToArrayAsync();
+        return await _targetRepository
+            .OrderBy(x => x.Label)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
     }
 
     public async Task<ICollection<Target>> GetAllTargetsFilteredAsync(int limit, int page, string filter)
     {
-        return await GetAllQuery(limit, page).GetAllWhereAsync(t => t.Label.Contains(filter)).ToArrayAsync();
+        return await _targetRepository
+            .Where(t => t.Label.Contains(filter))
+            .OrderBy(x => x.Label)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
     }
 
     public async Task<Target> GetTargetByIdAsync(string targetId)
