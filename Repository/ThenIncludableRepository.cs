@@ -63,4 +63,19 @@ public class ThenIncludableRepository<TEntity, TProp> : IThenIncludableRepositor
     {
         return _query.AnyAsync(predicate);
     }
+
+    public IQueryableRepository<TEntity> Limit(int limit)
+    {
+        return new QueryableRepository<TEntity>(_query.Take(limit));
+    }
+
+    public IQueryableRepository<TEntity> Skip(int count)
+    {
+        return new QueryableRepository<TEntity>(_query.Skip(count));
+    }
+
+    public IQueryableRepository<TEntity> OrderBy<TField>(Expression<Func<TEntity, TField>> field)
+    {
+        return new QueryableRepository<TEntity>(_query.OrderBy(field));
+    }
 }

@@ -18,12 +18,27 @@ public class TargetService : ITargetService
         _targetRepository = targetRepository;
     }
 
-    public async Task<ICollection<Target>> GetAllTargetsAsync()
+    public async Task<ICollection<Target>> GetAllTargetsAsync(int limit, int page)
     {
         return await _targetRepository
             .Include(x => x.Mcqs)
             .ThenInclude(m => m.AnswerOptions)
+            .OrderBy(t => t.Label)
+            .Skip(limit * page)
+            .Limit(limit)
             .GetAllAsync()
+            .ToArrayAsync();
+    }
+
+    public async Task<ICollection<Target>> GetAllTargetsFilteredAsync(int limit, int page, string filter)
+    {
+        return await _targetRepository
+            .Include(x => x.Mcqs)
+            .ThenInclude(m => m.AnswerOptions)
+            .OrderBy(t => t.Label)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllWhereAsync(t => t.Label.Contains(filter))
             .ToArrayAsync();
     }
 

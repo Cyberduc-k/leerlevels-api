@@ -55,6 +55,21 @@ public abstract class Repository<TEntity, TId> : IRepository<TEntity, TId> where
         return _context.SaveChangesAsync();
     }
 
+    public IQueryableRepository<TEntity> Limit(int limit)
+    {
+        return new QueryableRepository<TEntity>(_dbset.Take(limit));
+    }
+
+    public IQueryableRepository<TEntity> Skip(int count)
+    {
+        return new QueryableRepository<TEntity>(_dbset.Skip(count));
+    }
+
+    public IQueryableRepository<TEntity> OrderBy<TField>(Expression<Func<TEntity, TField>> field)
+    {
+        return new QueryableRepository<TEntity>(_dbset.OrderBy(field));
+    }
+
     public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, TProp>> property)
     {
         return new IncludableRepository<TEntity, TProp>(_dbset.Include(property));

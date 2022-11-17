@@ -14,6 +14,10 @@ public interface IRepository<TEntity, TId> where TEntity : class
     public void Remove(TEntity entity);
     public Task SaveChanges();
 
+    public IQueryableRepository<TEntity> Limit(int limit);
+    public IQueryableRepository<TEntity> Skip(int count);
+    public IQueryableRepository<TEntity> OrderBy<TField>(Expression<Func<TEntity, TField>> field);
+
     public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, TProp>> property);
     public IThenIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, IEnumerable<TProp>>> property);
     public IThenIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, ICollection<TProp>>> property);
