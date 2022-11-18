@@ -17,12 +17,14 @@ public class BookmarkController : ControllerWithAuthentication
 {
     private readonly IMapper _mapper;
     private readonly IBookmarkService _bookmarkService;
+    private readonly IUserService _userService;
 
-    public BookmarkController(ILoggerFactory loggerFactory, ITokenService tokenService, IMapper mapper, IBookmarkService bookmarkService)
+    public BookmarkController(ILoggerFactory loggerFactory, ITokenService tokenService, IMapper mapper, IBookmarkService bookmarkService, IUserService userService)
         : base(loggerFactory.CreateLogger<BookmarkController>(), tokenService)
     {
         _mapper = mapper;
         _bookmarkService = bookmarkService;
+        _userService = userService;
     }
 
     [Function(nameof(GetBookmarks))]
@@ -35,8 +37,8 @@ public class BookmarkController : ControllerWithAuthentication
     public async Task<HttpResponseData> GetBookmarks(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "bookmarks")] HttpRequestData req)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/bookmarks");
-        (ICollection<Target> targets, ICollection<Mcq> mcqs) = await _bookmarkService.GetBookmarksAsync(_tokenService.User);
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/bookmarks");
+        (ICollection<Target> targets, ICollection<Mcq> mcqs) = await _bookmarkService.GetBookmarksAsync(await _userService.GetUserById(userId));
         BookmarksResponse bookmarks = new(
             targets.Select(t => _mapper.Map<TargetResponse>(t)).ToArray(),
             mcqs.Select(m => _mapper.Map<McqResponse>(m)).ToArray()
@@ -60,11 +62,11 @@ public class BookmarkController : ControllerWithAuthentication
     public async Task<HttpResponseData> AddBookmark(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "bookmarks")] HttpRequestData req)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/bookmarks");
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/bookmarks");
         BookmarkDTO? bookmarkDTO = await req.ReadFromJsonAsync<BookmarkDTO>();
         Bookmark bookmark = new(bookmarkDTO!.ItemId, bookmarkDTO.Type);
 
-        await _bookmarkService.AddBookmark(_tokenService.User, bookmark);
+        await _bookmarkService.AddBookmark(await _userService.GetUserById(userId), bookmark);
 
         return req.CreateResponse(HttpStatusCode.OK);
     }
@@ -81,10 +83,10 @@ public class BookmarkController : ControllerWithAuthentication
     public async Task<HttpResponseData> DeleteBookmark(
         [HttpTrigger(AuthorizationLevel.Anonymous, "DELETE", Route = "bookmarks")] HttpRequestData req)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/bookmarks");
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/bookmarks");
         BookmarkDTO? bookmarkDTO = await req.ReadFromJsonAsync<BookmarkDTO>();
 
-        await _bookmarkService.DeleteBookmark(_tokenService.User, bookmarkDTO!.ItemId, bookmarkDTO.Type);
+        await _bookmarkService.DeleteBookmark(await _userService.GetUserById(userId), bookmarkDTO!.ItemId, bookmarkDTO.Type);
 
         return req.CreateResponse(HttpStatusCode.OK);
     }

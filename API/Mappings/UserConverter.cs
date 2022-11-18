@@ -21,7 +21,7 @@ public class UserConverter : ITypeConverter<UserDTO, User>
             FirstName = source.FirstName,
             LastName = source.LastName,
             UserName = source.UserName,
-            Password = _tokenService.EncryptPassword(source.Password),
+            Password = source.Password,
             Role = source.Role,
             ShareCode = Guid.NewGuid().ToString()
         };

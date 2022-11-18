@@ -18,13 +18,34 @@ public class McqService : IMcqService
         _mcqRepository = mcqRepository;
     }
 
-    public async Task<ICollection<Mcq>> GetAllMcqsAsync()
+    public async Task<ICollection<Mcq>> GetAllMcqsAsync(int limit, int page)
     {
-        return await _mcqRepository.Include(m => m.AnswerOptions).GetAllAsync().ToArrayAsync();
+        return await _mcqRepository
+            .Include(m => m.AnswerOptions)
+            .OrderBy(m => m.Id)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
+    }
+
+    public async Task<ICollection<Mcq>> GetAllMcqsFilteredAsync(int limit, int page, string filter)
+    {
+        return await _mcqRepository
+            .Include(m => m.AnswerOptions)
+            .Where(m => m.QuestionText.Contains(filter))
+            .OrderBy(m => m.Id)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
     }
 
     public async Task<Mcq> GetMcqByIdAsync(string mcqId)
     {
-        return await _mcqRepository.Include(m => m.Target).GetByAsync(m => m.Id == mcqId) ?? throw new NotFoundException("multiple choice question");
+        return await _mcqRepository
+            .Include(m => m.Target)
+            .Include(m => m.AnswerOptions)
+            .GetByAsync(m => m.Id == mcqId) ?? throw new NotFoundException("multiple choice question");
     }
 }

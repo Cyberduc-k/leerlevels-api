@@ -41,7 +41,7 @@ public class UserController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> GetUsers([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequestData req)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Teacher, "/users");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users");
 
         _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");
 
@@ -105,6 +105,7 @@ public class UserController : ControllerWithAuthentication
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         UserDTO userDTO = JsonConvert.DeserializeObject<UserDTO>(body)!;
         User user = _mapper.Map<User>(userDTO);
+        user.Password = _tokenService.EncryptPassword(user, user.Password);
         User newUser = await _userService.CreateUser(user);
         UserResponse userResponse = _mapper.Map<UserResponse>(newUser);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
@@ -138,9 +139,12 @@ public class UserController : ControllerWithAuthentication
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         UpdateUserDTO updateUserDTO = JsonConvert.DeserializeObject<UpdateUserDTO>(body)!;
 
+        //retrieve the user first (have to use it to encrypt the password now)
+        User user = await _userService.GetUserById(userId);
+
         // encrypt the password if one has been entered, otherwise, there is nu password given for the user to update and just don't update it
         if(updateUserDTO.Password != null) {
-           updateUserDTO.Password =  _tokenService.EncryptPassword(updateUserDTO.Password);
+           updateUserDTO.Password =  _tokenService.EncryptPassword(user, updateUserDTO.Password);
         }
 
         await _userService.UpdateUser(userId, updateUserDTO);

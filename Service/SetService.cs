@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Model;
-using Repository;
 using Repository.Interfaces;
 using Service.Exceptions;
 using Service.Interfaces;
@@ -19,13 +18,29 @@ public class SetService : ISetService
         _setRepository = setRepository;
     }
 
-    public async Task<ICollection<Set>> GetAllSetsAsync()
+    public async Task<ICollection<Set>> GetAllSetsAsync(int limit, int page)
     {
-        return await _setRepository.Include(x => x.Targets).GetAllAsync().ToArrayAsync();
+        return await _setRepository
+            .OrderBy(s => s.Name)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
+    }
+
+    public async Task<ICollection<Set>> GetAllSetsFilteredAsync(int limit, int page, string filter)
+    {
+        return await _setRepository
+            .Where(s => s.Name.Contains(filter))
+            .OrderBy(s => s.Name)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
     }
 
     public async Task<Set> GetSetByIdAsync(string setId)
     {
-        return await _setRepository.Include(x =>x.Targets).GetByAsync(x =>x.Id == setId) ?? throw new NotFoundException("set");
+        return await _setRepository.Include(x => x.Targets).GetByAsync(x => x.Id == setId) ?? throw new NotFoundException("set");
     }
 }

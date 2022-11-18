@@ -56,10 +56,10 @@ public class ForumController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> CreateForum([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "forums")] HttpRequestData req)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums");
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums");
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         ForumDTO forumDTO = JsonConvert.DeserializeObject<ForumDTO>(body)!;
-        forumDTO.FromId ??= _tokenService.User.Id;
+        forumDTO.FromId ??= userId;
         Forum forum = await _mapper.Map<Task<Forum>>(forumDTO);
         Forum newForum = await _forumService.CreateForum(forum);
         ForumResponse forumResponse = _mapper.Map<ForumResponse>(newForum);
@@ -130,10 +130,10 @@ public class ForumController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "forums/{forumId}/replies")] HttpRequestData req,
         string forumId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}/replies");
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}/replies");
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         ForumReplyDTO forumReplyDTO = JsonConvert.DeserializeObject<ForumReplyDTO>(body)!;
-        forumReplyDTO.FromId ??= _tokenService.User.Id;
+        forumReplyDTO.FromId ??= userId;
         ForumReply forumReply = await _mapper.Map<Task<ForumReply>>(forumReplyDTO);
         ForumReply newForumReply = await _forumService.AddReply(forumId, forumReply);
         ForumReplyResponse forumReplyResponse = _mapper.Map<ForumReplyResponse>(newForumReply);

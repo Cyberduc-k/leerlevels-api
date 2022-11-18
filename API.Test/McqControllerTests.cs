@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net;
 using API.Controllers;
 using API.Test.Mock;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -11,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.Response;
 using Moq;
-using Service;
 using Service.Interfaces;
 using Xunit;
 
@@ -28,13 +22,12 @@ public class McqControllerTests : ControllerTestsBase
         _mcqService = new Mock<IMcqService>();
         _controller = new(new LoggerFactory(), _tokenService.Object, _mcqService.Object, _mapper);
 
-        _mcqService.Setup(x => x.GetAllMcqsAsync()).ReturnsAsync(mcqs);
+        _mcqService.Setup(x => x.GetAllMcqsAsync(int.MaxValue, 0)).ReturnsAsync(mcqs);
         _mcqService.Setup(x => x.GetMcqByIdAsync(mcqs[0].Id)).ReturnsAsync(mcqs[0]);
     }
 
-
     [Fact]
-    public async Task Get_Mcqs_Should_Respond_OK()
+    public async Task Get_All_Mcqs_Should_Respond_OK()
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllMcqs(request);
@@ -47,11 +40,11 @@ public class McqControllerTests : ControllerTestsBase
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllMcqs(request);
-        ICollection<McqResponse>? result = await response.ReadFromJsonAsync<McqResponse[]>();
+        Paginated<McqResponse>? result = await response.ReadFromJsonAsync<Paginated<McqResponse>>();
 
         Assert.Equal("application/json; charset=utf-8", GetHeaderValue(response, "Content-Type"));
         Assert.NotNull(result);
-        Assert.Equal(1, result!.Count);
+        Assert.Single(result!.Items);
     }
 
     [Fact]

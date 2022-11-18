@@ -30,11 +30,6 @@ public abstract class Repository<TEntity, TId> : IRepository<TEntity, TId> where
         return _dbset.AsAsyncEnumerable();
     }
 
-    public IAsyncEnumerable<TEntity> GetAllWhereAsync(Expression<Func<TEntity, bool>> filter)
-    {
-        return _dbset.Where(filter).AsAsyncEnumerable();
-    }
-
     public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
     {
         return await _dbset.AnyAsync(predicate);
@@ -55,17 +50,37 @@ public abstract class Repository<TEntity, TId> : IRepository<TEntity, TId> where
         return _context.SaveChangesAsync();
     }
 
+    public IQueryableRepository<TEntity> Limit(int limit)
+    {
+        return new QueryableRepository<TEntity>(_dbset.Take(limit));
+    }
+
+    public IQueryableRepository<TEntity> Skip(int count)
+    {
+        return new QueryableRepository<TEntity>(_dbset.Skip(count));
+    }
+
+    public IQueryableRepository<TEntity> OrderBy<TField>(Expression<Func<TEntity, TField>> field)
+    {
+        return new QueryableRepository<TEntity>(_dbset.OrderBy(field));
+    }
+
+    public IQueryableRepository<TEntity> Where(Expression<Func<TEntity, bool>> filter)
+    {
+        return new QueryableRepository<TEntity>(_dbset.Where(filter));
+    }
+
     public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, TProp>> property)
     {
         return new IncludableRepository<TEntity, TProp>(_dbset.Include(property));
     }
 
-    public IThenIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, IEnumerable<TProp>>> property)
+    public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, IEnumerable<TProp>>> property)
     {
         return new ThenIncludableRepository<TEntity, TProp>(_dbset.Include(property));
     }
 
-    public IThenIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, ICollection<TProp>>> property)
+    public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, ICollection<TProp>>> property)
     {
         return new ThenIncludableRepository<TEntity, TProp>(_dbset.Include(property));
     }

@@ -38,7 +38,7 @@ public class TokenServiceTests
 
         LoginDTO login = new() { Email = "hdevries@mail.com", Password = "M4rySu3san#22!" };
 
-        _mockUserRepository.Setup(u => u.GetByAsync(u => u.Email == login.Email)).ReturnsAsync(() => new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "RandomTestPasswordHashBaseGo$10000$ZR9AMoHqh69WDC8SbEqMFwl2ERkrSDc62BFdt38Sx1tRaE5h", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true));
+        _mockUserRepository.Setup(u => u.GetByAsync(u => u.Email == login.Email)).ReturnsAsync(() => new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "RandomTestPasswordHashBaseGo$AQAAAAEAACcQAAAAEPvUCXnvR1fic6e98jZnZqyD2GUauqKwWnEVsMu5AGbm1PggvwocdtgxW/IIfeZh8g==", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true));
         _mockUserRepository.Setup(u => u.SaveChanges()).Verifiable();
 
         LoginResponse tokenResponse = await _tokenService.Login(login);
@@ -153,8 +153,6 @@ public class TokenServiceTests
         HttpRequestData request = MockHelpers.CreateHttpRequestData(null!, null!);
 
         Assert.False(await _tokenService.AuthenticationValidation(request));
-
-        Assert.Equal("No authorization header provided", _tokenService.Message);
     }
 
     [Fact]
@@ -194,28 +192,26 @@ public class TokenServiceTests
         HttpRequestData request = MockHelpers.CreateHttpRequestData(null!, token);
 
         Assert.False(await _tokenService.AuthenticationValidation(request));
-
-        Assert.Equal("Invalid token since this user is no longer active", _tokenService.Message);
     }
 
     [Fact]
-    public void Encrypt_Password_Should_Return_Encrypted_Password()
+    public async Task Encrypt_Password_Should_Return_Encrypted_Password()
     {
-        string mockPassword = "m0ckp4ssw0rd#123!";
+        User mockUser = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "m0ckp4ssw0rd#123!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true);
 
-        string encryptedPassword = _tokenService.EncryptPassword(mockPassword);
+        string encryptedPassword = _tokenService.EncryptPassword(mockUser, mockUser.Password);
 
         Assert.NotNull(encryptedPassword);
 
-        Assert.True(_tokenService.VerifyPassword(mockPassword, encryptedPassword));
+        Assert.True(await _tokenService.VerifyPassword(mockUser, encryptedPassword, mockUser.Password));
     }
 
     [Fact]
     public void Is_Hash_Supported_Should_Return_True()
     {
-        string mockPassword = "m0ckp4ssw0rd#123!";
+        User mockUser = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "m0ckp4ssw0rd#123!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true);
 
-        string hashedPassword = _tokenService.EncryptPassword(mockPassword);
+        string hashedPassword = _tokenService.EncryptPassword(mockUser, mockUser.Password);
 
         Assert.True(_tokenService.IsHashSupported(hashedPassword));
     }
@@ -229,22 +225,32 @@ public class TokenServiceTests
     }
 
     [Fact]
-    public void Verify_Password_Should_Return_True()
+    public async Task Verify_Password_Should_Return_True()
     {
-        string mockPassword = "m0ckp4ssw0rd#123!";
+        User mockUser = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "m0ckp4ssw0rd#123!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true);
 
-        string encryptedPassword = _tokenService.EncryptPassword(mockPassword);
+        string encryptedPassword = _tokenService.EncryptPassword(mockUser, mockUser.Password);
 
-        Assert.True(_tokenService.VerifyPassword(mockPassword, encryptedPassword));
+        Assert.True(await _tokenService.VerifyPassword(mockUser, encryptedPassword, mockUser.Password));
     }
 
     [Fact]
-    public void Verify_Password_Should_Throw_Authentication_Exception()
+    public async Task Verify_Password_Should_Return_False()
     {
-        string mockPassword = "m0ckp4ssw0rd#123!";
+        User mockUser = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "m0ckp4ssw0rd#123!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true);
 
-        string incorrectEncryptedPassword = "xoUFLA1yQKZA/wvfJ9aBNPAJbbUY65QLhOeNeUA+ASwM5GjK";
+        string incorrectEncryptedPassword = "RandomTestPasswordHashBaseGo$ZR9AMoHqh69WDC8SbEqMFwl2ERkrSDc62BFdt38Sx1tRaE5h";
 
-        Assert.Throws<AuthenticationException>(() => { _tokenService.VerifyPassword(mockPassword, incorrectEncryptedPassword);});
+        Assert.False(await _tokenService.VerifyPassword(mockUser, incorrectEncryptedPassword, mockUser.Password));
     }
+
+    /*[Fact]
+    public async Task Verify_Password_Should_Throw_Authentication_Exception()
+    {
+        User mockUser = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "m0ckp4ssw0rd#123!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true);
+
+        string incorrectEncryptedPassword = "RandomIncorrectP4ssw0rdHashBase$ZR9AMoHqh69WDC8SbEqMFwl2ERkrSDc62BFdt38Sx1tRaE5h";
+        Assert.Throws<AuthenticationException>(async () => { Assert.False(await _tokenService.VerifyPassword(mockUser, incorrectEncryptedPassword, mockUser.Password)); });
+        //Assert.Throws<AuthenticationException>(() => { _tokenService.VerifyPassword(mockUser, incorrectEncryptedPassword, mockUser.Password);});
+    }*/
 }

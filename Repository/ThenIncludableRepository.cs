@@ -5,7 +5,7 @@ using Repository.Interfaces;
 
 namespace Repository;
 
-public class ThenIncludableRepository<TEntity, TProp> : IThenIncludableRepository<TEntity, TProp> where TEntity : class
+public class ThenIncludableRepository<TEntity, TProp> : IIncludableRepository<TEntity, TProp> where TEntity : class
 {
     private readonly IIncludableQueryable<TEntity, IEnumerable<TProp>> _query;
 
@@ -19,12 +19,12 @@ public class ThenIncludableRepository<TEntity, TProp> : IThenIncludableRepositor
         return new IncludableRepository<TEntity, TNew>(_query.Include(property));
     }
 
-    public IThenIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, IEnumerable<TNew>>> property)
+    public IIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, IEnumerable<TNew>>> property)
     {
         return new ThenIncludableRepository<TEntity, TNew>(_query.Include(property));
     }
 
-    public IThenIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, ICollection<TNew>>> property)
+    public IIncludableRepository<TEntity, TNew> Include<TNew>(Expression<Func<TEntity, ICollection<TNew>>> property)
     {
         return new ThenIncludableRepository<TEntity, TNew>(_query.Include(property));
     }
@@ -34,12 +34,12 @@ public class ThenIncludableRepository<TEntity, TProp> : IThenIncludableRepositor
         return new IncludableRepository<TEntity, TNew>(_query.ThenInclude(property));
     }
 
-    public IThenIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, IEnumerable<TNew>>> property)
+    public IIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, IEnumerable<TNew>>> property)
     {
         return new ThenIncludableRepository<TEntity, TNew>(_query.ThenInclude(property));
     }
 
-    public IThenIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, ICollection<TNew>>> property)
+    public IIncludableRepository<TEntity, TNew> ThenInclude<TNew>(Expression<Func<TProp, ICollection<TNew>>> property)
     {
         return new ThenIncludableRepository<TEntity, TNew>(_query.ThenInclude(property));
     }
@@ -62,5 +62,25 @@ public class ThenIncludableRepository<TEntity, TProp> : IThenIncludableRepositor
     public Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
     {
         return _query.AnyAsync(predicate);
+    }
+
+    public IQueryableRepository<TEntity> Limit(int limit)
+    {
+        return new QueryableRepository<TEntity>(_query.Take(limit));
+    }
+
+    public IQueryableRepository<TEntity> Skip(int count)
+    {
+        return new QueryableRepository<TEntity>(_query.Skip(count));
+    }
+
+    public IQueryableRepository<TEntity> OrderBy<TField>(Expression<Func<TEntity, TField>> field)
+    {
+        return new QueryableRepository<TEntity>(_query.OrderBy(field));
+    }
+
+    public IQueryableRepository<TEntity> Where(Expression<Func<TEntity, bool>> filter)
+    {
+        return new QueryableRepository<TEntity>(_query.Where(filter));
     }
 }

@@ -41,9 +41,17 @@ public class McqServiceTests
             ),
         };
 
-        _mockRepository.Setup(r => r.Include(x => x.AnswerOptions).GetAllAsync()).Returns(mockMcqs.ToAsyncEnumerable());
+        int limit = int.MaxValue;
+        int page = 0;
 
-        ICollection<Mcq> mcqs = await _service.GetAllMcqsAsync();
+        _mockRepository.Setup(r => r
+            .Include(x => x.AnswerOptions)
+            .OrderBy(m => m.Id)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()).Returns(mockMcqs.ToAsyncEnumerable());
+
+        ICollection<Mcq> mcqs = await _service.GetAllMcqsAsync(limit, page);
 
         Assert.Equal(2, mcqs.Count);
     }
@@ -51,7 +59,10 @@ public class McqServiceTests
     [Fact]
     public async Task Get_Mcq_By_Id_Should_return_A_Mcq_Object()
     {
-        _mockRepository.Setup(r => r.Include(m => m.Target).GetByAsync(It.IsAny<Expression<Func<Mcq, bool>>>())).ReturnsAsync(() => new Mcq("1", null!, "Wat kun je zeggen?", "elkaar aan.", true, null!));
+        _mockRepository.Setup(r => r
+            .Include(m => m.Target)
+            .Include(m => m.AnswerOptions)
+            .GetByAsync(It.IsAny<Expression<Func<Mcq, bool>>>())).ReturnsAsync(() => new Mcq("1", null!, "Wat kun je zeggen?", "elkaar aan.", true, null!));
         Mcq mcq = await _service.GetMcqByIdAsync("1");
 
         Assert.Equal("1", mcq.Id);

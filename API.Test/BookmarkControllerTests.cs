@@ -20,7 +20,7 @@ public class BookmarkControllerTests : ControllerTestsBase
     public BookmarkControllerTests()
     {
         _bookmarkService = new();
-        _controller = new(new LoggerFactory(), _tokenService.Object, _mapper, _bookmarkService.Object);
+        _controller = new(new LoggerFactory(), _tokenService.Object, _mapper, _bookmarkService.Object, _userService.Object);
 
         _bookmarkService
             .Setup(s => s.GetBookmarksAsync(It.IsAny<User>()))

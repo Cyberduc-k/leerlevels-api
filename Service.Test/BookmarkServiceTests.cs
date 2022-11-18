@@ -34,7 +34,7 @@ public class BookmarkServiceTests
             new Bookmark("1", Bookmark.BookmarkType.Mcq) { UserId = "1" },
         };
 
-        _bookmarkRepository.Setup(r => r.GetAllWhereAsync(It.IsAny<Expression<Func<Bookmark, bool>>>())).Returns(mockBookmarks.ToAsyncEnumerable());
+        _bookmarkRepository.Setup(r => r.Where(It.IsAny<Expression<Func<Bookmark, bool>>>()).GetAllAsync()).Returns(mockBookmarks.ToAsyncEnumerable());
 
         (ICollection<Target> targets, ICollection<Mcq> mcqs) = await _service.GetBookmarksAsync(_user);
 

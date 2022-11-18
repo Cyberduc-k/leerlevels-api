@@ -14,7 +14,7 @@ public class SetControllerTests : ControllerTestsBase
 {
     private readonly Mock<ISetService> _setService;
     private readonly SetController _controller;
-    
+
     static List<Set> sets = new() { new Set() { Id = "1", Users = new List<User>(), Targets = new List<Target>() } };
 
     public SetControllerTests()
@@ -22,12 +22,12 @@ public class SetControllerTests : ControllerTestsBase
         _setService = new Mock<ISetService>();
         _controller = new(new LoggerFactory(), _tokenService.Object, _setService.Object, _mapper);
 
-        _setService.Setup(x => x.GetAllSetsAsync()).ReturnsAsync(sets);
+        _setService.Setup(x => x.GetAllSetsAsync(int.MaxValue, 0)).ReturnsAsync(sets);
         _setService.Setup(x => x.GetSetByIdAsync(sets[0].Id)).ReturnsAsync(sets[0]);
     }
 
     [Fact]
-    public async Task Get_Sets_Should_Respond_OK()
+    public async Task Get_All_Sets_Should_Respond_OK()
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllSets(request);
@@ -40,11 +40,11 @@ public class SetControllerTests : ControllerTestsBase
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllSets(request);
-        ICollection<SetResponse>? result = await response.ReadFromJsonAsync<SetResponse[]>();
+        Paginated<SetResponse>? result = await response.ReadFromJsonAsync<Paginated<SetResponse>>();
 
         Assert.Equal("application/json; charset=utf-8", GetHeaderValue(response, "Content-Type"));
         Assert.NotNull(result);
-        Assert.Equal(1, result!.Count);
+        Assert.Single(result!.Items);
     }
 
     [Fact]

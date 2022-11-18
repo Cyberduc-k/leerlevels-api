@@ -159,7 +159,7 @@ public class UserServiceTests
     [Fact]
     public void Get_User_Groups_Should_Throw_Not_Found_Exception()
     {
-        _mockGroupRepository.Setup(g => g.GetAllAsync()).Returns(() => null);
+        _mockGroupRepository.Setup(g => g.GetAllAsync()).Returns(() => null!);
 
         Assert.ThrowsAsync<NotFoundException>(async () => await _service.GetUserGroups("1"));
     }
@@ -176,8 +176,8 @@ public class UserServiceTests
         _mockRepository.Setup(u => u.SaveChanges()).Verifiable();
 
         Set[] mockSets = new[] {
-            new Set("1", null!, null!),
-            new Set("2", null!, mockUsers)
+            new Set("1", "Set 1", null!),
+            new Set("2", "Set 2", null!) { Users = mockUsers },
         };
 
         _mockSetRepository.Setup(s => s.Include(s => s.Users.Where(u => u.Id == "2")).GetAllAsync()).Returns(mockSets.ToAsyncEnumerable());

@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net;
 using API.Controllers;
 using API.Test.Mock;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Model.Response;
 using Model;
+using Model.Response;
 using Moq;
 using Service.Interfaces;
 using Xunit;
@@ -20,18 +15,18 @@ public class TargetControllerTests : ControllerTestsBase
     private readonly Mock<ITargetService> _targetService;
     private readonly TargetController _controller;
 
-    static List<Target> targets = new() { new Target() { Id ="1", ImageUrl= "", Description ="this is a description", Label= "best target", TargetExplanation="", Mcqs = new List<Mcq>(), Sets = new List<Set>() } };
+    static List<Target> targets = new() { new Target() { Id = "1", ImageUrl = "", Description = "this is a description", Label = "best target", TargetExplanation = "", Mcqs = new List<Mcq>(), Sets = new List<Set>() } };
     public TargetControllerTests()
     {
         _targetService = new();
         _controller = new(new LoggerFactory(), _tokenService.Object, _targetService.Object, _mapper);
 
-        _targetService.Setup(x => x.GetAllTargetsAsync()).ReturnsAsync(targets);
+        _targetService.Setup(x => x.GetAllTargetsAsync(int.MaxValue, 0)).ReturnsAsync(targets);
         _targetService.Setup(x => x.GetTargetByIdAsync(targets[0].Id)).ReturnsAsync(targets[0]);
     }
 
     [Fact]
-    public async Task Get_Targets_Should_Respond_OK()
+    public async Task Get_All_Targets_Should_Respond_OK()
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllTargets(request);
@@ -44,11 +39,11 @@ public class TargetControllerTests : ControllerTestsBase
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetAllTargets(request);
-        ICollection<TargetResponse>? result = await response.ReadFromJsonAsync<TargetResponse[]>();
+        Paginated<TargetResponse>? result = await response.ReadFromJsonAsync<Paginated<TargetResponse>>();
 
         Assert.Equal("application/json; charset=utf-8", GetHeaderValue(response, "Content-Type"));
         Assert.NotNull(result);
-        Assert.Equal(1, result!.Count);
+        Assert.Single(result!.Items);
     }
 
     [Fact]
