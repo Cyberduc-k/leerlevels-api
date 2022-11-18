@@ -228,11 +228,11 @@ public class TokenService : ITokenService
         PasswordVerificationResult result = PasswordHasher.VerifyHashedPassword(user, hashedPassword, password);
 
         switch (result) {
-            case PasswordVerificationResult.Failed:
+            case (PasswordVerificationResult)0:
                 return false;
-            case PasswordVerificationResult.Success:
+            case (PasswordVerificationResult)1:
                 return true;
-            case PasswordVerificationResult.SuccessRehashNeeded:
+            case (PasswordVerificationResult)2:
                 user.Password = EncryptPassword(user, password);
                 await UserRepository.SaveChanges();
                 return true;
