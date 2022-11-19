@@ -3,6 +3,7 @@
 public class TargetResponse
 {
     public string Id { get; set; }
+    public bool IsBookedmarked { get; set; } = false;
     public string Label { get; set; }
     public string Description { get; set; }
     public string TargetExplanation { get; set; }
@@ -14,7 +15,7 @@ public class TargetResponse
     {
     }
 
-    public TargetResponse(string id, string label, string description, string targetExplanation, string youtubeId, string imageUrl, ICollection<McqResponse> mcqs)
+    public TargetResponse(string id, string label, string description, string targetExplanation, string youtubeId, string imageUrl, ICollection<McqResponse> mcqs, bool isbookedmarked)
     {
         Id = id;
         Label = label;
@@ -23,5 +24,6 @@ public class TargetResponse
         YoutubeId = youtubeId;
         ImageUrl = imageUrl;
         Mcqs = mcqs;
+        IsBookedmarked = isbookedmarked;
     }
 }
