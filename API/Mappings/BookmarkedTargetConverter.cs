@@ -19,7 +19,7 @@ public class BookmarkedTargetConverter : ITypeConverter<Target, Task<TargetRespo
         McqResponse[] mcqs = await Task.WhenAll(context.Mapper.Map<Task<McqResponse>[]>(source.Mcqs));
 
         return new() {
-            IsBookedmarked = await _bookmarkService.IsBookmarked(source.Id, Bookmark.BookmarkType.Target),
+            IsBookmarked = await _bookmarkService.IsBookmarked(source.Id, Bookmark.BookmarkType.Target),
             Id = source.Id,
             TargetExplanation = source.TargetExplanation,
             Description = source.Description,

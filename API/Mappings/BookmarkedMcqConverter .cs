@@ -17,7 +17,7 @@ public class BookmarkedMcqConverter : ITypeConverter<Mcq, Task<McqResponse>>
     public async Task<McqResponse> Convert(Mcq source, Task<McqResponse> destination, ResolutionContext context)
     {
         return new McqResponse {
-            IsBookedmarked = await _bookmarkService.IsBookmarked(source.Id, Bookmark.BookmarkType.Mcq),
+            IsBookmarked = await _bookmarkService.IsBookmarked(source.Id, Bookmark.BookmarkType.Mcq),
             Id = source.Id,
             TargetId = source.Target?.Id!,
             AllowRandom = source.AllowRandom,
