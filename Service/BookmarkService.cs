@@ -50,4 +50,9 @@ public class BookmarkService : IBookmarkService
         _bookmarkRepository.Remove(bookmark);
         await _bookmarkRepository.SaveChanges();
     }
+
+    public async Task<bool> IsBookmarked(string itemId, Bookmark.BookmarkType type)
+    {
+        return await _bookmarkRepository.AnyAsync(x => x.ItemId == itemId && x.Type == type);
+    }
 }

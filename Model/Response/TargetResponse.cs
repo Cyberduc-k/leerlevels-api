@@ -3,7 +3,7 @@
 public class TargetResponse
 {
     public string Id { get; set; }
-    public bool IsBookedmarked { get; set; } = false;
+    public bool? IsBookmarked { get; set; }
     public string Label { get; set; }
     public string Description { get; set; }
     public string TargetExplanation { get; set; }
@@ -24,6 +24,6 @@ public class TargetResponse
         YoutubeId = youtubeId;
         ImageUrl = imageUrl;
         Mcqs = mcqs;
-        IsBookedmarked = isbookedmarked;
+        IsBookmarked = isbookedmarked;
     }
 }

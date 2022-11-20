@@ -3,8 +3,7 @@
 public class McqResponse
 {
     public string Id { get; set; }
-    public bool IsBookedmarked { get; set; } = false;
-
+    public bool? IsBookmarked { get; set; }
     public string TargetId { get; set; }
     public string QuestionText { get; set; }
     public string Explanation { get; set; }
@@ -23,6 +22,6 @@ public class McqResponse
         Explanation = explanation;
         AllowRandom = allowRandom;
         AnswerOptions = answerOptions;
-        IsBookedmarked = isbookedmarked;
+        IsBookmarked = isbookedmarked;
     }
 }

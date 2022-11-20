@@ -80,7 +80,7 @@ public class TargetController : ControllerWithAuthentication
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
         Target target = await _targetService.GetTargetByIdAsync(targetId);
-        TargetResponse targetResponse = _mapper.Map<TargetResponse>(target);
+        TargetResponse targetResponse = await _mapper.Map<Task<TargetResponse>>(target);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(targetResponse);
