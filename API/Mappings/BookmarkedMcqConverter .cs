@@ -5,11 +5,11 @@ using Service.Interfaces;
 
 namespace API.Mappings;
 
-public class BookMarkMcqConverter : ITypeConverter<Mcq, Task<McqResponse>>
+public class BookmarkedMcqConverter : ITypeConverter<Mcq, Task<McqResponse>>
 {
     private readonly IBookmarkService _bookmarkService;
 
-    public BookMarkMcqConverter(IBookmarkService bookmarkService)
+    public BookmarkedMcqConverter(IBookmarkService bookmarkService)
     {
         _bookmarkService = bookmarkService;
     }
@@ -19,7 +19,7 @@ public class BookMarkMcqConverter : ITypeConverter<Mcq, Task<McqResponse>>
         return new McqResponse {
             IsBookedmarked = await _bookmarkService.IsBookmarked(source.Id, Bookmark.BookmarkType.Mcq),
             Id = source.Id,
-            TargetId = source.Target.Id,
+            TargetId = source.Target?.Id!,
             AllowRandom = source.AllowRandom,
             AnswerOptions = source.AnswerOptions,
             Explanation = source.Explanation,

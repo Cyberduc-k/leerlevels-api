@@ -10,6 +10,7 @@ using Service.Interfaces;
 using Xunit;
 
 namespace API.Test;
+
 public class McqControllerTests : ControllerTestsBase
 {
     private readonly Mock<IMcqService> _mcqService;
