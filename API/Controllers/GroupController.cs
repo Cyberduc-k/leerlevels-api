@@ -2,9 +2,7 @@
 using API.Attributes;
 using API.Examples;
 using AutoMapper;
-using FluentValidation.Results;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
@@ -27,8 +25,6 @@ public class GroupController : ControllerWithAuthentication
         _mapper = mapper;
     }
 
-    // Get groups
-
     [Function(nameof(GetAllGroups))]
     [OpenApiOperation(operationId: "getGroups", tags: new[] { "Groups" })]
     [OpenApiAuthentication]
@@ -44,17 +40,13 @@ public class GroupController : ControllerWithAuthentication
         _logger.LogInformation("C# HTTP trigger function processed the getGroups request.");
 
         ICollection<Group> groups = await _groupService.GetAllGroupsAsync();
-        IEnumerable<GroupResponse> groupResponses = groups.Select(u => _mapper.Map<GroupResponse>(u));
-
-
+        GroupResponse[] groupResponses = _mapper.Map<GroupResponse[]>(groups);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(groupResponses);
 
         return res;
     }
-
-    // Get group
 
     [Function(nameof(GetGroupById))]
     [OpenApiOperation(operationId: "getGroup", tags: new[] { "Groups" })]
@@ -69,15 +61,14 @@ public class GroupController : ControllerWithAuthentication
     public async Task<HttpResponseData> GetGroupById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "groups/{groupId}")] HttpRequestData req,
         string groupId)
     {
-            await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/groups/{groupId}");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/groups/{groupId}");
 
-            Group group = await _groupService.GetGroupByIdAsync(groupId);
-            GroupResponse groupResponse = _mapper.Map<GroupResponse>(group);
+        Group group = await _groupService.GetGroupByIdAsync(groupId);
+        GroupResponse groupResponse = _mapper.Map<GroupResponse>(group);
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-            HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+        await res.WriteAsJsonAsync(groupResponse);
 
-            await res.WriteAsJsonAsync(group);
-
-            return res;
+        return res;
     }
 }
