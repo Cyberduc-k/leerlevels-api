@@ -48,4 +48,9 @@ public class McqService : IMcqService
             .Include(m => m.AnswerOptions)
             .GetByAsync(m => m.Id == mcqId) ?? throw new NotFoundException("multiple choice question");
     }
+
+    public async Task<bool> IsBookedmarked(string itemId)
+    {
+        return await _mcqRepository.AnyAsync(x => x.Id == itemId);
+    }
 }

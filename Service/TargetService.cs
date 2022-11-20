@@ -21,6 +21,7 @@ public class TargetService : ITargetService
     public async Task<ICollection<Target>> GetAllTargetsAsync(int limit, int page)
     {
         return await _targetRepository
+            .Include(x =>x.Mcqs)
             .OrderBy(x => x.Label)
             .Skip(limit * page)
             .Limit(limit)
@@ -31,6 +32,7 @@ public class TargetService : ITargetService
     public async Task<ICollection<Target>> GetAllTargetsFilteredAsync(int limit, int page, string filter)
     {
         return await _targetRepository
+            .Include(x => x.Mcqs)
             .Where(t => t.Label.Contains(filter))
             .OrderBy(x => x.Label)
             .Skip(limit * page)

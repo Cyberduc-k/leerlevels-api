@@ -3,6 +3,7 @@
 public class McqResponse
 {
     public string Id { get; set; }
+    public bool IsBookedmarked { get; set; } 
     public string TargetId { get; set; }
     public string QuestionText { get; set; }
     public string Explanation { get; set; }
