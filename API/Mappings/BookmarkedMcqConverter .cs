@@ -1,33 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Model;
 using Model.Response;
-using Service;
 using Service.Interfaces;
 
 namespace API.Mappings;
+
 public class BookMarkMcqConverter : ITypeConverter<Mcq, Task<McqResponse>>
 {
-    private readonly IMcqService _McqService;
+    private readonly IBookmarkService _bookmarkService;
 
-    public BookMarkMcqConverter(IMcqService McqService)
+    public BookMarkMcqConverter(IBookmarkService bookmarkService)
     {
-        _McqService = McqService;
+        _bookmarkService = bookmarkService;
     }
+
     public async Task<McqResponse> Convert(Mcq source, Task<McqResponse> destination, ResolutionContext context)
     {
         return new McqResponse {
-            IsBookedmarked = await _McqService.IsBookedmarked(source.Id),
+            IsBookedmarked = await _bookmarkService.IsBookmarked(source.Id, Bookmark.BookmarkType.Mcq),
             Id = source.Id,
             TargetId = source.Target.Id,
             AllowRandom = source.AllowRandom,
             AnswerOptions = source.AnswerOptions,
             Explanation = source.Explanation,
             QuestionText = source.QuestionText,
-        };             
+        };
     }
 }

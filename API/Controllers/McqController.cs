@@ -74,7 +74,7 @@ public class McqController : ControllerWithAuthentication
         _logger.LogInformation("C# HTTP trigger function processed the getMcq request.");
 
         Mcq mcq = await _mcqService.GetMcqByIdAsync(mcqId);
-        McqResponse mappedMcq = _mapper.Map<McqResponse>(mcq);
+        McqResponse mappedMcq = await _mapper.Map<Task<McqResponse>>(mcq);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(mappedMcq);

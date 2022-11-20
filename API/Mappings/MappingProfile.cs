@@ -13,8 +13,8 @@ public class MappingProfile : Profile
         CreateMap<ForumDTO, Task<Forum>>().ConvertUsing<ForumConverter>();
         CreateMap<ForumReply, ForumReplyResponse>();
         CreateMap<ForumReplyDTO, Task<ForumReply>>().ConvertUsing<ForumReplyConverter>();
-        CreateMap<Target, Task<TargetResponse>>().ConvertUsing<BookMarkTargetConverter>();
         CreateMap<Target, TargetResponse>();
+        CreateMap<Target, Task<TargetResponse>>().ConvertUsing<BookmarkedTargetConverter>();
         CreateMap<Mcq, McqResponse>();
         CreateMap<Mcq, Task<McqResponse>>().ConvertUsing<BookMarkMcqConverter>();
         CreateMap<Set, SetResponse>();

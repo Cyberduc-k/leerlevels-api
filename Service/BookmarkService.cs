@@ -51,8 +51,8 @@ public class BookmarkService : IBookmarkService
         await _bookmarkRepository.SaveChanges();
     }
 
-    public async Task<bool> IsBookedmarked(string itemId)
+    public async Task<bool> IsBookmarked(string itemId, Bookmark.BookmarkType type)
     {
-        return await _bookmarkRepository.AnyAsync(x =>x.ItemId == itemId);  
+        return await _bookmarkRepository.AnyAsync(x => x.ItemId == itemId && x.Type == type);
     }
 }
