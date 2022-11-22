@@ -9,17 +9,16 @@ using Model.Response;
 using Newtonsoft.Json.Serialization;
 
 namespace API.Examples;
-public class LoginResponseExample : OpenApiExample<LoginResponse>
+public class RefreshResponseExample : OpenApiExample<RefreshResponse>
 {
-    public override IOpenApiExample<LoginResponse> Build(NamingStrategy namingStrategy)
+    public override IOpenApiExample<RefreshResponse> Build(NamingStrategy namingStrategy)
     {
-
         string Issuer = "LeerLevels";
         string Audience = "Users of the LeerLevels applications";
         TimeSpan ValidityDuration = TimeSpan.Zero;
 
         SigningCredentials Credentials = new SigningCredentials(
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes("randomstring#123455566834737!")), 
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes("randomstring#123455566834737!")),
             SecurityAlgorithms.HmacSha256Signature
             );
 
@@ -30,6 +29,7 @@ public class LoginResponseExample : OpenApiExample<LoginResponse>
             new Claim("userName", "John"),
             new Claim("userEmail", "JohnDoe@gmail.com"),
             new Claim("userRole", UserRole.Student.ToString()),
+            new Claim("initTokenExpiredAt", DateTime.UtcNow.ToString()),
         };
 
         JwtPayload Payload = new(
@@ -41,7 +41,7 @@ public class LoginResponseExample : OpenApiExample<LoginResponse>
             DateTime.UtcNow
         );
 
-        Examples.Add(OpenApiExampleResolver.Resolve("Token John", new LoginResponse(new JwtSecurityToken(Header, Payload), new JwtSecurityToken(Header, Payload))));
+        Examples.Add(OpenApiExampleResolver.Resolve("Token John", new RefreshResponse(new JwtSecurityToken(Header, Payload))));
 
         return this;
     }

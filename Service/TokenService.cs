@@ -20,15 +20,11 @@ namespace Service;
 
 public class TokenService : ITokenService
 {
-    private const int HashSize = 20;
-    private const int SaltSize = 16;
-    private const int Iterations = 10000;
-
     private ILogger Logger { get; }
     private IUserRepository UserRepository { get; set; }
     private string Issuer { get; }
     private string Audience { get; }
-    private TimeSpan ValidityDuration { get; }
+    private TimeSpan ValidityDuration { get; set; }
     private SigningCredentials Credentials { get; }
     private TokenIdentityValidationParameters ValidationParameters { get; }
 
@@ -73,21 +69,42 @@ public class TokenService : ITokenService
 
         await UserRepository.SaveChanges();
 
-        JwtSecurityToken Token = await CreateToken(user);
+        JwtSecurityToken Token = await CreateToken(user, "no", DateTime.UtcNow.ToString());
 
-        return new LoginResponse(Token);
+        JwtSecurityToken refreshToken = await CreateToken(user, "yes", DateTime.UtcNow.ToString());
+
+        return new LoginResponse(Token, refreshToken);
     }
 
-    public async Task<JwtSecurityToken> CreateToken(User user)
+    public async Task<RefreshResponse> Refresh(HttpRequestData request)
+    {
+        User user = await UserRepository.GetByIdAsync(GetTokenClaim(request, "userId")) ?? throw new NotFoundException("user to creat a valid refresh token");
+
+        JwtSecurityToken refreshToken = await CreateToken(user, "refresh", GetTokenClaim(request, "initTokenExpiredAt"));
+
+        return new RefreshResponse(refreshToken);
+    }
+
+    public async Task<JwtSecurityToken> CreateToken(User user, string refreshTokenPhrase, string initialTokenExpiration)
     {
         JwtHeader Header = new(Credentials);
 
-        Claim[] Claims = new Claim[] {
+        List<Claim> Claims = new() {
             new Claim("userId", user.Id),
-            new Claim("userName", user.UserName),
+            new Claim("userName", user.UserName), 
             new Claim("userEmail", user.Email),
             new Claim("userRole", user.Role.ToString()),
         };
+
+        if (refreshTokenPhrase == "yes") {
+            ValidityDuration = TimeSpan.FromHours(2.25); //initial refresh token is valid for 15 minutes longer than the initial token to allow for a call to refresh this token
+            Claims.Add(new Claim("initTokenExpiredAt", DateTime.UtcNow.Add(ValidityDuration).ToString()));
+        } else if (refreshTokenPhrase == "refresh") {
+            ValidityDuration = TimeSpan.FromHours(2.25);
+            Claims.Add(new Claim("initTokenExpiredAt", initialTokenExpiration));
+        } else if (refreshTokenPhrase == "no") {
+            ValidityDuration = TimeSpan.FromHours(2);
+        }
 
         JwtPayload Payload = new(
             Issuer,
@@ -159,6 +176,15 @@ public class TokenService : ITokenService
         // validation of the presence of token validity claims (not before, expires at & issued at)
         if (!claims.ContainsKey("nbf") || !claims.ContainsKey("exp") || !claims.ContainsKey("iat")) {
             return false;
+        }
+
+        // validation of refresh token specifically: check if the initial token expried over a year ago and a new login is required or not
+        if (claims.ContainsKey("initTokenExpiredAt")) {
+            DateTime initialTokenExpiredAt = DateTime.Parse(claims["initTokenExpiredAt"]);
+
+            if (initialTokenExpiredAt < DateTime.UtcNow.AddYears(-1)) { // if the token expired over a year ago then return false here
+                return false;
+            }
         }
 
         // validation of token expiration (this is already done by the ValidateToken method but we might want to implement this here again, for additional safety)

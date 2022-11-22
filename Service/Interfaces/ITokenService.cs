@@ -9,7 +9,8 @@ namespace Service.Interfaces;
 public interface ITokenService
 {
     Task<LoginResponse> Login(LoginDTO Login);
-    Task<JwtSecurityToken> CreateToken(User user);
+    Task<RefreshResponse> Refresh(HttpRequestData request);
+    Task<JwtSecurityToken> CreateToken(User user, string refreshTokenPhrase, string initialTokenExpiration);
     Task<ClaimsPrincipal> GetByValue(string Value);
     Task<bool> AuthenticationValidation(HttpRequestData request);
     string EncryptPassword(User user, string password);
