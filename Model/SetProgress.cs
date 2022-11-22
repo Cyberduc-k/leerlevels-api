@@ -17,17 +17,14 @@ public class SetProgress
         Targets = targets;
     }
 
-    public bool IsCompleted => Targets.All(t => t.IsCompleted);
+    public bool IsCompleted() => Targets.All(t => t.IsCompleted());
 
-    public double CalculateScore()
-    {
-        return Targets.Sum(t => t.CalculateScore()) / Targets.Count;
-    }
+    public int CalculateScore() => Targets.Sum(t => t.CalculateScore()) / Targets.Count;
 
     public SetProgressResponse CreateResponse()
     {
         TargetProgressResponse[] targets = Targets.Select(t => t.CreateResponse()).ToArray();
 
-        return new SetProgressResponse(Set.Id, targets, CalculateScore(), IsCompleted);
+        return new SetProgressResponse(Set.Id, targets, CalculateScore(), IsCompleted());
     }
 }

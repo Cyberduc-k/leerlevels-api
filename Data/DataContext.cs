@@ -50,6 +50,9 @@ public class DataContext : DbContext
             e.ToTable("Bookmarks");
         });
 
+        modelBuilder.Entity<GivenAnswerOption>()
+            .HasKey(a => new { a.AnswerId, a.AnswerKind });
+
         if (_addBasicEntities) {
             modelBuilder.Entity<User>().HasData(
             new {

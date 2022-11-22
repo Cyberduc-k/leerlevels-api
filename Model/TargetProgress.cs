@@ -21,17 +21,42 @@ public class TargetProgress
         Mcqs = mcqs;
     }
 
-    public bool IsCompleted => Mcqs.All(m => m.Answer is not null);
+    public bool IsCompleted() => CalculateScore() >= 65;
 
-    public double CalculateScore()
+    public int CalculateScore()
     {
-        return Mcqs.Sum(m => m.CalculateScore()) / Mcqs.Count();
+        double score = 0;
+        double mcqScore = 100.0 / Mcqs.Count;
+        double answerScore = 100.0 / Mcqs.Sum(m => m.Answers.Count);
+
+        foreach (McqProgress mcq in Mcqs) {
+            if (mcq.Answers is not null) {
+                foreach (GivenAnswerOption answer in mcq.Answers) {
+                    if (answer.Answer.IsCorrect) {
+                        score += answer.AnswerKind switch {
+                            AnswerKind.Sure => mcqScore,
+                            AnswerKind.NotSure => mcqScore - 5,
+                            AnswerKind.Guess => mcqScore - 7,
+                            _ => throw new NotImplementedException(),
+                        };
+                    } else {
+                        score += 0.1 * answerScore - answer.AnswerKind switch {
+                            AnswerKind.Sure => 10,
+                            AnswerKind.NotSure => 5,
+                            AnswerKind.Guess => 2,
+                            _ => throw new NotImplementedException(),
+                        };
+                    }
+                }
+            }
+        }
+
+        return (int)Math.Round(score);
+
     }
 
     public TargetProgressResponse CreateResponse()
     {
-        McqProgressResponse[] mcqs = Mcqs.Select(m => m.CreateResponse()).ToArray();
-
-        return new TargetProgressResponse(Target.Id, mcqs, CalculateScore(), IsCompleted);
+        return new TargetProgressResponse(Target.Id, Mcqs, CalculateScore(), IsCompleted());
     }
 }

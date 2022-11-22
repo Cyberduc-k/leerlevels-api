@@ -43,7 +43,8 @@ public class ProgressService : IProgressService
             .Include(t => t.Mcqs)
             .ThenInclude(m => m.Mcq)
             .Include(t => t.Mcqs)
-            .ThenInclude(m => m.Answer)
+            .ThenInclude(m => m.Answers)
+            .ThenInclude(a => a.Answer)
             .Where(t => t.User.Id == userId)
             .GetAllAsync()
             .ToArrayAsync();
@@ -57,7 +58,8 @@ public class ProgressService : IProgressService
             .Include(t => t.Mcqs)
             .ThenInclude(m => m.Mcq)
             .Include(t => t.Mcqs)
-            .ThenInclude(m => m.Answer)
+            .ThenInclude(m => m.Answers)
+            .ThenInclude(a => a.Answer)
             .Where(t => set.Targets.Contains(t.Target))
             .GetAllAsync()
             .ToArrayAsync();
@@ -72,7 +74,8 @@ public class ProgressService : IProgressService
             .Include(t => t.Mcqs)
             .ThenInclude(m => m.Mcq)
             .Include(t => t.Mcqs)
-            .ThenInclude(m => m.Answer)
+            .ThenInclude(m => m.Answers)
+            .ThenInclude(a => a.Answer)
             .GetByAsync(t => t.User.Id == userId && t.Target.Id == targetId)
             ?? throw new NotFoundException("target progress");
     }
@@ -81,24 +84,41 @@ public class ProgressService : IProgressService
     {
         return await _mcqProgressRepository
             .Include(m => m.Mcq)
-            .Include(m => m.Answer)
+            .Include(m => m.Answers)
+            .ThenInclude(a => a.Answer)
             .GetByAsync(m => m.User.Id == userId && m.Mcq.Id == mcqId)
             ?? throw new NotFoundException("mcq progress");
     }
 
-    public async Task<TargetProgress> BeginTarget(string targetId, string userId)
+    public async Task<TargetProgress> BeginTarget(string targetId, string userId, bool reset)
     {
+        User user = await _userService.GetUserById(userId);
         Target target = await _targetService.GetTargetByIdAsync(targetId);
         TargetProgress? existing = await _targetProgressRepository
             .Include(t => t.Target)
             .Include(t => t.Mcqs)
-            .ThenInclude(m => m.Answer)
+            .ThenInclude(m => m.Mcq)
+            .Include(t => t.Mcqs)
+            .ThenInclude(m => m.Answers)
+            .ThenInclude(a => a.Answer)
             .GetByAsync(t => t.User.Id == userId && t.Target.Id == targetId);
 
-        if (existing is not null)
-            return existing;
+        if (existing is not null) {
+            if (reset) {
+                foreach (McqProgress mcq in existing.Mcqs) {
+                    _mcqProgressRepository.Remove(mcq);
+                }
 
-        User user = await _userService.GetUserById(userId);
+                existing.Mcqs = target.Mcqs.Select(m => new McqProgress() {
+                    User = user,
+                    Mcq = m
+                }).ToList();
+
+                await _targetProgressRepository.SaveChanges();
+            }
+
+            return existing;
+        }
 
         TargetProgress targetProgress = new() {
             User = user,
@@ -120,15 +140,15 @@ public class ProgressService : IProgressService
         AnswerOption answer = await _answerOptionRepository.GetByIdAsync(answerId) ?? throw new NotFoundException("answer option");
         TargetProgress targetProgress = await _targetProgressRepository
             .Include(t => t.Mcqs)
+            .ThenInclude(m => m.Answers)
             .GetByAsync(t => t.User.Id == userId && t.Target.Id == mcq.Target.Id)
             ?? throw new NotFoundException("target progress");
         McqProgress mcqProgress = targetProgress.Mcqs.FirstOrDefault(m => m.Mcq.Id == mcq.Id) ?? throw new NotFoundException("mcq progress");
 
-        mcqProgress.Answer = answer;
-        mcqProgress.AnswerKind = answerKind;
+        mcqProgress.AddAnswer(answer, answerKind);
         await _mcqProgressRepository.SaveChanges();
 
-        if (targetProgress.IsCompleted) {
+        if (targetProgress.IsCompleted()) {
             PersonalNotification notification = new(userId, "Target completed", $"You have completed target {targetProgress.Target.Label}");
 
             await _notificationService.SendNotificationAsync(notification);
