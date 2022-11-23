@@ -40,8 +40,11 @@ public class BookmarkService : IBookmarkService
     public async Task AddBookmark(User user, Bookmark bookmark)
     {
         bookmark.UserId = user.Id;
-        await _bookmarkRepository.InsertAsync(bookmark);
-        await _bookmarkRepository.SaveChanges();
+
+        if (!await _bookmarkRepository.AnyAsync(b => b == bookmark)) {
+            await _bookmarkRepository.InsertAsync(bookmark);
+            await _bookmarkRepository.SaveChanges();
+        }
     }
 
     public async Task DeleteBookmark(User user, string itemId, Bookmark.BookmarkType type)
