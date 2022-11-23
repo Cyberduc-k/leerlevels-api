@@ -36,15 +36,20 @@ public class ProgressService : IProgressService
         _answerOptionRepository = answerOptionRepository;
     }
 
-    public async Task<ICollection<TargetProgress>> GetAllTargetProgress(string userId)
+    private IQueryableRepository<TargetProgress> Query()
     {
-        return await _targetProgressRepository
+        return _targetProgressRepository
             .Include(t => t.Target)
             .Include(t => t.Mcqs)
             .ThenInclude(m => m.Mcq)
             .Include(t => t.Mcqs)
             .ThenInclude(m => m.Answers)
-            .ThenInclude(a => a.Answer)
+            .ThenInclude(a => a.Answer);
+    }
+
+    public async Task<ICollection<TargetProgress>> GetAllTargetProgress(string userId)
+    {
+        return await Query()
             .Where(t => t.User.Id == userId)
             .GetAllAsync()
             .ToArrayAsync();
@@ -53,13 +58,7 @@ public class ProgressService : IProgressService
     public async Task<SetProgress> GetSetProgress(string setId)
     {
         Set set = await _setService.GetSetByIdAsync(setId);
-        TargetProgress[] targets = await _targetProgressRepository
-            .Include(t => t.Target)
-            .Include(t => t.Mcqs)
-            .ThenInclude(m => m.Mcq)
-            .Include(t => t.Mcqs)
-            .ThenInclude(m => m.Answers)
-            .ThenInclude(a => a.Answer)
+        TargetProgress[] targets = await Query()
             .Where(t => set.Targets.Contains(t.Target))
             .GetAllAsync()
             .ToArrayAsync();
@@ -69,13 +68,7 @@ public class ProgressService : IProgressService
 
     public async Task<TargetProgress> GetTargetProgress(string targetId, string userId)
     {
-        return await _targetProgressRepository
-            .Include(t => t.Target)
-            .Include(t => t.Mcqs)
-            .ThenInclude(m => m.Mcq)
-            .Include(t => t.Mcqs)
-            .ThenInclude(m => m.Answers)
-            .ThenInclude(a => a.Answer)
+        return await Query()
             .GetByAsync(t => t.User.Id == userId && t.Target.Id == targetId)
             ?? throw new NotFoundException("target progress");
     }
@@ -94,14 +87,7 @@ public class ProgressService : IProgressService
     {
         User user = await _userService.GetUserById(userId);
         Target target = await _targetService.GetTargetByIdAsync(targetId);
-        TargetProgress? existing = await _targetProgressRepository
-            .Include(t => t.Target)
-            .Include(t => t.Mcqs)
-            .ThenInclude(m => m.Mcq)
-            .Include(t => t.Mcqs)
-            .ThenInclude(m => m.Answers)
-            .ThenInclude(a => a.Answer)
-            .GetByAsync(t => t.User.Id == userId && t.Target.Id == targetId);
+        TargetProgress? existing = await Query().GetByAsync(t => t.User.Id == userId && t.Target.Id == targetId);
 
         if (existing is not null) {
             if (reset) {
