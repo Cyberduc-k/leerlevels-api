@@ -61,7 +61,6 @@ public class UserController : ControllerWithAuthentication
     [OpenApiAuthentication]
     [OpenApiParameter(name: "userId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "A single retrieved user.", Example = typeof(UserResponseExample))]
-    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error has occured while trying to retrieve the user.")]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the user.")]
@@ -72,6 +71,34 @@ public class UserController : ControllerWithAuthentication
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users/{userId}");
 
         _logger.LogInformation("C# HTTP trigger function processed the GetUser request.");
+
+        User user = await _userService.GetUserById(userId);
+
+        // map retrieved user to the UserRepsonse model
+        UserResponse userResponse = _mapper.Map<UserResponse>(user);
+
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+        await res.WriteAsJsonAsync(userResponse);
+
+        return res;
+    }
+
+    // Get current user
+    [Function(nameof(GetCurrentUser))]
+    [OpenApiOperation(operationId: nameof(GetCurrentUser), tags: new[] { "Users" }, Summary = "The current user", Description = "Will return the current user's info for a logged in user")]
+    [OpenApiAuthentication]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse), Description = "The current etrieved user.", Example = typeof(UserResponseExample))]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the user.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> GetCurrentUser([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users/user")] HttpRequestData req)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users/user");
+
+        _logger.LogInformation("C# HTTP trigger function processed the GetCurrentUser request.");
+
+        string userId = _tokenService.GetTokenClaim(req, "userId");
 
         User user = await _userService.GetUserById(userId);
 

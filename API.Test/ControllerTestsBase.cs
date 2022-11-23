@@ -44,7 +44,7 @@ public abstract class ControllerTestsBase
 
         // authenticate all requests.
         _tokenService.Setup(s => s.AuthenticationValidation(It.IsAny<HttpRequestData>())).ReturnsAsync(() => true);
-        _tokenService.Setup(s => s.CreateToken(It.IsAny<User>())).ReturnsAsync(It.IsAny<JwtSecurityToken>());
+        _tokenService.Setup(s => s.CreateToken(It.IsAny<User>(), "no", DateTime.UtcNow.ToString())).ReturnsAsync(It.IsAny<JwtSecurityToken>());
         _userService.Setup(s => s.GetUserById("1")).ReturnsAsync(() => User);
     }
 

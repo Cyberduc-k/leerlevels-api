@@ -1,8 +1,11 @@
 ﻿using System.Net;
 using API.Attributes;
 using API.Examples;
+using API.Exceptions;
+using API.Extensions;
 using AutoMapper;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
@@ -75,7 +78,8 @@ public class ProgressController : ControllerWithAuthentication
     [Function(nameof(BeginTarget))]
     [OpenApiOperation(nameof(BeginTarget), tags: "Progress")]
     [OpenApiAuthentication]
-    [OpenApiParameter(name: "targetId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The target ID parameter")]
+    [OpenApiParameter("targetId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The target ID parameter")]
+    [OpenApiParameter("reset", In = ParameterLocation.Query, Required = false, Type = typeof(bool))]
     [OpenApiResponseWithBody(HttpStatusCode.OK, "applcation/json", typeof(TargetProgressResponse), Example = typeof(TargetProgressResponseExample))]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
@@ -86,7 +90,8 @@ public class ProgressController : ControllerWithAuthentication
         string targetId)
     {
         string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}/progress");
-        TargetProgress targetProgress = await _progressService.BeginTarget(targetId, userId);
+        bool reset = req.Query("reset").GetBool() ?? throw new InvalidQueryParameterException("reset");
+        TargetProgress targetProgress = await _progressService.BeginTarget(targetId, userId, reset);
         TargetProgressResponse targetProgressResponse = targetProgress.CreateResponse();
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 

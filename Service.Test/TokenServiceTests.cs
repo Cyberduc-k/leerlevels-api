@@ -75,7 +75,7 @@ public class TokenServiceTests
     {
         User mockUser = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true);
 
-        JwtSecurityToken token = await _tokenService.CreateToken(mockUser);
+        JwtSecurityToken token = await _tokenService.CreateToken(mockUser, "no", DateTime.UtcNow.ToString());
 
         Dictionary<string, string> claims = token.Claims.ToDictionary(t => t.Type, t => t.Value);
 
@@ -107,7 +107,7 @@ public class TokenServiceTests
     {
         User mockUser = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true);
 
-        string token = new JwtSecurityTokenHandler().WriteToken(await _tokenService.CreateToken(mockUser));
+        string token = new JwtSecurityTokenHandler().WriteToken(await _tokenService.CreateToken(mockUser, "no", DateTime.UtcNow.ToString()));
 
         ClaimsPrincipal claimsPrincipal = await _tokenService.GetByValue(token);
 
@@ -140,7 +140,7 @@ public class TokenServiceTests
         _mockUserRepository.Setup(u => u.GetByIdAsync("1")).ReturnsAsync(() => mockUser);
         _mockUserRepository.Setup(u => u.SaveChanges()).Verifiable();
 
-        string token = new JwtSecurityTokenHandler().WriteToken(await _tokenService.CreateToken(mockUser));
+        string token = new JwtSecurityTokenHandler().WriteToken(await _tokenService.CreateToken(mockUser, "no", DateTime.UtcNow.ToString()));
 
         HttpRequestData request = MockHelpers.CreateHttpRequestData(null!, token);
 
@@ -187,7 +187,7 @@ public class TokenServiceTests
         _mockUserRepository.Setup(u => u.GetByIdAsync("1")).ReturnsAsync(() => mockUser);
         _mockUserRepository.Setup(u => u.SaveChanges()).Verifiable();
 
-        string token = new JwtSecurityTokenHandler().WriteToken(await _tokenService.CreateToken(mockUser));
+        string token = new JwtSecurityTokenHandler().WriteToken(await _tokenService.CreateToken(mockUser, "no", DateTime.UtcNow.ToString()));
 
         HttpRequestData request = MockHelpers.CreateHttpRequestData(null!, token);
 

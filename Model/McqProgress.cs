@@ -7,38 +7,27 @@ public class McqProgress
     public int Id { get; set; }
     public User User { get; set; }
     public Mcq Mcq { get; set; }
-    public AnswerOption? Answer { get; set; }
-    public AnswerKind? AnswerKind { get; set; }
+    public ICollection<GivenAnswerOption> Answers { get; set; }
 
     public McqProgress()
     {
     }
 
-    public McqProgress(int id, User user, Mcq mcq, AnswerOption? answer, AnswerKind? answerKind)
+    public McqProgress(int id, User user, Mcq mcq)
     {
         Id = id;
         User = user;
         Mcq = mcq;
-        Answer = answer;
-        AnswerKind = answerKind;
+        Answers = new List<GivenAnswerOption>();
     }
 
-    public double CalculateScore()
+    public void AddAnswer(AnswerOption answer, AnswerKind kind)
     {
-        if (AnswerKind is AnswerKind kind) {
-            if (Answer!.IsCorrect)
-                return kind switch {
-                    Model.AnswerKind.Sure => 1,
-                    Model.AnswerKind.NotSure => 0.6,
-                    Model.AnswerKind.Guess => 0.3,
-                };
-        }
-
-        return 0;
+        Answers.Add(new(answer, kind));
     }
 
     public McqProgressResponse CreateResponse()
     {
-        return new McqProgressResponse(Mcq.Id, Answer?.Id, AnswerKind, CalculateScore());
+        return new McqProgressResponse(Mcq.Id, Answers);
     }
 }

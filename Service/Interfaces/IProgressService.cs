@@ -10,6 +10,6 @@ public interface IProgressService
     public Task<TargetProgress> GetTargetProgress(string targetId, string userId);
     public Task<McqProgress> GetMcqProgress(string mcqId, string userId);
 
-    public Task<TargetProgress> BeginTarget(string targetId, string userId);
+    public Task<TargetProgress> BeginTarget(string targetId, string userId, bool reset);
     public Task<McqProgress> AnswerQuestion(string mcqId, string answerId, AnswerKind answerKind, string userId);
 }
