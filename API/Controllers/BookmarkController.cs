@@ -65,10 +65,9 @@ public class BookmarkController : ControllerWithAuthentication
         string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/bookmarks");
         BookmarkDTO? bookmarkDTO = await req.ReadFromJsonAsync<BookmarkDTO>();
         Bookmark bookmark = new(bookmarkDTO!.ItemId, bookmarkDTO.Type);
+        bool added = await _bookmarkService.AddBookmark(await _userService.GetUserById(userId), bookmark);
 
-        await _bookmarkService.AddBookmark(await _userService.GetUserById(userId), bookmark);
-
-        return req.CreateResponse(HttpStatusCode.OK);
+        return req.CreateResponse(added ? HttpStatusCode.Created : HttpStatusCode.OK);
     }
 
     [Function(nameof(DeleteBookmark))]
