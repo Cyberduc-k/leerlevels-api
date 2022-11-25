@@ -56,6 +56,7 @@ public class BookmarkController : ControllerWithAuthentication
     [OpenApiAuthentication]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(BookmarkDTO), Required = true, Description = "The new bookmark", Example = typeof(BookmarkDTOExample))]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Created)]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]

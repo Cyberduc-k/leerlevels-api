@@ -86,7 +86,7 @@ public class ProgressService : IProgressService
             ?? throw new NotFoundException("mcq progress");
     }
 
-    public async Task<TargetProgress> BeginTarget(string targetId, string userId, bool reset)
+    public async Task<(TargetProgress, bool)> BeginTarget(string targetId, string userId, bool reset)
     {
         User user = await _userService.GetUserById(userId);
         Target target = await _targetService.GetTargetByIdAsync(targetId);
@@ -94,7 +94,7 @@ public class ProgressService : IProgressService
 
         if (existing is not null) {
             if (reset) await ResetTarget(user, target, existing);
-            return existing;
+            return (existing, false);
         }
 
         TargetProgress targetProgress = new() {
@@ -108,7 +108,7 @@ public class ProgressService : IProgressService
 
         await _targetProgressRepository.InsertAsync(targetProgress);
         await _targetProgressRepository.SaveChanges();
-        return targetProgress;
+        return (targetProgress, true);
     }
 
     private async Task ResetTarget(User user, Target target, TargetProgress progress)
@@ -129,7 +129,7 @@ public class ProgressService : IProgressService
         await _targetProgressRepository.SaveChanges();
     }
 
-    public async Task<McqProgress> AnswerQuestion(string mcqId, string answerId, AnswerKind answerKind, string userId)
+    public async Task<(McqProgress, bool)> AnswerQuestion(string mcqId, string answerId, AnswerKind answerKind, string userId)
     {
         Mcq mcq = await _mcqService.GetMcqByIdAsync(mcqId);
         AnswerOption answer = await _answerOptionRepository.GetByIdAsync(answerId) ?? throw new NotFoundException("answer option");
@@ -139,8 +139,9 @@ public class ProgressService : IProgressService
             .GetByAsync(t => t.User.Id == userId && t.Target.Id == mcq.Target.Id)
             ?? throw new NotFoundException("target progress");
         McqProgress mcqProgress = targetProgress.Mcqs.FirstOrDefault(m => m.Mcq.Id == mcq.Id) ?? throw new NotFoundException("mcq progress");
+        bool created;
 
-        if (mcqProgress.AddAnswer(answer, answerKind)) {
+        if (created = mcqProgress.AddAnswer(answer, answerKind)) {
             await _mcqProgressRepository.SaveChanges();
         }
 
@@ -150,6 +151,6 @@ public class ProgressService : IProgressService
             await _notificationService.SendNotificationAsync(notification);
         }
 
-        return mcqProgress;
+        return (mcqProgress, created);
     }
 }
