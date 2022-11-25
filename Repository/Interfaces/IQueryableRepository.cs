@@ -12,4 +12,5 @@ public interface IQueryableRepository<TEntity>
     public IQueryableRepository<TEntity> Skip(int count);
     public IQueryableRepository<TEntity> OrderBy<TField>(Expression<Func<TEntity, TField>> field);
     public IQueryableRepository<TEntity> Where(Expression<Func<TEntity, bool>> filter);
+    public IQueryableRepository<TNew> Select<TNew>(Expression<Func<TEntity, TNew>> selector);
 }

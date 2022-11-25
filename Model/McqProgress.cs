@@ -11,6 +11,7 @@ public class McqProgress
 
     public McqProgress()
     {
+        Answers = new List<GivenAnswerOption>();
     }
 
     public McqProgress(int id, User user, Mcq mcq)
@@ -21,9 +22,12 @@ public class McqProgress
         Answers = new List<GivenAnswerOption>();
     }
 
-    public void AddAnswer(AnswerOption answer, AnswerKind kind)
+    public bool AddAnswer(AnswerOption answer, AnswerKind kind)
     {
+        if (Answers.FirstOrDefault(a => a.AnswerId == answer.Id && a.AnswerKind == kind) is not null) return false;
+        if (Answers.FirstOrDefault(a => a.Answer.IsCorrect) is not null) return false;
         Answers.Add(new(answer, kind));
+        return true;
     }
 
     public McqProgressResponse CreateResponse()

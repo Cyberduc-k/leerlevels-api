@@ -35,6 +35,7 @@ IHost host = new HostBuilder()
         services.AddTransient<IBookmarkRepository, BookmarkRepository>();
         services.AddTransient<ITargetProgressRepository, TargetProgressRepository>();
         services.AddTransient<IMcqProgressRepository, McqProgressRepository>();
+        services.AddTransient<IGivenAnswerOptionRepository, GivenAnswerOptionRepository>();
 
         services.AddSingleton<ITokenService, TokenService>();
         services.AddSingleton<IUserService, UserService>();
