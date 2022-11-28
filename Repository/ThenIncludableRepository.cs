@@ -83,4 +83,9 @@ public class ThenIncludableRepository<TEntity, TProp> : IIncludableRepository<TE
     {
         return new QueryableRepository<TEntity>(_query.Where(filter));
     }
+
+    public IQueryableRepository<TNew> Select<TNew>(Expression<Func<TEntity, TNew>> selector)
+    {
+        return new QueryableRepository<TNew>(_query.Select(selector));
+    }
 }

@@ -70,6 +70,11 @@ public abstract class Repository<TEntity, TId> : IRepository<TEntity, TId> where
         return new QueryableRepository<TEntity>(_dbset.Where(filter));
     }
 
+    public IQueryableRepository<TNew> Select<TNew>(Expression<Func<TEntity, TNew>> selector)
+    {
+        return new QueryableRepository<TNew>(_dbset.Select(selector));
+    }
+
     public IIncludableRepository<TEntity, TProp> Include<TProp>(Expression<Func<TEntity, TProp>> property)
     {
         return new IncludableRepository<TEntity, TProp>(_dbset.Include(property));

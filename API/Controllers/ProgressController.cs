@@ -81,6 +81,7 @@ public class ProgressController : ControllerWithAuthentication
     [OpenApiParameter("targetId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The target ID parameter")]
     [OpenApiParameter("reset", In = ParameterLocation.Query, Required = false, Type = typeof(bool))]
     [OpenApiResponseWithBody(HttpStatusCode.OK, "applcation/json", typeof(TargetProgressResponse), Example = typeof(TargetProgressResponseExample))]
+    [OpenApiResponseWithBody(HttpStatusCode.Created, "applcation/json", typeof(TargetProgressResponse), Example = typeof(TargetProgressResponseExample))]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the target with the specified Id.")]
@@ -91,11 +92,12 @@ public class ProgressController : ControllerWithAuthentication
     {
         string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/targets/{targetId}/progress");
         bool reset = req.Query("reset").GetBool() ?? throw new InvalidQueryParameterException("reset");
-        TargetProgress targetProgress = await _progressService.BeginTarget(targetId, userId, reset);
+        (TargetProgress targetProgress, bool created) = await _progressService.BeginTarget(targetId, userId, reset);
         TargetProgressResponse targetProgressResponse = targetProgress.CreateResponse();
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(targetProgressResponse);
+        if (created) res.StatusCode = HttpStatusCode.Created;
         return res;
     }
 
@@ -127,6 +129,7 @@ public class ProgressController : ControllerWithAuthentication
     [OpenApiParameter(name: "mcqId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The mcq ID parameter")]
     [OpenApiRequestBody("application/json", typeof(McqProgressDTO), Required = true, Example = typeof(McqProgressDTOExample))]
     [OpenApiResponseWithBody(HttpStatusCode.OK, "applcation/json", typeof(McqProgressResponse), Example = typeof(McqProgressResponseExample))]
+    [OpenApiResponseWithBody(HttpStatusCode.Created, "applcation/json", typeof(McqProgressResponse), Example = typeof(McqProgressResponseExample))]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the mcq with the specified Id.")]
@@ -137,11 +140,16 @@ public class ProgressController : ControllerWithAuthentication
     {
         string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}/progress");
         McqProgressDTO? mcqProgressDTO = await req.ReadFromJsonAsync<McqProgressDTO>();
-        McqProgress mcqProgress = await _progressService.AnswerQuestion(mcqId, mcqProgressDTO!.AnswerOptionId, mcqProgressDTO.AnswerKind, userId);
+        (McqProgress mcqProgress, bool created) = await _progressService.AnswerQuestion(
+            mcqId,
+            mcqProgressDTO!.AnswerOptionId,
+            mcqProgressDTO.AnswerKind,
+            userId);
         McqProgressResponse mcqProgressResponse = mcqProgress.CreateResponse();
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(mcqProgressResponse);
+        if (created) res.StatusCode = HttpStatusCode.Created;
         return res;
     }
 

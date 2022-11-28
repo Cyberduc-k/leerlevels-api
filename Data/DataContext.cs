@@ -15,6 +15,7 @@ public class DataContext : DbContext
 
     public DbSet<Set> Sets { get; set; }
     public DbSet<Target> Targets { get; set; }
+    public DbSet<TargetLink> Links { get; set; }
     public DbSet<Mcq> Mcqs { get; set; }
     public DbSet<AnswerOption> AnswerOptions { get; set; }
 
@@ -22,6 +23,7 @@ public class DataContext : DbContext
 
     public DbSet<TargetProgress> TargetProgress { get; set; }
     public DbSet<McqProgress> McqProgress { get; set; }
+    public DbSet<GivenAnswerOption> GivenAnswerOptions { get; set; }
 
     public DataContext(DbContextOptions options) : base(options)
     {
@@ -50,8 +52,15 @@ public class DataContext : DbContext
             e.ToTable("Bookmarks");
         });
 
-        modelBuilder.Entity<GivenAnswerOption>()
-            .HasKey(a => new { a.AnswerId, a.AnswerKind });
+        modelBuilder.Entity<GivenAnswerOption>(e => {
+            e.HasKey(a => new { a.AnswerId, a.AnswerKind });
+            e.ToTable("GivenAnswerOption");
+        });
+
+        modelBuilder.Entity<TargetLink>(e => {
+            e.HasKey(l => new { l.FromId, l.ToId });
+            e.ToTable("Links");
+        });
 
         if (_addBasicEntities) {
             modelBuilder.Entity<User>().HasData(

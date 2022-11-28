@@ -15,6 +15,7 @@ public class ProgressService : IProgressService
     private readonly ITargetProgressRepository _targetProgressRepository;
     private readonly IMcqProgressRepository _mcqProgressRepository;
     private readonly IAnswerOptionRepository _answerOptionRepository;
+    private readonly IGivenAnswerOptionRepository _givenAnswerOptionRepository;
 
     public ProgressService(
         IUserService userService,
@@ -24,7 +25,8 @@ public class ProgressService : IProgressService
         IMcqService mcqService,
         ITargetProgressRepository targetProgressRepository,
         IMcqProgressRepository mcqProgressRepository,
-        IAnswerOptionRepository answerOptionRepository)
+        IAnswerOptionRepository answerOptionRepository,
+        IGivenAnswerOptionRepository givenAnswerOptionRepository)
     {
         _userService = userService;
         _notificationService = notificationService;
@@ -34,6 +36,7 @@ public class ProgressService : IProgressService
         _targetProgressRepository = targetProgressRepository;
         _mcqProgressRepository = mcqProgressRepository;
         _answerOptionRepository = answerOptionRepository;
+        _givenAnswerOptionRepository = givenAnswerOptionRepository;
     }
 
     private IQueryableRepository<TargetProgress> Query()
@@ -83,27 +86,15 @@ public class ProgressService : IProgressService
             ?? throw new NotFoundException("mcq progress");
     }
 
-    public async Task<TargetProgress> BeginTarget(string targetId, string userId, bool reset)
+    public async Task<(TargetProgress, bool)> BeginTarget(string targetId, string userId, bool reset)
     {
         User user = await _userService.GetUserById(userId);
         Target target = await _targetService.GetTargetByIdAsync(targetId);
         TargetProgress? existing = await Query().GetByAsync(t => t.User.Id == userId && t.Target.Id == targetId);
 
         if (existing is not null) {
-            if (reset) {
-                foreach (McqProgress mcq in existing.Mcqs) {
-                    _mcqProgressRepository.Remove(mcq);
-                }
-
-                existing.Mcqs = target.Mcqs.Select(m => new McqProgress() {
-                    User = user,
-                    Mcq = m
-                }).ToList();
-
-                await _targetProgressRepository.SaveChanges();
-            }
-
-            return existing;
+            if (reset) await ResetTarget(user, target, existing);
+            return (existing, false);
         }
 
         TargetProgress targetProgress = new() {
@@ -112,15 +103,33 @@ public class ProgressService : IProgressService
             Mcqs = target.Mcqs.Select(m => new McqProgress() {
                 User = user,
                 Mcq = m
-            }).ToArray(),
+            }).ToList(),
         };
 
         await _targetProgressRepository.InsertAsync(targetProgress);
         await _targetProgressRepository.SaveChanges();
-        return targetProgress;
+        return (targetProgress, true);
     }
 
-    public async Task<McqProgress> AnswerQuestion(string mcqId, string answerId, AnswerKind answerKind, string userId)
+    private async Task ResetTarget(User user, Target target, TargetProgress progress)
+    {
+        foreach (McqProgress mcq in progress.Mcqs) {
+            _mcqProgressRepository.Remove(mcq);
+
+            foreach (GivenAnswerOption answer in mcq.Answers) {
+                _givenAnswerOptionRepository.Remove(answer);
+            }
+        }
+
+        progress.Mcqs = target.Mcqs.Select(m => new McqProgress() {
+            User = user,
+            Mcq = m
+        }).ToList();
+
+        await _targetProgressRepository.SaveChanges();
+    }
+
+    public async Task<(McqProgress, bool)> AnswerQuestion(string mcqId, string answerId, AnswerKind answerKind, string userId)
     {
         Mcq mcq = await _mcqService.GetMcqByIdAsync(mcqId);
         AnswerOption answer = await _answerOptionRepository.GetByIdAsync(answerId) ?? throw new NotFoundException("answer option");
@@ -130,9 +139,11 @@ public class ProgressService : IProgressService
             .GetByAsync(t => t.User.Id == userId && t.Target.Id == mcq.Target.Id)
             ?? throw new NotFoundException("target progress");
         McqProgress mcqProgress = targetProgress.Mcqs.FirstOrDefault(m => m.Mcq.Id == mcq.Id) ?? throw new NotFoundException("mcq progress");
+        bool created;
 
-        mcqProgress.AddAnswer(answer, answerKind);
-        await _mcqProgressRepository.SaveChanges();
+        if (created = mcqProgress.AddAnswer(answer, answerKind)) {
+            await _mcqProgressRepository.SaveChanges();
+        }
 
         if (targetProgress.IsCompleted()) {
             PersonalNotification notification = new(userId, "Target completed", $"You have completed target {targetProgress.Target.Label}");
@@ -140,6 +151,6 @@ public class ProgressService : IProgressService
             await _notificationService.SendNotificationAsync(notification);
         }
 
-        return mcqProgress;
+        return (mcqProgress, created);
     }
 }

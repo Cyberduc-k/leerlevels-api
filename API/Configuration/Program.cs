@@ -32,9 +32,11 @@ IHost host = new HostBuilder()
         services.AddTransient<IGroupRepository, GroupRepository>();
         services.AddTransient<ISetRepository, SetRepository>();
         services.AddTransient<ITargetRepository, TargetRepository>();
+        services.AddTransient<ITargetLinkRepository, TargetLinkRepository>();
         services.AddTransient<IBookmarkRepository, BookmarkRepository>();
         services.AddTransient<ITargetProgressRepository, TargetProgressRepository>();
         services.AddTransient<IMcqProgressRepository, McqProgressRepository>();
+        services.AddTransient<IGivenAnswerOptionRepository, GivenAnswerOptionRepository>();
 
         services.AddSingleton<ITokenService, TokenService>();
         services.AddSingleton<IUserService, UserService>();
@@ -43,6 +45,7 @@ IHost host = new HostBuilder()
         services.AddSingleton<IGroupService, GroupService>();
         services.AddSingleton<ISetService, SetService>();
         services.AddSingleton<ITargetService, TargetService>();
+        services.AddSingleton<ITargetLinkService, TargetLinkService>();
         services.AddSingleton<IBookmarkService, BookmarkService>();
         services.AddSingleton<IProgressService, ProgressService>();
 

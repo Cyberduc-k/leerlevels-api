@@ -11,6 +11,7 @@ public class TargetProgress
 
     public TargetProgress()
     {
+        Mcqs = new List<McqProgress>();
     }
 
     public TargetProgress(int id, User user, Target target, ICollection<McqProgress> mcqs)
@@ -25,34 +26,29 @@ public class TargetProgress
 
     public int CalculateScore()
     {
-        double score = 0;
-        double mcqScore = 100.0 / Mcqs.Count;
-        double answerScore = 100.0 / Mcqs.Sum(m => m.Answers.Count);
+        double total = Mcqs.Sum(McqScore);
+        return (int)Math.Round(total / Mcqs.Count);
+    }
 
-        foreach (McqProgress mcq in Mcqs) {
-            if (mcq.Answers is not null) {
-                foreach (GivenAnswerOption answer in mcq.Answers) {
-                    if (answer.Answer.IsCorrect) {
-                        score += answer.AnswerKind switch {
-                            AnswerKind.Sure => mcqScore,
-                            AnswerKind.NotSure => mcqScore - 5,
-                            AnswerKind.Guess => mcqScore - 7,
-                            _ => throw new NotImplementedException(),
-                        };
-                    } else {
-                        score += 0.1 * answerScore - answer.AnswerKind switch {
-                            AnswerKind.Sure => 10,
-                            AnswerKind.NotSure => 5,
-                            AnswerKind.Guess => 2,
-                            _ => throw new NotImplementedException(),
-                        };
-                    }
-                }
-            }
-        }
+    private double McqScore(McqProgress mcq)
+    {
+        if (mcq.Answers.Count == 0) return 0;
+        double score = mcq.Answers.Sum(AnswerScore);
+        int numAnswers = mcq.Answers.Count;
+        int maxScore = Enum.GetValues<AnswerKind>().Length;
+        return 100 * (0.5 + score / (2 * maxScore * numAnswers));
+    }
 
-        return (int)Math.Round(score);
+    private int AnswerScore(GivenAnswerOption answer)
+    {
+        int score = answer.AnswerKind switch {
+            AnswerKind.Sure => 3,
+            AnswerKind.NotSure => 2,
+            AnswerKind.Guess => 1,
+            _ => throw new Exception("Invalid AnswerKind"),
+        };
 
+        return answer.Answer.IsCorrect ? score : -score;
     }
 
     public TargetProgressResponse CreateResponse()

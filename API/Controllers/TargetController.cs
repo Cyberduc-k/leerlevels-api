@@ -15,6 +15,7 @@ using Model.Response;
 using Service.Interfaces;
 
 namespace API.Controllers;
+
 public class TargetController : ControllerWithAuthentication
 {
     private readonly IMapper _mapper;
@@ -67,7 +68,7 @@ public class TargetController : ControllerWithAuthentication
     [OpenApiAuthentication]
     [OpenApiParameter(name: "targetId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The target ID parameter")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(TargetResponse), Description = "The OK response", Example = typeof(TargetResponseExample))]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a vlaid Target Id.")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Please enter a valid Target Id.")]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the Target with the specified Id.")]
