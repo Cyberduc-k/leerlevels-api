@@ -1,5 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Net;
+﻿using System.Net;
 using API.Controllers;
 using API.Test.Mock;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -12,6 +11,7 @@ using Service.Exceptions;
 using Xunit;
 
 namespace API.Test;
+
 public class UserControllerTests : ControllerTestsBase
 {
 
@@ -27,7 +27,7 @@ public class UserControllerTests : ControllerTestsBase
 
         Set userSet = new() { Id = "3", Users = new User[] { user } };
 
-        _userService.Setup(s => s.GetUsers()).ReturnsAsync(() => new User[] { user });
+        _userService.Setup(s => s.GetUsers(int.MaxValue, 0)).ReturnsAsync(() => new User[] { user });
         _userService.Setup(s => s.GetUserById("1")).ReturnsAsync(() => user);
         _userService.Setup(s => s.GetUserById(It.IsNotIn("1"))).ThrowsAsync(new NotFoundException("user"));
         _userService.Setup(s => s.CreateUser(It.IsAny<User>())).Verifiable();
@@ -62,11 +62,11 @@ public class UserControllerTests : ControllerTestsBase
     {
         HttpRequestData request = MockHelpers.CreateHttpRequestData();
         HttpResponseData response = await _controller.GetUsers(request);
-        ICollection<UserResponse>? result = await response.ReadFromJsonAsync<UserResponse[]>();
+        Paginated<UserResponse>? result = await response.ReadFromJsonAsync<Paginated<UserResponse>>();
 
         Assert.Equal("application/json; charset=utf-8", GetHeaderValue(response, "Content-Type"));
         Assert.NotNull(result);
-        Assert.Equal(1, result!.Count);
+        Assert.Single(result!.Items);
     }
 
     [Fact]

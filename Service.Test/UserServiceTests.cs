@@ -30,19 +30,14 @@ public class UserServiceTests
             new User("2", "mruisberg@mail.com", "Marjan", "Ruisberg", "Mjanneke34", "MJ2U#2", UserRole.Teacher, DateTime.UtcNow, null!, "MLDK-PACL-WUDB-LZQW", true),
         };
 
-        _mockRepository.Setup(u => u.GetAllAsync()).Returns(mockUsers.ToAsyncEnumerable());
+        int limit = int.MaxValue;
+        int page = 0;
 
-        ICollection<User> users = await _service.GetUsers();
+        _mockRepository.Setup(u => u.OrderBy(x => x.UserName).Skip(limit * page).Limit(limit).GetAllAsync()).Returns(mockUsers.ToAsyncEnumerable());
+
+        ICollection<User> users = await _service.GetUsers(limit, page);
 
         Assert.Equal(2, users.Count);
-    }
-
-    [Fact]
-    public void Get_All_Users_Should_Throw_Not_Found_Exception()
-    {
-        _mockRepository.Setup(u => u.GetAllAsync()).Returns(() => null);
-
-        Assert.ThrowsAsync<NotFoundException>(async () => await _service.GetUsers());
     }
 
     [Fact]
