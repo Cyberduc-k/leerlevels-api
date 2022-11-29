@@ -16,7 +16,10 @@ public class BookmarkedTargetConverter : ITypeConverter<Target, Task<TargetRespo
 
     public async Task<TargetResponse> Convert(Target source, Task<TargetResponse> destination, ResolutionContext context)
     {
-        McqResponse[] mcqs = await Task.WhenAll(context.Mapper.Map<Task<McqResponse>[]>(source.Mcqs));
+        McqResponse[] mcqs = await source.Mcqs
+            .ToAsyncEnumerable()
+            .SelectAwait(async m => await context.Mapper.Map<Task<McqResponse>>(m))
+            .ToArrayAsync();
 
         return new() {
             IsBookmarked = await _bookmarkService.IsBookmarked(source.Id, Bookmark.BookmarkType.Target),
