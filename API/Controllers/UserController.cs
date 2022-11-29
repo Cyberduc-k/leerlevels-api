@@ -1,9 +1,12 @@
 using System.Net;
 using API.Attributes;
 using API.Examples;
+using API.Exceptions;
+using API.Extensions;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
@@ -12,7 +15,6 @@ using Model;
 using Model.DTO;
 using Model.Response;
 using Newtonsoft.Json;
-using Service.Exceptions;
 using Service.Interfaces;
 
 namespace API.Controllers;
@@ -22,19 +24,20 @@ public class UserController : ControllerWithAuthentication
     private readonly IMapper _mapper;
     private readonly IUserService _userService;
 
-    public UserController(ILoggerFactory loggerFactory, ITokenService tokenService, IMapper mapper, IUserService userservice) 
+    public UserController(ILoggerFactory loggerFactory, ITokenService tokenService, IMapper mapper, IUserService userservice)
         : base(loggerFactory.CreateLogger<UserController>(), tokenService)
     {
         _mapper = mapper;
         _userService = userservice;
     }
 
-    // Get users
-
     [Function(nameof(GetUsers))]
-    [OpenApiOperation(operationId: nameof(GetUsers), tags: new[] { "Users" }, Summary = "A list of users", Description = "Will return a (full) list of users if a teacher or admin token is used.")]
+    [OpenApiOperation(operationId: nameof(GetUsers), tags: new[] { "Users" }, Summary = "A list of users", Description = "Will return a list of users if a teacher or admin token is used.")]
     [OpenApiAuthentication]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserResponse[]), Description = "A list of users.", Example = typeof(UserResponseExample))]
+    [OpenApiParameter("limit", In = ParameterLocation.Query, Type = typeof(int), Required = false)]
+    [OpenApiParameter("page", In = ParameterLocation.Query, Type = typeof(int), Required = false)]
+    [OpenApiParameter("filter", In = ParameterLocation.Query, Type = typeof(string), Required = false)]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Paginated<UserResponse>), Description = "A list of users.", Example = typeof(UserResponseExample))]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find a list of users.")]
@@ -42,19 +45,21 @@ public class UserController : ControllerWithAuthentication
     public async Task<HttpResponseData> GetUsers([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequestData req)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users");
-
         _logger.LogInformation("C# HTTP trigger function processed the GetUsers request.");
 
-        ICollection<User> users = await _userService.GetUsers();
-        IEnumerable<UserResponse> userResponses = users.Select(u => _mapper.Map<UserResponse>(u));
+        int limit = req.Query("limit").GetInt(int.MaxValue) ?? throw new InvalidQueryParameterException("limit");
+        int page = req.Query("page").GetInt() ?? throw new InvalidQueryParameterException("page");
+        string? filter = req.Query("filter").FirstOrDefault();
+        ICollection<User> users = filter is null
+            ? await _userService.GetUsers(limit, page)
+            : await _userService.GetUsersFiltered(limit, page, filter);
+        UserResponse[] userResponses = _mapper.Map<UserResponse[]>(users);
+        Paginated<UserResponse> paginated = new(userResponses, page);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-        await res.WriteAsJsonAsync(userResponses);
-
+        await res.WriteAsJsonAsync(paginated);
         return res;
     }
-
-    // Get user
 
     [Function(nameof(GetUserById))]
     [OpenApiOperation(operationId: nameof(GetUserById), tags: new[] { "Users" }, Summary = "A single user", Description = "Will return a specified user's info for a logged in user or from the full list of users if a teacher, coach or administrator token is used")]
@@ -69,14 +74,10 @@ public class UserController : ControllerWithAuthentication
         string userId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users/{userId}");
-
         _logger.LogInformation("C# HTTP trigger function processed the GetUser request.");
 
         User user = await _userService.GetUserById(userId);
-
-        // map retrieved user to the UserRepsonse model
         UserResponse userResponse = _mapper.Map<UserResponse>(user);
-
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(userResponse);
@@ -170,8 +171,8 @@ public class UserController : ControllerWithAuthentication
         User user = await _userService.GetUserById(userId);
 
         // encrypt the password if one has been entered, otherwise, there is nu password given for the user to update and just don't update it
-        if(updateUserDTO.Password != null) {
-           updateUserDTO.Password =  _tokenService.EncryptPassword(user, updateUserDTO.Password);
+        if (updateUserDTO.Password != null) {
+            updateUserDTO.Password = _tokenService.EncryptPassword(user, updateUserDTO.Password);
         }
 
         await _userService.UpdateUser(userId, updateUserDTO);
