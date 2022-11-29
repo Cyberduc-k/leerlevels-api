@@ -5,7 +5,8 @@ namespace Service.Interfaces;
 
 public interface IUserService
 {
-    public Task<ICollection<User>> GetUsers();
+    public Task<ICollection<User>> GetUsers(int limit, int page);
+    public Task<ICollection<User>> GetUsersFiltered(int limit, int page, string filter);
 
     Task<User> GetUserById(string userId);
 

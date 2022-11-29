@@ -24,9 +24,26 @@ public class UserService : IUserService
     }
 
     // get users
-    public async Task<ICollection<User>> GetUsers()
+    public async Task<ICollection<User>> GetUsers(int limit, int page)
     {
-        return await _userRepository.GetAllAsync().ToArrayAsync() ?? throw new NotFoundException("users");
+        return await _userRepository
+            .OrderBy(x => x.UserName)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
+    }
+
+    // get users filtered
+    public async Task<ICollection<User>> GetUsersFiltered(int limit, int page, string filter)
+    {
+        return await _userRepository
+            .Where(x => x.UserName.Contains(filter) || x.FirstName.Contains(filter) || x.LastName.Contains(filter))
+            .OrderBy(x => x.UserName)
+            .Skip(limit * page)
+            .Limit(limit)
+            .GetAllAsync()
+            .ToArrayAsync();
     }
 
     // get user
