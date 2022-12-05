@@ -41,6 +41,9 @@ public class SetService : ISetService
 
     public async Task<Set> GetSetByIdAsync(string setId)
     {
-        return await _setRepository.Include(x => x.Targets).GetByAsync(x => x.Id == setId) ?? throw new NotFoundException("set");
+        return await _setRepository
+            .Include(x => x.Targets)
+            .Include(x => x.Group)
+            .GetByAsync(x => x.Id == setId) ?? throw new NotFoundException("set");
     }
 }
