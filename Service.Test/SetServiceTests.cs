@@ -50,7 +50,7 @@ public class SetServiceTests
             Users = new List<User>(),
         };
 
-        _setRepository.Setup(r => r.Include(x => x.Targets).GetByAsync(x => x.Id == setId)).ReturnsAsync(setEntity);
+        _setRepository.Setup(r => r.Include(x => x.Targets).Include(x => x.Group).GetByAsync(x => x.Id == setId)).ReturnsAsync(setEntity);
 
         Set set = await _service.GetSetByIdAsync(setEntity.Id);
 
