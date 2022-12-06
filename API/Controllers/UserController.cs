@@ -211,7 +211,7 @@ public class UserController : ControllerWithAuthentication
     [OpenApiOperation(operationId: nameof(GetUserGroups), tags: new[] { "Users" }, Summary = "A list of a user's groups", Description = "Returs a list of groups the user is a member of.")]
     [OpenApiAuthentication]
     [OpenApiParameter(name: "userId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Group[]), Description = "A list of groups the user is in.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(GroupResponse[]), Description = "A list of groups the user is in.")]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find a list of a user's groups.")]
@@ -224,9 +224,10 @@ public class UserController : ControllerWithAuthentication
         _logger.LogInformation("C# HTTP trigger function processed the GetUserGroups request.");
 
         ICollection<Group> groups = await _userService.GetUserGroups(userId);
+        GroupResponse[] groupResponses = _mapper.Map<GroupResponse[]>(groups);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-        await res.WriteAsJsonAsync(groups);
+        await res.WriteAsJsonAsync(groupResponses);
 
         return res;
     }
@@ -237,7 +238,7 @@ public class UserController : ControllerWithAuthentication
     [OpenApiOperation(operationId: nameof(GetUserSets), tags: new[] { "Users" }, Summary = "A list of a user's sets", Description = "Returns a list of sets the user has created or started working on.")]
     [OpenApiAuthentication]
     [OpenApiParameter(name: "userId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The user id parameter.")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Set[]), Description = "A list of sets the user is in.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SetResponse[]), Description = "A list of sets the user is in.")]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find a list of a user's sets.")]
@@ -250,9 +251,10 @@ public class UserController : ControllerWithAuthentication
         _logger.LogInformation("C# HTTP trigger function processed the GetUserSets request.");
 
         ICollection<Set> sets = await _userService.GetUserSets(userId);
+        SetResponse[] setResponses = _mapper.Map<SetResponse[]>(sets);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
-        await res.WriteAsJsonAsync(sets);
+        await res.WriteAsJsonAsync(setResponses);
 
         return res;
     }
