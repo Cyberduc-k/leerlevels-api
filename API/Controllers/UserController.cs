@@ -198,11 +198,17 @@ public class UserController : ControllerWithAuthentication
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/users/{userId}");
 
-        _logger.LogInformation("C# HTTP trigger function processed the DeleteUser request.");
+        //if user is not your token user
+        if (userId != _tokenService.GetTokenClaim(req, "userId")!) {
+            _logger.LogInformation("C# HTTP trigger function processed the DeleteUser request.");
 
-        await _userService.DeleteUser(userId);
+            await _userService.DeleteUser(userId);
 
-        return req.CreateResponse(HttpStatusCode.OK);
+            return req.CreateResponse(HttpStatusCode.OK);
+        } else {
+            _logger.LogInformation("attempt to delete own user detected!");
+            return req.CreateResponse(HttpStatusCode.BadRequest);
+        }
     }
 
     // Get user groups

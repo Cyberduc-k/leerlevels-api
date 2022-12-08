@@ -103,6 +103,43 @@ public class TokenServiceTests
     }
 
     [Fact]
+    public async Task Create_Token_Should_Return_Valid_Refresh_Token()
+    {
+        User mockUser = new("2", "henkdevries@mail.com", "Henk", "de Vries", "HFreeze#6996", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true);
+
+        JwtSecurityToken token = await _tokenService.CreateToken(mockUser, "yes", DateTime.UtcNow.ToString());
+
+        Dictionary<string, string> claims = token.Claims.ToDictionary(t => t.Type, t => t.Value);
+
+        Assert.NotNull(token);
+
+        // assert token user related claims content (if it matches the setup user of course)
+
+        Assert.Equal("2", claims["userId"]);
+        Assert.Equal("HFreeze#6996", claims["userName"]);
+        Assert.Equal("henkdevries@mail.com", claims["userEmail"]);
+        Assert.Equal(UserRole.Student.ToString(), claims["userRole"]);
+
+        Assert.NotNull(claims["initTokenExpiredAt"]);
+
+        // assert other token claims
+        Assert.Equal("LeerLevels", claims["iss"]);
+        Assert.Equal("Users of the LeerLevels applications", claims["aud"]);
+
+        DateTime notValidBefore = DateTimeOffset.FromUnixTimeSeconds(long.Parse(claims["nbf"])).UtcDateTime;
+        DateTime expiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(claims["exp"])).UtcDateTime;
+        DateTime issuedAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(claims["iat"])).UtcDateTime;
+
+        DateTime initialTokenExpiredAt = DateTime.Parse(claims["initTokenExpiredAt"]);
+
+        Assert.True(issuedAt < DateTime.UtcNow);
+        Assert.True(notValidBefore < DateTime.UtcNow);
+        Assert.True(expiresAt > DateTime.UtcNow);
+
+        Assert.True(initialTokenExpiredAt > DateTime.UtcNow.AddYears(-1));
+    }
+
+    [Fact]
     public async Task Get_By_Value_Should_Return_Valid_ClaimsPrincipal_Value()
     {
         User mockUser = new("1", "hdevries@mail.com", "Henk", "de Vries", "HFreeze#902", "HFr33zing#1!", UserRole.Student, DateTime.UtcNow, null!, "UREI-POIQ-DMKL-ALQF", true);
@@ -167,6 +204,16 @@ public class TokenServiceTests
 
     }
 
+    /*[Fact]
+    public async Task Authentication_Validation_With_Refresh_Token_With_Expired_Initial_Token_Expiration_Claim_Should_Return_False()
+    {
+        string refreshTokenWithExpiredInitTokenExpirationClaim = "";
+
+        HttpRequestData request = MockHelpers.CreateHttpRequestData(null!, refreshTokenWithExpiredInitTokenExpirationClaim);
+
+        Assert.False(await _tokenService.AuthenticationValidation(request));
+    }*/
+
     // (change this later to create an invalid token with missing claims instead of using a static token which doesn't work that great)
     /*[Fact]        
     public async Task Authentication_Validation_With_Claims_Missing_Should_Throw_Authentication_Exception()
@@ -180,7 +227,7 @@ public class TokenServiceTests
     }*/
 
     [Fact]
-    public async Task Authentication_Validation_With_Inactive_User_Should_Return_False_And_Inactive_User_Exception_Message()
+    public async Task Authentication_Validation_With_Inactive_User_Should_Return_False()
     {
         User mockUser = new("1", "deleteduser@mail.com", "Del", "Eted", "removed", "1nth3v0id", UserRole.Administrator, DateTime.Parse("1987-10-05 06:10:15"), null!, "UREI-POIQ-DMKL-ALQF", false);
 
