@@ -40,8 +40,16 @@ public class BookmarkController : ControllerWithAuthentication
         string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/bookmarks");
         (ICollection<Target> targets, ICollection<Mcq> mcqs) = await _bookmarkService.GetBookmarksAsync(await _userService.GetUserById(userId));
         BookmarksResponse bookmarks = new(
-            targets.Select(t => _mapper.Map<TargetResponse>(t)).ToArray(),
-            mcqs.Select(m => _mapper.Map<McqResponse>(m)).ToArray()
+            targets.Select(t => {
+                TargetResponse mapped = _mapper.Map<TargetResponse>(t);
+                mapped.IsBookmarked = true;
+                return mapped;
+            }).ToArray(),
+            mcqs.Select(m => {
+                McqResponse mapped = _mapper.Map<McqResponse>(m);
+                mapped.IsBookmarked = true;
+                return mapped;
+            }).ToArray()
         );
 
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
