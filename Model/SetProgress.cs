@@ -17,9 +17,9 @@ public class SetProgress
         Targets = targets;
     }
 
-    public bool IsCompleted() => Targets.All(t => t.IsCompleted());
+    public bool IsCompleted() => Set.Targets.Count == Targets.Count && Targets.All(t => t.IsCompleted());
 
-    public int CalculateScore() => Targets.Sum(t => t.CalculateScore()) / Targets.Count;
+    public int CalculateScore() => Targets.Sum(t => t.CalculateScore()) / Set.Targets.Count;
 
     public SetProgressResponse CreateResponse()
     {

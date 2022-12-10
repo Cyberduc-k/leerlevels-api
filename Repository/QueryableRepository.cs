@@ -33,6 +33,11 @@ public class QueryableRepository<TEntity> : IQueryableRepository<TEntity>
         return _query.AnyAsync(predicate);
     }
 
+    public async Task<int> CountAsync()
+    {
+        return await _query.CountAsync();
+    }
+
     public IQueryableRepository<TEntity> Limit(int limit)
     {
         return new QueryableRepository<TEntity>(_query.Take(limit));

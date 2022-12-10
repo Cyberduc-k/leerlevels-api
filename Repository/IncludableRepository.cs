@@ -64,6 +64,11 @@ public class IncludableRepository<TEntity, TProp> : IIncludableRepository<TEntit
         return _query.AnyAsync(predicate);
     }
 
+    public async Task<int> CountAsync()
+    {
+        return await _query.CountAsync();
+    }
+
     public IQueryableRepository<TEntity> Limit(int limit)
     {
         return new QueryableRepository<TEntity>(_query.Take(limit));

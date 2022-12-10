@@ -174,4 +174,22 @@ public class ProgressController : ControllerWithAuthentication
         await res.WriteAsJsonAsync(setProgresResponse);
         return res;
     }
+
+    [Function(nameof(GetUserProgress))]
+    [OpenApiOperation(nameof(GetUserProgress), tags: "Users", Summary = "The progress of the user", Description = "Returns the progress of the curent user in all targets and sets.")]
+    [OpenApiAuthentication]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UserProgressResponse), Description = "A progres of the user")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> GetUserProgress([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/progress")] HttpRequestData req)
+    {
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/user/progress");
+        UserProgress userProgress = await _progressService.GetUserProgress(userId);
+        UserProgressResponse userProgressResponse = userProgress.CreateResponse();
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+        await res.WriteAsJsonAsync(userProgressResponse);
+        return res;
+    }
 }
