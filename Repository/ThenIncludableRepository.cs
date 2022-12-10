@@ -59,9 +59,14 @@ public class ThenIncludableRepository<TEntity, TProp> : IIncludableRepository<TE
         return _query.Where(filter).AsAsyncEnumerable();
     }
 
-    public Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+    public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        return _query.AnyAsync(predicate);
+        return await _query.AnyAsync(predicate);
+    }
+
+    public async Task<int> CountAsync()
+    {
+        return await _query.CountAsync();
     }
 
     public IQueryableRepository<TEntity> Limit(int limit)

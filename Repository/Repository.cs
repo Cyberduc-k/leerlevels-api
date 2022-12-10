@@ -45,9 +45,14 @@ public abstract class Repository<TEntity, TId> : IRepository<TEntity, TId> where
         _dbset.Remove(entity);
     }
 
-    public Task SaveChanges()
+    public async Task SaveChanges()
     {
-        return _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<int> CountAsync()
+    {
+        return await _dbset.CountAsync();
     }
 
     public IQueryableRepository<TEntity> Limit(int limit)

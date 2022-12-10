@@ -12,6 +12,7 @@ public class ProgressService : IProgressService
     private readonly ISetService _setService;
     private readonly ITargetService _targetService;
     private readonly IMcqService _mcqService;
+    private readonly ISetRepository _setRepository;
     private readonly ITargetProgressRepository _targetProgressRepository;
     private readonly IMcqProgressRepository _mcqProgressRepository;
     private readonly IAnswerOptionRepository _answerOptionRepository;
@@ -23,6 +24,7 @@ public class ProgressService : IProgressService
         ISetService setService,
         ITargetService targetService,
         IMcqService mcqService,
+        ISetRepository setRepository,
         ITargetProgressRepository targetProgressRepository,
         IMcqProgressRepository mcqProgressRepository,
         IAnswerOptionRepository answerOptionRepository,
@@ -33,6 +35,7 @@ public class ProgressService : IProgressService
         _setService = setService;
         _targetService = targetService;
         _mcqService = mcqService;
+        _setRepository = setRepository;
         _targetProgressRepository = targetProgressRepository;
         _mcqProgressRepository = mcqProgressRepository;
         _answerOptionRepository = answerOptionRepository;
@@ -48,6 +51,19 @@ public class ProgressService : IProgressService
             .Include(t => t.Mcqs)
             .ThenInclude(m => m.Answers)
             .ThenInclude(a => a.Answer);
+    }
+
+    public async Task<UserProgress> GetUserProgress(string userId)
+    {
+        ICollection<TargetProgress> targets = await GetAllTargetProgress(userId);
+        SetProgress[] sets = await _setRepository
+            .Select(s => new { s.Id })
+            .GetAllAsync()
+            .SelectAwait(async s => await GetSetProgress(s.Id))
+            .ToArrayAsync();
+        int totalTargets = await _targetService.GetTargetCountAsync();
+
+        return new UserProgress(targets, sets, totalTargets);
     }
 
     public async Task<ICollection<TargetProgress>> GetAllTargetProgress(string userId)

@@ -46,4 +46,9 @@ public class TargetService : ITargetService
             .ThenInclude(m => m.AnswerOptions)
             .GetByAsync(t => t.Id == targetId) ?? throw new NotFoundException("target");
     }
+
+    public async Task<int> GetTargetCountAsync()
+    {
+        return await _targetRepository.CountAsync();
+    }
 }
