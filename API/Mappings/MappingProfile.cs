@@ -21,5 +21,8 @@ public class MappingProfile : Profile
         CreateMap<User, UserResponse>();
         CreateMap<Group, GroupResponse>();
         CreateMap<UserDTO, User>().ConvertUsing<UserConverter>();
+        CreateMap<CreateGroupDTO, Group>();
+        CreateMap<Group, CreateGroupResponse>();
+
     }
 }
