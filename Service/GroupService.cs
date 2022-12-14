@@ -18,6 +18,14 @@ public class GroupService : IGroupService
         _groupRepsitory = groupRepository;
     }
 
+    public async Task<Group> CreateGroup(Group group)
+    {
+        group.Id = Guid.NewGuid().ToString();
+        await _groupRepsitory.InsertAsync(group);
+        await _groupRepsitory.SaveChanges();
+        return group;
+    }
+
     public async Task<ICollection<Group>> GetAllGroupsAsync()
     {
         return await _groupRepsitory.GetAllAsync().ToArrayAsync();
