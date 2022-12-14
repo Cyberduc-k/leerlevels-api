@@ -1,5 +1,5 @@
 namespace Model.Response;
-public class CreateGroupResponse
+public class AddGroupToUserResponse
 {
     public string Id { get; set; }
     public string Name { get; set; }

@@ -7,6 +7,6 @@ public interface IGroupService
 
     Task<Group> GetGroupByIdAsync(string groupId);
 
-    Task<Group> CreateGroup(Group group);
+    Task<Group> AddGrouptoUser(string id, string userid);
     public Task<bool> GroupExistsAsync(string id);
 }

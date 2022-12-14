@@ -77,24 +77,21 @@ public class GroupController : ControllerWithAuthentication
     [Function(nameof(CreateGroup))]
     [OpenApiOperation(operationId: nameof(CreateGroup), tags: new[] { "Groups" }, Summary = "Create a new Group", Description = "Will create and return the new Group.")]
     [OpenApiAuthentication]
-    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(CreateGroupDTO), Required = true, Description = "Data for the Group that has to be created.", Example = typeof(Group))]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Created, contentType: "application/json", bodyType: typeof(CreateGroupResponse), Description = "The newly created Group.", Example = typeof(GroupResponseExample))]
+    [OpenApiParameter(name: "groupId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The group ID parameter")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Created, contentType: "application/json", bodyType: typeof(AddGroupToUserResponse), Description = "The newly created Group.", Example = typeof(GroupResponseExample))]
     [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error occured while trying to create the group.")]
     [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
-    public async Task<HttpResponseData> CreateGroup([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "groups")] HttpRequestData req)
+    public async Task<HttpResponseData> CreateGroup([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "groups/users/{groupId}")] HttpRequestData req, string groupId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/groups");
+        var loggeduser = await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "groups/users/{groupId}");
 
         _logger.LogInformation("C# HTTP trigger function processed the Create Group request.");
 
-        string body = await new StreamReader(req.Body).ReadToEndAsync();
-        CreateGroupDTO groupDTO = JsonConvert.DeserializeObject<CreateGroupDTO>(body)!;
-        Group group = _mapper.Map<Group>(groupDTO);
-        Group newGroup = await _groupService.CreateGroup(group);
-        CreateGroupResponse groupResponse = _mapper.Map<CreateGroupResponse>(newGroup);
-        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+        Group group = await _groupService.AddGrouptoUser(groupId, loggeduser);
+        AddGroupToUserResponse groupResponse = _mapper.Map<AddGroupToUserResponse>(group);
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.Created);
 
         await res.WriteAsJsonAsync(groupResponse);
 

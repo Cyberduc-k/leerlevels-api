@@ -11,6 +11,7 @@ public class GroupService : IGroupService
 {
     private readonly ILogger _logger;
     private readonly IGroupRepository _groupRepsitory;
+    private readonly IUserRepository _userRepository;
 
     public GroupService(ILoggerFactory loggerFactory, IGroupRepository groupRepository)
     {
@@ -18,11 +19,12 @@ public class GroupService : IGroupService
         _groupRepsitory = groupRepository;
     }
 
-    public async Task<Group> CreateGroup(Group group)
+    public async Task<Group> AddGrouptoUser(string id, string userId)
     {
-        group.Id = Guid.NewGuid().ToString();
-        await _groupRepsitory.InsertAsync(group);
-        await _groupRepsitory.SaveChanges();
+        Group? group = await _groupRepsitory.GetByIdAsync(id);
+        User? user = await _userRepository.GetByIdAsync(userId);
+        user.Groups.Add(group);
+        await _userRepository.SaveChanges();
         return group;
     }
 
