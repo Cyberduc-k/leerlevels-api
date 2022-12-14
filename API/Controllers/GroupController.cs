@@ -11,6 +11,8 @@ using Model;
 using Model.Response;
 using Service.Interfaces;
 using Group = Model.Group;
+using Newtonsoft.Json;
+
 
 namespace API.Controllers;
 public class GroupController : ControllerWithAuthentication
@@ -66,6 +68,30 @@ public class GroupController : ControllerWithAuthentication
         Group group = await _groupService.GetGroupByIdAsync(groupId);
         GroupResponse groupResponse = _mapper.Map<GroupResponse>(group);
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+        await res.WriteAsJsonAsync(groupResponse);
+
+        return res;
+    }
+
+    [Function(nameof(CreateGroup))]
+    [OpenApiOperation(operationId: nameof(CreateGroup), tags: new[] { "Groups" }, Summary = "Create a new Group", Description = "Will create and return the new Group.")]
+    [OpenApiAuthentication]
+    [OpenApiParameter(name: "groupId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The group ID parameter")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Created, contentType: "application/json", bodyType: typeof(AddGroupToUserResponse), Description = "The newly created Group.", Example = typeof(GroupResponseExample))]
+    [OpenApiErrorResponse(HttpStatusCode.BadRequest, Description = "An error occured while trying to create the group.")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> CreateGroup([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "groups/users/{groupId}")] HttpRequestData req, string groupId)
+    {
+        var loggeduser = await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "groups/users/{groupId}");
+
+        _logger.LogInformation("C# HTTP trigger function processed the Create Group request.");
+
+        Group group = await _groupService.AddGrouptoUser(groupId, loggeduser);
+        AddGroupToUserResponse groupResponse = _mapper.Map<AddGroupToUserResponse>(group);
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.Created);
 
         await res.WriteAsJsonAsync(groupResponse);
 

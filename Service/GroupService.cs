@@ -11,11 +11,21 @@ public class GroupService : IGroupService
 {
     private readonly ILogger _logger;
     private readonly IGroupRepository _groupRepsitory;
+    private readonly IUserRepository _userRepository;
 
     public GroupService(ILoggerFactory loggerFactory, IGroupRepository groupRepository)
     {
         _logger = loggerFactory.CreateLogger<GroupService>();
         _groupRepsitory = groupRepository;
+    }
+
+    public async Task<Group> AddGrouptoUser(string id, string userId)
+    {
+        Group? group = await _groupRepsitory.GetByIdAsync(id);
+        User? user = await _userRepository.GetByIdAsync(userId);
+        user.Groups.Add(group);
+        await _userRepository.SaveChanges();
+        return group;
     }
 
     public async Task<ICollection<Group>> GetAllGroupsAsync()
