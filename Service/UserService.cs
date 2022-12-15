@@ -75,6 +75,7 @@ public class UserService : IUserService
 
         user.Password = changes.Password ?? user.Password;
         user.Role = changes.Role ?? user.Role;
+		 user.IsActive = changes.IsActive ?? user.IsActive;
 
         await _userRepository.SaveChanges();
         return user;
