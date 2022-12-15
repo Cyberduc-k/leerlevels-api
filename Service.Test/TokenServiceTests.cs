@@ -193,14 +193,14 @@ public class TokenServiceTests
     }
 
     [Fact]
-    public async Task Authentication_Validation_With_Expired_Token_Should_Throw_Security_Token_Expired_Exception()
+    public async Task Authentication_Validation_With_Expired_Token_Should_Throw_Authentication_Exception()
     {
         // might have to use the content of the CreateToken method here instead
         string expiredToken = "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyIiwidXNlck5hbWUiOiJNYXJ5U3VlIzIyIiwidXNlckVtYWlsIjoiTWFyeVN1ZUBnbWFpbC5jb20iLCJ1c2VyUm9sZSI6IlRlYWNoZXIiLCJuYmYiOjE2NjcxNTI4OTYsImV4cCI6MTY2NzE1Mjg5OCwiaWF0IjoxNjY3MTUyODk2LCJpc3MiOiJMZWVyTGV2ZWxzIiwiYXVkIjoiVXNlcnMgb2YgdGhlIExlZXJMZXZlbHMgYXBwbGljYXRpb25zIn0.Cy9taWenEJohJHMwVwoPFGOFgYy9VbSEsPjzHf0RiXg";
 
         HttpRequestData request = MockHelpers.CreateHttpRequestData(null!, expiredToken);
 
-        await Assert.ThrowsAsync<SecurityTokenExpiredException>(async () => await _tokenService.AuthenticationValidation(request));
+        await Assert.ThrowsAsync<AuthenticationException>(async () => await _tokenService.AuthenticationValidation(request));
 
     }
 

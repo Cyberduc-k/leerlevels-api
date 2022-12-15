@@ -40,7 +40,7 @@ public class TokenService : ITokenService
 
         Issuer = "LeerLevels";
         Audience = "Users of the LeerLevels applications";
-        // 2do: figure out how to set up refresh tokens (send inital token and refresh token on Login, then after expiration keep providing refresh tokens until 1 year after inital expiration or Logout signal/request is received somewhere?)
+
         ValidityDuration = TimeSpan.FromHours(2);
 
         string Key = Environment.GetEnvironmentVariable("LeerLevelsTokenKey")!;
