@@ -100,7 +100,7 @@ public class TokenService : ITokenService
         };
 
         if (refreshTokenPhrase == "yes") {
-            ValidityDuration = TimeSpan.FromHours(2.25); //the initial refresh token is valid for 15 minutes longer than the initial token to allow for a call to refresh this token
+            ValidityDuration = TimeSpan.FromHours(2.25); //initial refresh token is valid for 15 minutes longer than the initial token to allow for a call to refresh this token
             Claims.Add(new Claim("initTokenExpiredAt", DateTime.UtcNow.Add(ValidityDuration).ToString()));
         } else if (refreshTokenPhrase == "refresh") {
             ValidityDuration = TimeSpan.FromHours(2.25);
