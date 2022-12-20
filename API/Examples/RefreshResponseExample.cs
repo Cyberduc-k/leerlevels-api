@@ -41,7 +41,7 @@ public class RefreshResponseExample : OpenApiExample<RefreshResponse>
             DateTime.UtcNow
         );
 
-        Examples.Add(OpenApiExampleResolver.Resolve("Token John", new RefreshResponse(new JwtSecurityToken(Header, Payload))));
+        Examples.Add(OpenApiExampleResolver.Resolve("Token John", new RefreshResponse(new JwtSecurityToken(Header, Payload), new JwtSecurityToken(Header, Payload))));
 
         return this;
     }

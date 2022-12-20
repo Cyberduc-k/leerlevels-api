@@ -82,9 +82,11 @@ public class TokenService : ITokenService
     {
         User user = await UserRepository.GetByIdAsync(GetTokenClaim(request, "userId")) ?? throw new NotFoundException("user to creat a valid refresh token");
 
-        JwtSecurityToken refreshToken = await CreateToken(user, "refresh", GetTokenClaim(request, "initTokenExpiredAt"));
+        JwtSecurityToken initRefreshToken = await CreateToken(user, "refresh", GetTokenClaim(request, "initTokenExpiredAt"));
 
-        return new RefreshResponse(refreshToken);
+        JwtSecurityToken lastRefreshToken = await CreateToken(user, "nextrefresh", GetTokenClaim(request, "initTokenExpiredAt"));
+
+        return new RefreshResponse(initRefreshToken, lastRefreshToken);
     }
 
     public async Task<JwtSecurityToken> CreateToken(User user, string refreshTokenPhrase, string initialTokenExpiration)
@@ -106,7 +108,12 @@ public class TokenService : ITokenService
             //ValidityDuration = TimeSpan.FromHours(2.25);
             ValidityDuration = TimeSpan.FromDays(1.25);
             Claims.Add(new Claim("initTokenExpiredAt", initialTokenExpiration));
-        } else if (refreshTokenPhrase == "no") {
+        } else if (refreshTokenPhrase == "nextrefresh") {
+	        //ValidityDuration = TimeSpan.FromHours(2.5);
+	        ValidityDuration = TimeSpan.FromDays(1.5);
+            Claims.Add(new Claim("initTokenExpiredAt", initialTokenExpiration));
+	}
+	else if (refreshTokenPhrase == "no") {
             ValidityDuration = TimeSpan.FromDays(1);
             //ValidityDuration = TimeSpan.FromHours(2);
         }
