@@ -25,12 +25,14 @@ public class BookmarkService : IBookmarkService
         Target[] targets = await bookmarks
             .Where(b => b.Type == Bookmark.BookmarkType.Target)
             .SelectAwait(async b => await _targetRepository.GetByIdAsync(b.ItemId))
+            .Where(t => t is not null)
             .Select(t => t!)
             .ToArrayAsync();
 
         Mcq[] mcqs = await bookmarks
             .Where(b => b.Type == Bookmark.BookmarkType.Mcq)
             .SelectAwait(async b => await _mcqRepository.GetByIdAsync(b.ItemId)!)
+            .Where(m => m is not null)
             .Select(m => m!)
             .ToArrayAsync();
 
