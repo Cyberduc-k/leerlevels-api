@@ -28,6 +28,9 @@ public class TokenServiceTests
     {
         Environment.SetEnvironmentVariable("LeerLevelsTokenKey", "randomstring#123455566834737!");
         Environment.SetEnvironmentVariable("TokenHashBase", "RandomTestPasswordHashBaseGo");
+        Environment.SetEnvironmentVariable("InitTokenValidityDuration", "00:01:01");
+        Environment.SetEnvironmentVariable("InitRefreshTokenValidityDuration", "00:01:50");
+        Environment.SetEnvironmentVariable("LastRefreshTokenValidityDuration", "00:02:50");
         _mockUserRepository = new();
         _tokenService = new TokenService(new LoggerFactory(), _mockUserRepository.Object);
     }
