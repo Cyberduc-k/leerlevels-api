@@ -41,7 +41,7 @@ public class TokenService : ITokenService
         Issuer = "LeerLevels";
         Audience = "Users of the LeerLevels applications";
 
-        ValidityDuration = TimeSpan.FromHours(2);
+        ValidityDuration = TimeSpan.Parse(Environment.GetEnvironmentVariable("InitTokenValidityDuration")!);
 
 
         string Key = Environment.GetEnvironmentVariable("LeerLevelsTokenKey")!;
@@ -100,17 +100,17 @@ public class TokenService : ITokenService
         };
 
         if (refreshTokenPhrase == "yes") {
-            ValidityDuration = TimeSpan.FromHours(2.25); //initial refresh token is valid for 15 minutes longer than the initial token to allow for a call to refresh this token
+            ValidityDuration = TimeSpan.Parse(Environment.GetEnvironmentVariable("InitRefreshTokenValidityDuration")!); //initial refresh token is valid for 15 minutes longer than the initial token to allow for a call to refresh this token
             Claims.Add(new Claim("initTokenExpiredAt", DateTime.UtcNow.Add(ValidityDuration).ToString()));
         } else if (refreshTokenPhrase == "refresh") {
-            ValidityDuration = TimeSpan.FromHours(2.25);
+            ValidityDuration = TimeSpan.Parse(Environment.GetEnvironmentVariable("InitRefreshTokenValidityDuration")!);
             Claims.Add(new Claim("initTokenExpiredAt", initialTokenExpiration));
         } else if (refreshTokenPhrase == "nextrefresh") {
-	        ValidityDuration = TimeSpan.FromHours(2.5);
+	        ValidityDuration = TimeSpan.Parse(Environment.GetEnvironmentVariable("LastRefreshTokenValidityDuration")!);
             Claims.Add(new Claim("initTokenExpiredAt", initialTokenExpiration));
 	}
 	else if (refreshTokenPhrase == "no") {
-            ValidityDuration = TimeSpan.FromHours(2);
+            ValidityDuration = TimeSpan.Parse(Environment.GetEnvironmentVariable("InitTokenValidityDuration")!);
         }
 
         JwtPayload Payload = new(

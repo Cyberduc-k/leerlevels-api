@@ -18,12 +18,16 @@ public class LoginResponse
     public static string TokenType => "Bearer";
 
     [JsonRequired]
-    [OpenApiProperty(Description = "The amount of seconds until the token expires.")]
-    public int ExpiresIn => (int)(Token.ValidTo - DateTime.UtcNow).TotalSeconds;
+    [OpenApiProperty(Description = "The expiration datetime of the access token")]
+    public string AccessTokenExpiresAt => Token.ValidTo.ToUniversalTime().AddHours(1).ToString("dd/MM/yyyy HH:mm:ss");
 
     [JsonRequired]
     [OpenApiProperty(Description = "The first refresh token generated along side the initial access token. ")]
     public string InitRefreshToken => new JwtSecurityTokenHandler().WriteToken(RefreshToken);
+
+    [JsonRequired]
+    [OpenApiProperty(Description = "The expiration datetime of the initial refresh token")]
+    public string InitRefreshTokenExpiresAt => RefreshToken.ValidTo.ToUniversalTime().AddHours(1).ToString("dd/MM/yyyy HH:mm:ss");
 
     public LoginResponse(JwtSecurityToken token, JwtSecurityToken refreshToken)
     {
