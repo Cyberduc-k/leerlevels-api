@@ -52,11 +52,6 @@ public class DataContext : DbContext
             e.ToTable("Bookmarks");
         });
 
-        modelBuilder.Entity<GivenAnswerOption>(e => {
-            e.HasKey(a => new { a.AnswerId, a.AnswerKind });
-            e.ToTable("GivenAnswerOption");
-        });
-
         modelBuilder.Entity<TargetLink>(e => {
             e.HasKey(l => new { l.FromId, l.ToId });
             e.ToTable("Links");
