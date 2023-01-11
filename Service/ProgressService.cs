@@ -137,6 +137,10 @@ public class ProgressService : IProgressService
             }
         }
 
+        progress.Mcqs.Clear();
+
+        await _targetProgressRepository.SaveChanges();
+
         progress.Mcqs = target.Mcqs.Select(m => new McqProgress() {
             User = user,
             Mcq = m

@@ -40,8 +40,9 @@ public class TokenService : ITokenService
 
         Issuer = "LeerLevels";
         Audience = "Users of the LeerLevels applications";
-        // 2do: figure out how to set up refresh tokens (send inital token and refresh token on Login, then after expiration keep providing refresh tokens until 1 year after inital expiration or Logout signal/request is received somewhere?)
-        ValidityDuration = TimeSpan.FromHours(2);
+
+        ValidityDuration = TimeSpan.Parse(Environment.GetEnvironmentVariable("InitTokenValidityDuration")!);
+
 
         string Key = Environment.GetEnvironmentVariable("LeerLevelsTokenKey")!;
 
@@ -80,9 +81,11 @@ public class TokenService : ITokenService
     {
         User user = await UserRepository.GetByIdAsync(GetTokenClaim(request, "userId")) ?? throw new NotFoundException("user to creat a valid refresh token");
 
-        JwtSecurityToken refreshToken = await CreateToken(user, "refresh", GetTokenClaim(request, "initTokenExpiredAt"));
+        JwtSecurityToken initRefreshToken = await CreateToken(user, "refresh", GetTokenClaim(request, "initTokenExpiredAt"));
 
-        return new RefreshResponse(refreshToken);
+        JwtSecurityToken lastRefreshToken = await CreateToken(user, "nextrefresh", GetTokenClaim(request, "initTokenExpiredAt"));
+
+        return new RefreshResponse(initRefreshToken, lastRefreshToken);
     }
 
     public async Task<JwtSecurityToken> CreateToken(User user, string refreshTokenPhrase, string initialTokenExpiration)
@@ -97,13 +100,17 @@ public class TokenService : ITokenService
         };
 
         if (refreshTokenPhrase == "yes") {
-            ValidityDuration = TimeSpan.FromHours(2.25); //initial refresh token is valid for 15 minutes longer than the initial token to allow for a call to refresh this token
+            ValidityDuration = TimeSpan.Parse(Environment.GetEnvironmentVariable("InitRefreshTokenValidityDuration")!); //initial refresh token is valid for 15 minutes longer than the initial token to allow for a call to refresh this token
             Claims.Add(new Claim("initTokenExpiredAt", DateTime.UtcNow.Add(ValidityDuration).ToString()));
         } else if (refreshTokenPhrase == "refresh") {
-            ValidityDuration = TimeSpan.FromHours(2.25);
+            ValidityDuration = TimeSpan.Parse(Environment.GetEnvironmentVariable("InitRefreshTokenValidityDuration")!);
             Claims.Add(new Claim("initTokenExpiredAt", initialTokenExpiration));
-        } else if (refreshTokenPhrase == "no") {
-            ValidityDuration = TimeSpan.FromHours(2);
+        } else if (refreshTokenPhrase == "nextrefresh") {
+	        ValidityDuration = TimeSpan.Parse(Environment.GetEnvironmentVariable("LastRefreshTokenValidityDuration")!);
+            Claims.Add(new Claim("initTokenExpiredAt", initialTokenExpiration));
+	}
+	else if (refreshTokenPhrase == "no") {
+            ValidityDuration = TimeSpan.Parse(Environment.GetEnvironmentVariable("InitTokenValidityDuration")!);
         }
 
         JwtPayload Payload = new(
@@ -134,7 +141,7 @@ public class TokenService : ITokenService
             return await Task.FromResult(Principal);
         } catch (Exception e) {
             Logger.LogInformation(e.Message);
-            throw;
+            throw new AuthenticationException(e.Message);
         }
     }
 

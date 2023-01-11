@@ -22,8 +22,6 @@ public class UpdateUserDTO
     [OpenApiProperty(Default = "Student", Description = "The new role of a user", Nullable = true)]
     public UserRole? Role { get; set; }
 
-    //if we want to get rid of the delete user function (which now only updateds the IsActive bool, we can just put that here and actually use the DeleteUser endpoint to REALLY delete the user)
-    /*
-    [OpenApiProperty(Default = "", Description = "", Nullable = true)]
-    public IsActive? { get; set;} */
+    [OpenApiProperty(Default = true, Description = "The active status of a user (false when deleted)", Nullable = true)]
+    public bool? IsActive { get; set; }
 }
