@@ -59,7 +59,7 @@ public class ProgressService : IProgressService
         SetProgress[] sets = await _setRepository
             .Select(s => new { s.Id })
             .GetAllAsync()
-            .SelectAwait(async s => await GetSetProgress(s.Id))
+            .SelectAwait(async s => await GetSetProgress(s.Id, userId))
             .ToArrayAsync();
         int totalTargets = await _targetService.GetTargetCountAsync();
 
@@ -74,10 +74,11 @@ public class ProgressService : IProgressService
             .ToArrayAsync();
     }
 
-    public async Task<SetProgress> GetSetProgress(string setId)
+    public async Task<SetProgress> GetSetProgress(string setId, string userId)
     {
         Set set = await _setService.GetSetByIdAsync(setId);
         TargetProgress[] targets = await Query()
+            .Where(t => t.User.Id == userId)
             .Where(t => set.Targets.Contains(t.Target))
             .GetAllAsync()
             .ToArrayAsync();

@@ -21,6 +21,9 @@ public class SetService : ISetService
     public async Task<ICollection<Set>> GetAllSetsAsync(int limit, int page)
     {
         return await _setRepository
+            .Include(s => s.Targets)
+            .ThenInclude(t => t.Mcqs)
+            .ThenInclude(m => m.AnswerOptions)
             .OrderBy(s => s.Name)
             .Skip(limit * page)
             .Limit(limit)
@@ -31,6 +34,9 @@ public class SetService : ISetService
     public async Task<ICollection<Set>> GetAllSetsFilteredAsync(int limit, int page, string filter)
     {
         return await _setRepository
+            .Include(s => s.Targets)
+            .ThenInclude(t => t.Mcqs)
+            .ThenInclude(m => m.AnswerOptions)
             .Where(s => s.Name.Contains(filter))
             .OrderBy(s => s.Name)
             .Skip(limit * page)
@@ -43,6 +49,8 @@ public class SetService : ISetService
     {
         return await _setRepository
             .Include(x => x.Targets)
+            .ThenInclude(t => t.Mcqs)
+            .ThenInclude(m => m.AnswerOptions)
             .Include(x => x.Group)
             .GetByAsync(x => x.Id == setId) ?? throw new NotFoundException("set");
     }
