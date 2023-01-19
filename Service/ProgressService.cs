@@ -90,7 +90,7 @@ public class ProgressService : IProgressService
     {
         return await Query()
             .GetByAsync(t => t.User.Id == userId && t.Target.Id == targetId)
-            ?? throw new NotFoundException("target progress");
+            ?? (await BeginTarget(targetId, userId, false)).Item1;
     }
 
     public async Task<McqProgress> GetMcqProgress(string mcqId, string userId)
