@@ -29,7 +29,7 @@ public class ForumServiceTests
             new Forum("2", "Test Forum 2", "test test", null!, null!),
         };
 
-        _mockRepository.Setup(r => r.GetAllAsync()).Returns(mockForums.ToAsyncEnumerable());
+        _mockRepository.Setup(r => r.Include(f => f.Replies).GetAllAsync()).Returns(mockForums.ToAsyncEnumerable());
 
         ICollection<Forum> forums = await _service.GetAll();
 
@@ -54,10 +54,11 @@ public class ForumServiceTests
     [Fact]
     public async Task Get_By_Id_Should_Return_The_Forum_With_Given_Id()
     {
-        _mockRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => new Forum("1", "Test Forum", "test test test", null!, null!));
-        Forum forum = await _service.GetById("1");
+        string forumId = "1";
+        _mockRepository.Setup(r => r.Include(f => f.Replies).GetByAsync(f => f.Id == forumId)).ReturnsAsync(() => new Forum("1", "Test Forum", "test test test", null!, null!));
+        Forum forum = await _service.GetById(forumId);
 
-        Assert.Equal("1", forum.Id);
+        Assert.Equal(forumId, forum.Id);
     }
 
     [Fact]
@@ -88,13 +89,14 @@ public class ForumServiceTests
     [Fact]
     public async Task Update_Forum_Should_Have_Property_Changed()
     {
-        Forum forum = new("1", "Test Title", "test test test", null!, null!);
+        string forumId = "1";
+        Forum forum = new(forumId, "Test Title", "test test test", null!, null!);
 
-        _mockRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => forum);
+        _mockRepository.Setup(r => r.Include(f => f.Replies).GetByAsync(f => f.Id == forumId)).ReturnsAsync(() => forum);
         _mockRepository.Setup(r => r.SaveChanges()).Verifiable();
 
         UpdateForumDTO changes = new() { Title = "New Test Title" };
-        await _service.UpdateForum("1", changes);
+        await _service.UpdateForum(forumId, changes);
 
         Assert.Equal("New Test Title", forum.Title);
         _mockRepository.Verify(r => r.SaveChanges(), Times.Once);
@@ -103,7 +105,8 @@ public class ForumServiceTests
     [Fact]
     public async Task Update_Forum_Should_Throw_Not_Found_Exception()
     {
-        _mockRepository.Setup(r => r.GetByIdAsync(It.IsNotIn("1"))).ThrowsAsync(new NotFoundException("forum post"));
+        string forumId = It.IsNotIn("1");
+        _mockRepository.Setup(r => r.Include(f => f.Replies).GetByAsync(f => f.Id == forumId)).ThrowsAsync(new NotFoundException("forum post"));
 
         UpdateForumDTO changes = new() { Title = "New Test Title" };
 
@@ -113,10 +116,11 @@ public class ForumServiceTests
     [Fact]
     public async Task Add_Reply_Should_Return_Reply_With_Id()
     {
-        Forum forum = new("1", "Test Forum", "test test test", null!, new List<ForumReply>());
+        string forumId = "1";
+        Forum forum = new(forumId, "Test Forum", "test test test", null!, new List<ForumReply>());
 
         _mockReplyRepository.Setup(r => r.InsertAsync(It.IsAny<ForumReply>())).Verifiable();
-        _mockRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => forum);
+        _mockRepository.Setup(r => r.Include(f => f.Replies).GetByAsync(f => f.Id == forumId)).ReturnsAsync(() => forum);
         _mockRepository.Setup(r => r.SaveChanges()).Verifiable();
 
         ForumReply newReply = new("1", null!, "test reply", 0);
@@ -167,12 +171,13 @@ public class ForumServiceTests
     [Fact]
     public async Task Delete_Forum_Reply_Should_Delete_It()
     {
+        string forumId = "1";
         ForumReply reply = new("1", null!, "test test", 0);
-        Forum forum = new("1", "Test Title", "Test Description", null!, new List<ForumReply>() { reply });
+        Forum forum = new(forumId, "Test Title", "Test Description", null!, new List<ForumReply>() { reply });
 
         _mockReplyRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => reply);
         _mockReplyRepository.Setup(r => r.Remove(reply)).Verifiable();
-        _mockRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => forum);
+        _mockRepository.Setup(r => r.Include(f => f.Replies).GetByAsync(f => f.Id == forumId)).ReturnsAsync(() => forum);
         _mockRepository.Setup(r => r.SaveChanges()).Verifiable();
 
         await _service.DeleteForumReply("1", "1");
