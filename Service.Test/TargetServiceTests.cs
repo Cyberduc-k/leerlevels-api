@@ -39,7 +39,9 @@ public class TargetServiceTests
         int page = 0;
 
         _mockRepository
-            .Setup(r => r.OrderBy(x => x.Label).Skip(limit * page).Limit(limit).GetAllAsync())
+            .Setup(r => r
+            .Include(t => t.Mcqs)
+            .ThenInclude(m => m.AnswerOptions).OrderBy(x => x.Label).Skip(limit * page).Limit(limit).GetAllAsync())
             .Returns(mockTargets.ToAsyncEnumerable());
 
         ICollection<Target> mcqs = await _service.GetAllTargetsAsync(limit, page);

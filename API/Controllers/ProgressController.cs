@@ -166,8 +166,8 @@ public class ProgressController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "GET", Route = "sets/{setId}/progress")] HttpRequestData req,
         string setId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/sets/{setId}/progress");
-        SetProgress setProgress = await _progressService.GetSetProgress(setId);
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/sets/{setId}/progress");
+        SetProgress setProgress = await _progressService.GetSetProgress(setId, userId);
         SetProgressResponse setProgresResponse = setProgress.CreateResponse();
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 

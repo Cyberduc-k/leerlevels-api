@@ -30,6 +30,9 @@ public class SetServiceTests
         int page = 0;
 
         _setRepository.Setup(r => r
+            .Include(s => s.Targets)
+            .ThenInclude(t => t.Mcqs)
+            .ThenInclude(m => m.AnswerOptions)
             .OrderBy(s => s.Name)
             .Skip(limit * page)
             .Limit(limit)
@@ -50,7 +53,9 @@ public class SetServiceTests
             Users = new List<User>(),
         };
 
-        _setRepository.Setup(r => r.Include(x => x.Targets).Include(x => x.Group).GetByAsync(x => x.Id == setId)).ReturnsAsync(setEntity);
+        _setRepository.Setup(r => r.Include(x => x.Targets)
+            .ThenInclude(t => t.Mcqs)
+            .ThenInclude(m => m.AnswerOptions).Include(x => x.Group).GetByAsync(x => x.Id == setId)).ReturnsAsync(setEntity);
 
         Set set = await _service.GetSetByIdAsync(setEntity.Id);
 

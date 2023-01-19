@@ -26,7 +26,11 @@ public class GroupServiceTests
             new Group("2", "second bestgroup", "this is the rest of the groups", EducationType.Havo, SchoolYear.One, null!, null!),
         };
 
-        _groupRepository.Setup(r => r.GetAllAsync()).Returns(mockGroups.ToAsyncEnumerable());
+        _groupRepository.Setup(r => r.Include(g => g.Users)
+            .Include(g => g.Sets)
+            .ThenInclude(s => s.Targets)
+            .ThenInclude(t => t.Mcqs)
+            .ThenInclude(m => m.AnswerOptions).GetAllAsync()).Returns(mockGroups.ToAsyncEnumerable());
 
         ICollection<Group> groups = await _service.GetAllGroupsAsync();
 
@@ -37,7 +41,9 @@ public class GroupServiceTests
     public async Task Get_Group_By_Id_Should_return_A_Group_Object()
     {
         string groupId = "1";
-        _groupRepository.Setup(r => r.Include(g => g.Sets).Include(g => g.Users).GetByAsync(g => g.Id == groupId)).ReturnsAsync(() => new Group("1",
+        _groupRepository.Setup(r => r.Include(g => g.Sets).ThenInclude(s => s.Targets)
+            .ThenInclude(t => t.Mcqs)
+            .ThenInclude(m => m.AnswerOptions).Include(g => g.Users).GetByAsync(g => g.Id == groupId)).ReturnsAsync(() => new Group("1",
            "second bestgroup",
            "this is the rest of the groups",
            EducationType.Havo,
