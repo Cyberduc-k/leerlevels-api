@@ -13,10 +13,11 @@ public class GroupService : IGroupService
     private readonly IGroupRepository _groupRepsitory;
     private readonly IUserRepository _userRepository;
 
-    public GroupService(ILoggerFactory loggerFactory, IGroupRepository groupRepository)
+    public GroupService(ILoggerFactory loggerFactory, IGroupRepository groupRepository, IUserRepository userRepository)
     {
         _logger = loggerFactory.CreateLogger<GroupService>();
         _groupRepsitory = groupRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<Group> AddGrouptoUser(string id, string userId)
