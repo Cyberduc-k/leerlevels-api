@@ -103,7 +103,7 @@ public class TargetController : ControllerWithAuthentication
         [HttpTrigger(AuthorizationLevel.Anonymous, "POST", Route = "targets")] HttpRequestData req
         )
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/forums");
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/targets");
         string body = await new StreamReader(req.Body).ReadToEndAsync();
         TargetDTO targetDTO = JsonConvert.DeserializeObject<TargetDTO>(body)!;
         Target target = _mapper.Map<Target>(targetDTO);

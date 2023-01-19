@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.DTO;
+using Repository;
 using Repository.Interfaces;
 using Service.Exceptions;
 using Service.Interfaces;
@@ -53,5 +55,30 @@ public class SetService : ISetService
             .ThenInclude(m => m.AnswerOptions)
             .Include(x => x.Group)
             .GetByAsync(x => x.Id == setId) ?? throw new NotFoundException("set");
+    }
+
+    public async Task<Set> CreateSet(Set newSet)
+    {
+        newSet.Id = Guid.NewGuid().ToString();
+        newSet.Targets = new List<Target>();
+
+        await _setRepository.InsertAsync(newSet);
+        await _setRepository.SaveChanges();
+        return newSet;
+    }
+
+    public async Task UpdateSet(string setId, UpdateSetDTO changes)
+    {
+        Set set = await GetSetByIdAsync(setId);
+        set.Name = changes.Name ?? set.Name;
+        await _setRepository.SaveChanges();
+    }
+
+    public async Task DeleteSet(string SetId)
+    {
+        Set Set = await GetSetByIdAsync(SetId);
+
+        _setRepository.Remove(Set);
+        await _setRepository.SaveChanges();
     }
 }

@@ -11,7 +11,10 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Model;
+using Model.DTO;
 using Model.Response;
+using Newtonsoft.Json;
+using Service;
 using Service.Interfaces;
 
 namespace API.Controllers;
@@ -80,5 +83,72 @@ public class McqController : ControllerWithAuthentication
         await res.WriteAsJsonAsync(mappedMcq);
 
         return res;
+    }
+
+    [Function(nameof(CreateMcq))]
+    [OpenApiOperation(operationId: nameof(CreateMcq), tags: new[] { "Mcqs" }, Summary = "Create a new mcq", Description = "Creates a new mcq")]
+    [OpenApiAuthentication]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(McqDTO), Required = true, Description = "The new mcq")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(McqResponse), Description = "The mcq is created", Example = typeof(McqResponseExample))]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> CreateMcq(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "POST", Route = "mcqs")] HttpRequestData req
+        )
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/mcqs");
+        string body = await new StreamReader(req.Body).ReadToEndAsync();
+        McqDTO mcqDTO = JsonConvert.DeserializeObject<McqDTO>(body)!;
+        Mcq mcq = _mapper.Map<Mcq>(mcqDTO);
+        Mcq newMcq = await _mcqService.CreateMcq(mcq);
+        McqResponse mcqResponse = _mapper.Map<McqResponse>(newMcq);
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+        await res.WriteAsJsonAsync(mcqResponse);
+
+        return res;
+    }
+
+    [Function(nameof(UpdateMcq))]
+    [OpenApiOperation(operationId: nameof(UpdateMcq), tags: new[] { "Mcqs" }, Summary = "Edit a mcq", Description = "Edits a mcq")]
+    [OpenApiAuthentication]
+    [OpenApiParameter("mcqId", In = ParameterLocation.Path, Type = typeof(string), Required = true, Description = "The mcq Id")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateMcqDTO), Required = true, Description = "The edited mcq")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The mcq is edited")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the mcq with the specified Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> UpdateMcq(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "PUT", Route = "mcqs/{mcqId}")] HttpRequestData req,
+        string mcqId)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/mcqs/{mcqId}");
+        string body = await new StreamReader(req.Body).ReadToEndAsync();
+        UpdateMcqDTO mcqDTO = JsonConvert.DeserializeObject<UpdateMcqDTO>(body)!;
+
+        await _mcqService.UpdateMcq(mcqId, mcqDTO);
+
+        return req.CreateResponse(HttpStatusCode.OK);
+    }
+
+    [Function(nameof(DeleteMcq))]
+    [OpenApiOperation(operationId: nameof(DeleteMcq), tags: new[] { "Mcqs" }, Summary = "Delete a mcq", Description = "Deletes a mcq")]
+    [OpenApiAuthentication]
+    [OpenApiParameter("mcqId", In = ParameterLocation.Path, Type = typeof(string), Required = true, Description = "The mcq Id")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The mcq is removed")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the mcq with the specified Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> DeleteMcq(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "DELETE", Route = "mcqs/{mcqId}")] HttpRequestData req,
+        string mcqId)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/mcqs/{mcqId}");
+        await _mcqService.DeleteMcq(mcqId);
+
+        return req.CreateResponse(HttpStatusCode.OK);
     }
 }

@@ -11,7 +11,10 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Model;
+using Model.DTO;
 using Model.Response;
+using Newtonsoft.Json;
+using Service;
 using Service.Interfaces;
 
 namespace API.Controllers;
@@ -84,5 +87,72 @@ public class SetController : ControllerWithAuthentication
         await res.WriteAsJsonAsync(setResponse);
 
         return res;
+    }
+
+    [Function(nameof(CreateSet))]
+    [OpenApiOperation(operationId: nameof(CreateSet), tags: new[] { "Sets" }, Summary = "Create a new set", Description = "Creates a new set")]
+    [OpenApiAuthentication]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(SetDTO), Required = true, Description = "The new set")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SetResponse), Description = "The set is created", Example = typeof(SetResponseExample))]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> CreateSet(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "POST", Route = "sets")] HttpRequestData req
+        )
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/sets");
+        string body = await new StreamReader(req.Body).ReadToEndAsync();
+        SetDTO setDTO = JsonConvert.DeserializeObject<SetDTO>(body)!;
+        Set set = _mapper.Map<Set>(setDTO);
+        Set newSet = await _setService.CreateSet(set);
+        SetResponse setResponse = _mapper.Map<SetResponse>(newSet);
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+        await res.WriteAsJsonAsync(setResponse);
+
+        return res;
+    }
+
+    [Function(nameof(UpdateSet))]
+    [OpenApiOperation(operationId: nameof(UpdateSet), tags: new[] { "Sets" }, Summary = "Edit a set", Description = "Edits a set")]
+    [OpenApiAuthentication]
+    [OpenApiParameter("setId", In = ParameterLocation.Path, Type = typeof(string), Required = true, Description = "The set Id")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateSetDTO), Required = true, Description = "The edited set")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The set is edited")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the set with the specified Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> UpdateSet(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "PUT", Route = "sets/{setId}")] HttpRequestData req,
+        string setId)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/sets/{setId}");
+        string body = await new StreamReader(req.Body).ReadToEndAsync();
+        UpdateSetDTO setDTO = JsonConvert.DeserializeObject<UpdateSetDTO>(body)!;
+
+        await _setService.UpdateSet(setId, setDTO);
+
+        return req.CreateResponse(HttpStatusCode.OK);
+    }
+
+    [Function(nameof(DeleteSet))]
+    [OpenApiOperation(operationId: nameof(DeleteSet), tags: new[] { "Sets" }, Summary = "Delete a set", Description = "Deletes a set")]
+    [OpenApiAuthentication]
+    [OpenApiParameter("setId", In = ParameterLocation.Path, Type = typeof(string), Required = true, Description = "The set Id")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The set is removed")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the set with the specified Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> DeleteSet(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "DELETE", Route = "sets/{setId}")] HttpRequestData req,
+        string setId)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/sets/{setId}");
+        await _setService.DeleteSet(setId);
+
+        return req.CreateResponse(HttpStatusCode.OK);
     }
 }

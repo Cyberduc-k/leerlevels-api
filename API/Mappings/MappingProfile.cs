@@ -16,10 +16,14 @@ public class MappingProfile : Profile
         CreateMap<TargetDTO, Target>();
         CreateMap<Target, TargetResponse>();
         CreateMap<Target, Task<TargetResponse>>().ConvertUsing<BookmarkedTargetConverter>();
+        CreateMap<McqDTO, Mcq>();
         CreateMap<Mcq, McqResponse>();
         CreateMap<Mcq, Task<McqResponse>>().ConvertUsing<BookmarkedMcqConverter>();
+        CreateMap<AnswerOptionDTO, AnswerOption>();
+        CreateMap<SetDTO, Set>();
         CreateMap<Set, SetResponse>();
         CreateMap<User, UserResponse>();
+        CreateMap<GroupDTO, Group>();
         CreateMap<Group, GroupResponse>();
         CreateMap<UserDTO, User>().ConvertUsing<UserConverter>();
         CreateMap<Group, AddGroupToUserResponse>();
