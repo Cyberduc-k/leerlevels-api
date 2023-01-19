@@ -13,6 +13,7 @@ public class MappingProfile : Profile
         CreateMap<ForumDTO, Task<Forum>>().ConvertUsing<ForumConverter>();
         CreateMap<ForumReply, ForumReplyResponse>();
         CreateMap<ForumReplyDTO, Task<ForumReply>>().ConvertUsing<ForumReplyConverter>();
+        CreateMap<TargetDTO, Target>();
         CreateMap<Target, TargetResponse>();
         CreateMap<Target, Task<TargetResponse>>().ConvertUsing<BookmarkedTargetConverter>();
         CreateMap<Mcq, McqResponse>();
@@ -22,6 +23,5 @@ public class MappingProfile : Profile
         CreateMap<Group, GroupResponse>();
         CreateMap<UserDTO, User>().ConvertUsing<UserConverter>();
         CreateMap<Group, AddGroupToUserResponse>();
-
     }
 }

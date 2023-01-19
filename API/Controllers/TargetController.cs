@@ -11,7 +11,10 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Model;
+using Model.DTO;
 using Model.Response;
+using Newtonsoft.Json;
+using Service;
 using Service.Interfaces;
 
 namespace API.Controllers;
@@ -86,5 +89,72 @@ public class TargetController : ControllerWithAuthentication
 
         await res.WriteAsJsonAsync(targetResponse);
         return res;
+    }
+
+    [Function(nameof(CreateTarget))]
+    [OpenApiOperation(operationId: nameof(CreateTarget), tags: new[] { "Targets" }, Summary = "Create a new target", Description = "Creates a new target")]
+    [OpenApiAuthentication]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(TargetDTO), Required = true, Description = "The new target")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(TargetResponse), Description = "The target is created", Example = typeof(TargetResponseExample))]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> CreateTarget(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "POST", Route = "targets")] HttpRequestData req
+        )
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/forums");
+        string body = await new StreamReader(req.Body).ReadToEndAsync();
+        TargetDTO targetDTO = JsonConvert.DeserializeObject<TargetDTO>(body)!;
+        Target target = _mapper.Map<Target>(targetDTO);
+        Target newTarget = await _targetService.CreateTarget(target);
+        TargetResponse targetResponse = _mapper.Map<TargetResponse>(newTarget);
+        HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
+
+        await res.WriteAsJsonAsync(targetResponse);
+
+        return res;
+    }
+
+    [Function(nameof(UpdateTarget))]
+    [OpenApiOperation(operationId: nameof(UpdateTarget), tags: new[] { "Targets" }, Summary = "Edit a target", Description = "Edits a target")]
+    [OpenApiAuthentication]
+    [OpenApiParameter("targetId", In = ParameterLocation.Path, Type = typeof(string), Required = true, Description = "The target Id")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateTargetDTO), Required = true, Description = "The edited target")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The target is edited")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the target with the specified Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> UpdateTarget(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "PUT", Route = "targets/{targetId}")] HttpRequestData req,
+        string targetId)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/targets/{targetId}");
+        string body = await new StreamReader(req.Body).ReadToEndAsync();
+        UpdateTargetDTO targetDTO = JsonConvert.DeserializeObject<UpdateTargetDTO>(body)!;
+
+        await _targetService.UpdateTarget(targetId, targetDTO);
+
+        return req.CreateResponse(HttpStatusCode.OK);
+    }
+
+    [Function(nameof(DeleteTarget))]
+    [OpenApiOperation(operationId: nameof(DeleteTarget), tags: new[] { "Targets" }, Summary = "Delete a target", Description = "Deletes a target")]
+    [OpenApiAuthentication]
+    [OpenApiParameter("targetId", In = ParameterLocation.Path, Type = typeof(string), Required = true, Description = "The target Id")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The target is removed")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the target with the specified Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> DeleteTarget(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "DELETE", Route = "targets/{targetId}")] HttpRequestData req,
+        string targetId)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "/targets/{targetId}");
+        await _targetService.DeleteTarget(targetId);
+
+        return req.CreateResponse(HttpStatusCode.OK);
     }
 }

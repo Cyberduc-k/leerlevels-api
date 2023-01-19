@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.DTO;
+using Repository;
 using Repository.Interfaces;
 using Service.Exceptions;
 using Service.Interfaces;
@@ -54,5 +56,34 @@ public class TargetService : ITargetService
     public async Task<int> GetTargetCountAsync()
     {
         return await _targetRepository.CountAsync();
+    }
+
+    public async Task<Target> CreateTarget(Target newTarget)
+    {
+        newTarget.Id = Guid.NewGuid().ToString();
+        newTarget.Mcqs = new List<Mcq>();
+
+        await _targetRepository.InsertAsync(newTarget);
+        await _targetRepository.SaveChanges();
+        return newTarget;
+    }
+
+    public async Task UpdateTarget(string targetId, UpdateTargetDTO changes)
+    {
+        Target target = await GetTargetByIdAsync(targetId);
+        target.Label = changes.Label ?? target.Label;
+        target.Description = changes.Description ?? target.Description;
+        target.TargetExplanation = changes.TargetExplanation ?? target.TargetExplanation;
+        target.YoutubeId = changes.YoutubeId ?? target.YoutubeId;
+        target.ImageUrl = changes.ImageUrl ?? target.ImageUrl;
+        await _targetRepository.SaveChanges();
+    }
+
+    public async Task DeleteTarget(string targetId)
+    {
+        Target target = await GetTargetByIdAsync(targetId);
+
+        _targetRepository.Remove(target);
+        await _targetRepository.SaveChanges();
     }
 }
