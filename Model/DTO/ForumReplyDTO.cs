@@ -6,7 +6,7 @@ namespace Model.DTO;
 public class ForumReplyDTO
 {
     [OpenApiProperty(Description = "The id of a user posting a forum reply", Nullable = true)]
-    public string FromId { get; set; }
+    public string? FromId { get; set; }
 
     [JsonRequired]
     [OpenApiProperty(Description = "The text of a forum reply", Nullable = false)]

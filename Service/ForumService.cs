@@ -23,7 +23,7 @@ public class ForumService : IForumService
 
     public async Task<ICollection<Forum>> GetAll()
     {
-        return await _forumRepository.GetAllAsync().ToArrayAsync();
+        return await _forumRepository.Include(f => f.Replies).GetAllAsync().ToArrayAsync();
     }
 
     public async Task<Forum> CreateForum(Forum newForum)
@@ -38,7 +38,7 @@ public class ForumService : IForumService
 
     public async Task<Forum> GetById(string forumId)
     {
-        return await _forumRepository.GetByIdAsync(forumId) ?? throw new NotFoundException("forum post");
+        return await _forumRepository.Include(f => f.Replies).GetByAsync(f => f.Id == forumId) ?? throw new NotFoundException("forum post");
     }
 
     public async Task<ForumReply> GetReplyById(string replyId)
@@ -51,6 +51,13 @@ public class ForumService : IForumService
         Forum forum = await GetById(forumId);
         forum.Title = changes.Title ?? forum.Title;
         forum.Description = changes.Description ?? forum.Description;
+        await _forumRepository.SaveChanges();
+    }
+
+    public async Task DeleteForum(string forumId)
+    {
+        Forum forum = await GetById(forumId);
+        _forumRepository.Remove(forum);
         await _forumRepository.SaveChanges();
     }
 

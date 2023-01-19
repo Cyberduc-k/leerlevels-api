@@ -104,7 +104,7 @@ public class ForumController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the forum post with the specified Id.")]
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> UpdateForum(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "forums/{forumId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "PUT", Route = "forums/{forumId}")] HttpRequestData req,
         string forumId)
     {
         await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}");
@@ -112,6 +112,25 @@ public class ForumController : ControllerWithAuthentication
         UpdateForumDTO forumDTO = JsonConvert.DeserializeObject<UpdateForumDTO>(body)!;
 
         await _forumService.UpdateForum(forumId, forumDTO);
+
+        return req.CreateResponse(HttpStatusCode.OK);
+    }
+
+    [Function(nameof(DeleteForum))]
+    [OpenApiOperation(operationId: nameof(DeleteForum), tags: new[] { "Forums" }, Summary = "Delete a forum post", Description = "Deletes a forum post")]
+    [OpenApiAuthentication]
+    [OpenApiParameter("forumId", In = ParameterLocation.Path, Type = typeof(Guid), Required = true, Description = "The forum post Id")]
+    [OpenApiErrorResponse(HttpStatusCode.Unauthorized, Description = "Unauthorized to access this operation.")]
+    [OpenApiErrorResponse(HttpStatusCode.Forbidden, Description = "Forbidden from performing this operation.")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "The forum post is removed")]
+    [OpenApiErrorResponse(HttpStatusCode.NotFound, Description = "Could not find the forum post with the specified Id.")]
+    [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
+    public async Task<HttpResponseData> DeleteForum(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "DELETE", Route = "forums/{forumId}")] HttpRequestData req,
+        string forumId)
+    {
+        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/forums/{forumId}");
+        await _forumService.DeleteForum(forumId);
 
         return req.CreateResponse(HttpStatusCode.OK);
     }

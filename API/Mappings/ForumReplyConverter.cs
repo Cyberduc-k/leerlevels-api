@@ -18,7 +18,7 @@ public class ForumReplyConverter : ITypeConverter<ForumReplyDTO, Task<ForumReply
     {
         return new() {
             Text = source.Text,
-            From = await _userService.GetUserById(source.FromId)
+            From = await _userService.GetUserById(source.FromId!)
         };
     }
 }
