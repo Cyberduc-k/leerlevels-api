@@ -22,7 +22,8 @@ public class GroupService : IGroupService
     public async Task<Group> AddGrouptoUser(string id, string userId)
     {
         Group group = await _groupRepsitory.GetByIdAsync(id) ?? throw new NotFoundException("group");
-        User user = await _userRepository.GetByIdAsync(userId) ?? throw new NotFoundException("user");
+        User user = await _userRepository.Include(u => u.Groups).GetByAsync(u => u.Id == userId) ?? throw new NotFoundException("user");
+
         user.Groups.Add(group);
         await _userRepository.SaveChanges();
         return group;
