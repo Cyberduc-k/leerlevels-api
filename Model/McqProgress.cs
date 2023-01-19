@@ -24,7 +24,7 @@ public class McqProgress
 
     public bool AddAnswer(AnswerOption answer, AnswerKind kind)
     {
-        if (Answers.FirstOrDefault(a => a.AnswerId == answer.Id && a.AnswerKind == kind) is not null) return false;
+        if (Answers.FirstOrDefault(a => a.Answer.Id == answer.Id && a.AnswerKind == kind) is not null) return false;
         if (Answers.FirstOrDefault(a => a.Answer.IsCorrect) is not null) return false;
         Answers.Add(new(answer, kind));
         return true;

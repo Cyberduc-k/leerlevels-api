@@ -85,7 +85,7 @@ public class GroupController : ControllerWithAuthentication
     [OpenApiErrorResponse(HttpStatusCode.InternalServerError, Description = "An internal server error occured.")]
     public async Task<HttpResponseData> CreateGroup([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "groups/users/{groupId}")] HttpRequestData req, string groupId)
     {
-        var loggeduser = await ValidateAuthenticationAndAuthorization(req, UserRole.Administrator, "groups/users/{groupId}");
+        var loggeduser = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "groups/users/{groupId}");
 
         _logger.LogInformation("C# HTTP trigger function processed the Create Group request.");
 
