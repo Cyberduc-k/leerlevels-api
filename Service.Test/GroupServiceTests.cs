@@ -10,12 +10,14 @@ namespace Service.Test;
 public class GroupServiceTests
 {
     private readonly Mock<IGroupRepository> _groupRepository;
+    private readonly Mock<IUserRepository> _userRepository;
     private readonly GroupService _service;
 
     public GroupServiceTests()
     {
         _groupRepository = new();
-        _service = new GroupService(new LoggerFactory(), _groupRepository.Object);
+        _userRepository = new();
+        _service = new GroupService(new LoggerFactory(), _groupRepository.Object, _userRepository.Object);
     }
 
     [Fact]
