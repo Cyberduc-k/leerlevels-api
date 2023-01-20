@@ -154,11 +154,7 @@ public class ProgressService : IProgressService
     {
         Mcq mcq = await _mcqService.GetMcqByIdAsync(mcqId);
         AnswerOption answer = await _answerOptionRepository.GetByIdAsync(answerId) ?? throw new NotFoundException("answer option");
-        TargetProgress targetProgress = await _targetProgressRepository
-            .Include(t => t.Target)
-            .Include(t => t.Mcqs)
-            .ThenInclude(m => m.Answers)
-            .ThenInclude(a => a.Answer)
+        TargetProgress targetProgress = await Query()
             .GetByAsync(t => t.User.Id == userId && t.Target.Id == mcq.Target.Id)
             ?? throw new NotFoundException("target progress");
         McqProgress mcqProgress = targetProgress.Mcqs.FirstOrDefault(m => m.Mcq.Id == mcq.Id) ?? throw new NotFoundException("mcq progress");
