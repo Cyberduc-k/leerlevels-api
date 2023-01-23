@@ -27,7 +27,7 @@ public class TargetProgress
     public int CalculateScore()
     {
         double total = Mcqs.Sum(McqScore);
-        return (int)Math.Round(total / Mcqs.Count);
+        return Mcqs.Count == 0 ? 0 : (int)Math.Round(total / Mcqs.Count);
     }
 
     private double McqScore(McqProgress mcq)
