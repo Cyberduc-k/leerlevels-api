@@ -22,8 +22,8 @@ public class BookmarkServiceTests
         _user = new() { Id = "1" };
         _service = new BookmarkService(_bookmarkRepository.Object, _targetRepository.Object, _mcqRepository.Object);
 
-        _targetRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => new Target());
-        _mcqRepository.Setup(r => r.GetByIdAsync("1")).ReturnsAsync(() => new Mcq());
+        _targetRepository.Setup(r => r.Include(t => t.Mcqs).ThenInclude(m => m.AnswerOptions).GetByAsync(It.IsAny<Expression<Func<Target, bool>>>())).ReturnsAsync(() => new Target());
+        _mcqRepository.Setup(r => r.Include(m => m.AnswerOptions).GetByAsync(It.IsAny<Expression<Func<Mcq, bool>>>())).ReturnsAsync(() => new Mcq());
     }
 
     [Fact]

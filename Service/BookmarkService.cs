@@ -24,14 +24,14 @@ public class BookmarkService : IBookmarkService
         IAsyncEnumerable<Bookmark> bookmarks = _bookmarkRepository.Where(b => b.UserId == user.Id).GetAllAsync();
         Target[] targets = await bookmarks
             .Where(b => b.Type == Bookmark.BookmarkType.Target)
-            .SelectAwait(async b => await _targetRepository.GetByIdAsync(b.ItemId))
+            .SelectAwait(async b => await _targetRepository.Include(t => t.Mcqs).ThenInclude(m => m.AnswerOptions).GetByAsync(t => t.Id == b.ItemId))
             .Where(t => t is not null)
             .Select(t => t!)
             .ToArrayAsync();
 
         Mcq[] mcqs = await bookmarks
             .Where(b => b.Type == Bookmark.BookmarkType.Mcq)
-            .SelectAwait(async b => await _mcqRepository.GetByIdAsync(b.ItemId)!)
+            .SelectAwait(async b => await _mcqRepository.Include(m => m.AnswerOptions).GetByAsync(m => m.Id == b.ItemId)!)
             .Where(m => m is not null)
             .Select(m => m!)
             .ToArrayAsync();
