@@ -40,7 +40,7 @@ public abstract class ControllerTestsBase
             c.AddProfile<MappingProfile>();
         }));
 
-        _bookmarkService.Setup(s => s.IsBookmarked(It.IsAny<string>(), It.IsAny<Bookmark.BookmarkType>())).ReturnsAsync(false);
+        _bookmarkService.Setup(s => s.IsBookmarked(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Bookmark.BookmarkType>())).ReturnsAsync(false);
 
         // authenticate all requests.
         _tokenService.Setup(s => s.AuthenticationValidation(It.IsAny<HttpRequestData>())).ReturnsAsync(() => true);
