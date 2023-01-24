@@ -15,10 +15,10 @@ public class MappingProfile : Profile
         CreateMap<ForumReplyDTO, Task<ForumReply>>().ConvertUsing<ForumReplyConverter>();
         CreateMap<TargetDTO, Target>();
         CreateMap<Target, TargetResponse>();
-        CreateMap<Target, Task<TargetResponse>>().ConvertUsing<BookmarkedTargetConverter>();
+        CreateMap<(Target, string), Task<TargetResponse>>().ConvertUsing<BookmarkedTargetConverter>();
         CreateMap<McqDTO, Mcq>();
         CreateMap<Mcq, McqResponse>();
-        CreateMap<Mcq, Task<McqResponse>>().ConvertUsing<BookmarkedMcqConverter>();
+        CreateMap<(Mcq, string), Task<McqResponse>>().ConvertUsing<BookmarkedMcqConverter>();
         CreateMap<AnswerOptionDTO, AnswerOption>();
         CreateMap<SetDTO, Set>();
         CreateMap<Set, SetResponse>();

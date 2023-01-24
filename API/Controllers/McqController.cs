@@ -72,12 +72,9 @@ public class McqController : ControllerWithAuthentication
     public async Task<HttpResponseData> GetMcqById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mcqs/{mcqId}")] HttpRequestData req,
         string mcqId)
     {
-        await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}");
-
-        _logger.LogInformation("C# HTTP trigger function processed the getMcq request.");
-
+        string userId = await ValidateAuthenticationAndAuthorization(req, UserRole.Student, "/mcqs/{mcqId}");
         Mcq mcq = await _mcqService.GetMcqByIdAsync(mcqId);
-        McqResponse mappedMcq = await _mapper.Map<Task<McqResponse>>(mcq);
+        McqResponse mappedMcq = await _mapper.Map<Task<McqResponse>>((mcq, userId));
         HttpResponseData res = req.CreateResponse(HttpStatusCode.OK);
 
         await res.WriteAsJsonAsync(mappedMcq);
