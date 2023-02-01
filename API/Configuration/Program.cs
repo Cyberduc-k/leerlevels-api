@@ -21,7 +21,7 @@ IHost host = new HostBuilder()
 
         services.AddDbContext<DataContext>(opts => {
             opts.UseSqlServer(connectionString);
-            opts.EnableSensitiveDataLogging();
+            //opts.EnableSensitiveDataLogging();
         });
 
         services.AddTransient<IUserRepository, UserRepository>();

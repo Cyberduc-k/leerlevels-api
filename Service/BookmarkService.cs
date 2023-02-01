@@ -18,13 +18,7 @@ public class BookmarkService : IBookmarkService
         _targetRepository = targetRepository;
         _mcqRepository = mcqRepository;
     }
-    
-    /**
-     * <summary>
-     * Get all bookmarks of the given user.
-     * This includes two lists, one for the bookmarked targets and one for the bookmarked questions.
-     * </summary>
-     */
+
     public async Task<(ICollection<Target>, ICollection<Mcq>)> GetBookmarksAsync(User user)
     {
         IAsyncEnumerable<Bookmark> bookmarks = _bookmarkRepository.Where(b => b.UserId == user.Id).GetAllAsync();
@@ -45,11 +39,6 @@ public class BookmarkService : IBookmarkService
         return (targets, mcqs);
     }
 
-    /**
-     * <summary>
-     * Add a new bookmark to the given user.
-     * </summary>
-     */
     public async Task<bool> AddBookmark(User user, Bookmark bookmark)
     {
         bookmark.UserId = user.Id;
@@ -63,11 +52,6 @@ public class BookmarkService : IBookmarkService
         return false;
     }
 
-    /**
-     * <summary>
-     * Remove a bookmark from the given user.
-     * </summary>
-     */
     public async Task DeleteBookmark(User user, string itemId, Bookmark.BookmarkType type)
     {
         Bookmark bookmark = await _bookmarkRepository.GetByIdAsync((user.Id, itemId, type)) ?? throw new NotFoundException("bookmark");
@@ -75,11 +59,6 @@ public class BookmarkService : IBookmarkService
         await _bookmarkRepository.SaveChanges();
     }
 
-    /**
-     * <summary>
-     * Check if the given user has a bookmark.
-     * </summary>
-     */
     public async Task<bool> IsBookmarked(string userId, string itemId, Bookmark.BookmarkType type)
     {
         return await _bookmarkRepository.AnyAsync(x => x.UserId == userId && x.ItemId == itemId && x.Type == type);
